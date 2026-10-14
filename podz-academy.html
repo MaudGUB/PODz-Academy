@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PODz Academy</title>
+</head>
+<body style="margin:0;padding:24px 16px;background:#FFFFFF">
+<style>
+
+
+
+.podz-cat{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box;}
+.podz-cat *,.podz-cat *::before,.podz-cat *::after{box-sizing:border-box}
+.podz-cat h1,.podz-cat h2,.podz-cat h3{color:var(--pod-fonce);margin:0}
+.podz-cat .pod-wrap{max-width:1240px;margin:0 auto;padding:4px 4px 32px}
+.podz-cat .pod-widget-wrap{max-width:1240px;margin:0 auto}
+.podz-cat a{cursor:pointer}
+
+
+
+/* Fil d'Ariane */
+.podz-cat .pod-bc{font-size:13px;color:var(--pod-muted);margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;gap:2px;min-height:18px}
+.podz-cat .pod-bc a{color:var(--pod-muted);text-decoration:none}
+.podz-cat .pod-bc a:hover{color:var(--pod-fonce);text-decoration:underline}
+.podz-cat .pod-bc .pod-bc-sep{color:var(--pod-violet);margin:0 4px;font-weight:700}
+.podz-cat .pod-bc .pod-bc-current{color:var(--pod-fonce);font-weight:600}
+
+
+
+/* Titres génériques */
+.podz-cat .pod-h1{font-size:32px;font-weight:800;color:var(--pod-fonce);letter-spacing:-0.02em;margin:0 0 10px}
+.podz-cat .pod-h2{font-size:28px;font-weight:800;color:var(--pod-fonce);letter-spacing:-0.02em;margin:0 0 6px}
+.podz-cat .pod-sub{font-size:14.5px;color:var(--pod-muted);margin:0;line-height:1.6}
+.podz-cat .pod-loading{padding:14px 4px;font-size:12.5px;color:var(--pod-muted);font-style:italic}
+
+
+
+/* Chips / badges génériques */
+.podz-cat .pod-chip{display:inline-block;padding:3px 10px;background:#F1F3F8;color:var(--pod-muted);font-size:11px;font-weight:600;border-radius:999px}
+.podz-cat .pod-chip.oblig{background:var(--pod-orange);color:#FFFFFF;font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-size:9.5px}
+.podz-cat .pod-chip.certif{background:var(--pod-orange);color:#FFFFFF;font-weight:700}
+.podz-cat .pod-badge-offre{display:inline-block;padding:3px 11px;font-size:10.5px;font-weight:700;color:var(--pod-fonce);border-radius:999px;letter-spacing:.02em}
+
+
+
+/* Accordéon "étape" (parcours) */
+.podz-cat .pod-etape{background:#FFFFFF;border:1px solid rgba(0,32,96,0.08);border-left:4px solid var(--ac,var(--pod-violet));border-radius:0 10px 10px 0;margin-bottom:8px;overflow:hidden;transition:box-shadow .2s}
+.podz-cat .pod-etape:hover{box-shadow:0 4px 14px -6px rgba(0,32,96,0.18)}
+.podz-cat .pod-etape__main{padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;cursor:pointer;transition:background .15s}
+.podz-cat .pod-etape__main:hover{background:#FAFAFD}
+.podz-cat .pod-etape__num{background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-weight:800;font-size:11px;padding:5px 11px;border-radius:999px;white-space:nowrap;min-width:24px;text-align:center}
+.podz-cat .pod-etape__core{min-width:0}
+.podz-cat .pod-etape__titre{font-weight:700;font-size:14.5px;color:var(--pod-fonce);margin-bottom:3px}
+.podz-cat .pod-etape__tags{font-size:11px;color:var(--pod-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.podz-cat .pod-etape__duree{font-size:12px;color:var(--pod-muted);font-weight:600;white-space:nowrap;background:#F7F7F8;padding:3px 9px;border-radius:6px}
+.podz-cat .pod-etape__chev{color:#A0A0A0;font-size:11px;transition:transform .2s}
+.podz-cat .pod-etape.open .pod-etape__chev{transform:rotate(180deg);color:var(--pod-fonce)}
+.podz-cat .pod-etape__detail{display:none;padding:0 15px 15px;border-top:1px dashed rgba(0,32,96,0.1)}
+.podz-cat .pod-etape.open .pod-etape__detail{display:block}
+.podz-cat .pod-etape__detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.podz-cat .pod-etape__detail-item{background:#FAFAFA;padding:8px 10px;border-radius:6px}
+.podz-cat .pod-etape__detail-label{font-size:9px;font-weight:700;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.podz-cat .pod-etape__detail-value{font-size:12px;font-weight:600;color:var(--pod-fonce)}
+.podz-cat .pod-etape__detail-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.podz-cat .pod-etape__detail-tag{padding:2px 9px;background:#F0F4F7;color:var(--pod-fonce);font-size:10.5px;font-weight:500;border-radius:999px}
+.podz-cat .pod-etape__detail-notes{background:#FFF9DD;border-left:3px solid var(--pod-jaune);padding:9px 11px;border-radius:4px;font-size:12px;line-height:1.5;color:var(--pod-muted);margin-bottom:10px;white-space:pre-line}
+.podz-cat .pod-etape__detail-notes-label{font-size:9px;font-weight:800;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.podz-cat .pod-etape__detail-links{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.podz-cat .pod-etape__detail-links a{color:var(--pod-fonce);font-size:11.5px;font-weight:500;text-decoration:none;padding:5px 11px;border:1px solid rgba(0,32,96,0.18);border-radius:7px;background:#FFFFFF;transition:all .15s}
+.podz-cat .pod-etape__detail-links a:hover{background:var(--pod-fonce);color:#FFFFFF;border-color:var(--pod-fonce)}
+
+
+
+/* Bloc certification */
+.podz-cat .pod-certif{margin-top:14px;padding:14px 16px;background:#FFF6EC;border:1px solid rgba(245,146,106,0.3);border-radius:11px;display:flex;align-items:center;gap:12px}
+.podz-cat .pod-certif-icon{width:38px;height:38px;background:var(--pod-orange);color:#FFFFFF;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
+.podz-cat .pod-certif-text strong{display:block;color:var(--pod-orange);font-weight:800;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.podz-cat .pod-certif-text span{font-size:13.5px;color:var(--pod-fonce);font-weight:600}
+
+
+
+/* Socle commun */
+.podz-cat .pod-socle{margin-top:26px;padding:20px;background:#FBFAFF;border:1px solid rgba(200,181,232,0.4);border-radius:14px}
+.podz-cat .pod-socle-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.podz-cat .pod-socle-title{font-weight:700;font-size:13px;color:var(--pod-fonce);text-transform:uppercase;letter-spacing:.06em;margin:0}
+.podz-cat .pod-socle-sub{font-size:11.5px;color:var(--pod-muted)}
+.podz-cat .pod-socle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+
+
+
+/* Aiguillage (newcomer -> offres) */
+.podz-cat .pod-aiguillage{margin-top:22px;padding:20px;background:#F7F9FC;border-radius:14px;border:1px solid rgba(0,32,96,0.06)}
+.podz-cat .pod-aiguillage-title{font-weight:700;font-size:13px;color:var(--pod-fonce);margin:0 0 14px;text-transform:uppercase;letter-spacing:.06em}
+.podz-cat .pod-aiguillage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.podz-cat .pod-aiguillage-btn{padding:12px 14px;background:#FFFFFF;border:1px solid rgba(0,32,96,0.08);border-radius:10px;text-decoration:none;text-align:center;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.podz-cat .pod-aiguillage-btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,32,96,0.12);border-color:rgba(0,32,96,0.25)}
+.podz-cat .pod-aiguillage-bee{width:50px;height:50px}
+.podz-cat .pod-aiguillage-bee svg{width:100%;height:100%}
+.podz-cat .pod-aiguillage-bee img{width:100%;height:100%}
+.podz-cat .pod-aiguillage-btn-title{font-weight:700;font-size:12.5px;color:var(--pod-fonce);line-height:1.2}
+.podz-cat .pod-aiguillage-btn-sub{font-size:10.5px;color:var(--pod-muted)}
+
+
+
+/* Hero de page persona */
+.podz-cat .pod-hero{background:#FFFFFF;border-radius:20px;padding:22px;margin-bottom:18px;display:flex;gap:20px;align-items:center;border:1px solid rgba(0,32,96,0.06);border-left:6px solid var(--ac,var(--pod-violet));box-shadow:0 4px 20px -12px rgba(0,32,96,0.15);flex-wrap:wrap}
+.podz-cat .pod-hero-bee{width:110px;height:110px;flex-shrink:0}
+.podz-cat .pod-hero-bee svg{width:100%;height:100%;filter:drop-shadow(0 4px 8px rgba(0,32,96,0.1))}
+.podz-cat .pod-hero-bee img{width:100%;height:100%;filter:drop-shadow(0 4px 8px rgba(0,32,96,0.1))}
+.podz-cat .pod-hero-text{flex:1;min-width:240px}
+.podz-cat .pod-hero-tag{display:inline-block;padding:3px 10px;background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;margin-bottom:8px}
+.podz-cat .pod-hero-title{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-0.02em;color:var(--pod-fonce);line-height:1.15}
+.podz-cat .pod-hero-desc{font-size:13.5px;color:var(--pod-muted);margin:0;max-width:600px;line-height:1.55}
+.podz-cat .pod-hero-meta{text-align:right;font-size:11px;color:var(--pod-muted);white-space:nowrap;align-self:flex-start}
+.podz-cat .pod-hero-meta strong{font-size:22px;color:var(--pod-fonce);font-weight:800;display:block;line-height:1}
+
+
+
+/* Bloc parcours */
+.podz-cat .pod-parcours{background:#FFFFFF;border-radius:18px;padding:22px;margin-bottom:14px;border:1px solid rgba(0,32,96,0.06)}
+.podz-cat .pod-parcours-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #F0F0F0;flex-wrap:wrap}
+.podz-cat .pod-parcours-head h2{font-size:18px;font-weight:700;margin:0 0 4px;color:var(--pod-fonce)}
+.podz-cat .pod-parcours-head p{margin:0;font-size:12.5px;color:var(--pod-muted)}
+.podz-cat .pod-parcours-meta{text-align:right;font-size:11px;color:var(--pod-muted);white-space:nowrap}
+.podz-cat .pod-parcours-meta strong{font-size:17px;color:var(--pod-fonce);font-weight:700;display:block}
+
+
+
+@media (max-width:640px){
+  .podz-cat .pod-hero{padding:16px}
+  .podz-cat .pod-hero-meta{text-align:left}
+}
+
+
+
+
+
+.podz-cat .pod-cat-head{background:#FFFFFF;border-radius:18px;padding:18px 22px;margin-bottom:14px;display:flex;align-items:center;gap:16px;border:1px solid rgba(0,32,96,0.06);flex-wrap:wrap}
+.podz-cat .pod-cat-head-icon{width:48px;height:48px;background:#F1F3F8;color:var(--pod-fonce);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.podz-cat .pod-cat-head-text{flex:1;min-width:200px}
+.podz-cat .pod-cat-head-text h1{font-size:22px;font-weight:800;margin:0 0 4px;letter-spacing:-0.02em}
+.podz-cat .pod-cat-head-text p{margin:0;font-size:13px;color:var(--pod-muted)}
+.podz-cat .pod-cat-head-text a{color:var(--pod-fonce);font-weight:600}
+.podz-cat .pod-cat-head-stats{font-size:12px;color:var(--pod-muted);text-align:right;margin-left:auto}
+.podz-cat .pod-cat-head-stats b{font-size:20px;color:var(--pod-fonce);font-weight:800;display:block}
+
+
+
+.podz-cat .pod-cat-search input{width:100%;font-family:inherit;font-size:14px;padding:12px 16px;border:1px solid rgba(0,32,96,0.14);border-radius:12px;outline:none;background:#FFFFFF;color:var(--pod-fonce);margin-bottom:14px}
+.podz-cat .pod-cat-search input:focus{border-color:var(--pod-violet);box-shadow:0 0 0 3px rgba(200,181,232,.35)}
+
+
+
+.podz-cat .pod-cat-filters{margin-bottom:18px}
+.podz-cat .pod-cat-filter-row{margin-bottom:16px}
+.podz-cat .pod-cat-filter-row:last-child{margin-bottom:0}
+.podz-cat .pod-cat-filter-label{display:block;font-size:13px;font-weight:700;color:var(--pod-fonce);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.podz-cat .pod-cat-filter-pills{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+
+
+/* Port exact du Web Part Missions (.tagFilterBtn) : texte toujours bleu
+   fonce (jamais blanc, y compris actif), bordure grise au repos, violette
+   au survol (+ leger soulevement), fond violet une fois actif. Les
+   pilules "Nos Offres" recoivent en plus .pod-tag-offre, qui remplace la
+   bordure grise et le fond actif par la couleur propre de l'offre. */
+.podz-cat .pod-tag{appearance:none;border:1.5px solid #D6D6E0;background:#FFFFFF;color:var(--pod-fonce);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s ease, border-color .15s ease, transform .1s ease;user-select:none;outline:none;-webkit-tap-highlight-color:transparent}
+.podz-cat .pod-tag:focus,.podz-cat .pod-tag:focus-visible,.podz-cat .pod-tag[data-fui-focus-visible]{outline:none;box-shadow:none}
+.podz-cat .pod-tag:hover{border-color:var(--pod-theme-accent, var(--pod-violet));transform:translateY(-1px)}
+.podz-cat .pod-tag.active{background:var(--pod-theme-accent, var(--pod-violet));border-color:var(--pod-theme-accent, var(--pod-violet));color:var(--pod-theme-accent-text, var(--pod-fonce))}
+.podz-cat .pod-tag-offre{border-color:var(--tag-color, var(--pod-violet))}
+.podz-cat .pod-tag-offre:hover{border-color:var(--tag-color, var(--pod-violet))}
+.podz-cat .pod-tag-offre.active{background:var(--tag-color, var(--pod-violet))}
+
+
+
+.podz-cat .pod-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.podz-cat .pod-cat-empty{padding:40px;text-align:center;color:var(--pod-muted);grid-column:1/-1}
+
+
+
+.podz-cat .pod-mini{background:#FFFFFF;border:1px solid rgba(0,32,96,0.05);border-left:5px solid var(--ac,var(--pod-violet));border-radius:0 12px 12px 0;padding:13px 15px;display:flex;flex-direction:column;gap:7px;transition:all .2s;text-decoration:none}
+.podz-cat .pod-mini:hover{transform:translateX(2px);box-shadow:0 6px 16px -4px rgba(0,32,96,.12)}
+.podz-cat .pod-mini__meta{font-size:9.5px;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.podz-cat .pod-mini__title{font-weight:700;font-size:13.5px;line-height:1.3;color:var(--pod-fonce);letter-spacing:-0.01em}
+.podz-cat .pod-mini__row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--pod-muted);margin-top:4px}
+.podz-cat .pod-mini__cta{margin-top:6px;color:var(--ac,var(--pod-fonce));font-size:12px;font-weight:700}
+
+
+
+/* Variante depliable (formations a plusieurs liens) : reutilise .pod-etape
+   pour le panneau de detail (memes classes que les pages parcours) */
+.podz-cat .pod-cat-grid .pod-etape{margin-bottom:0}
+.podz-cat .pod-mini__summary{padding:13px 15px 10px;cursor:pointer;display:flex;flex-direction:column;gap:7px}
+.podz-cat .pod-mini__summary:hover{background:#FAFAFD}
+.podz-cat .pod-mini__toggle{margin-top:2px;font-size:11.5px;font-weight:700;color:var(--ac,var(--pod-fonce));display:flex;align-items:center;gap:5px}
+.podz-cat .pod-cat-grid .pod-etape__detail{padding:0 15px 14px}
+
+
+
+</style>
+<style>
+.podz-home{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box;}
+.podz-home *,.podz-home *::before,.podz-home *::after{box-sizing:border-box}
+.podz-home h1,.podz-home h2,.podz-home h3{color:var(--pod-fonce);margin:0}
+.podz-home .pod-wrap{max-width:1240px;margin:0 auto;padding:4px 4px 32px}
+.podz-home a{cursor:pointer}
+
+/* Fil d'Ariane */
+.podz-home .pod-bc{font-size:13px;color:var(--pod-muted);margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;gap:2px;min-height:18px}
+.podz-home .pod-bc a{color:var(--pod-muted);text-decoration:none}
+.podz-home .pod-bc a:hover{color:var(--pod-fonce);text-decoration:underline}
+.podz-home .pod-bc .pod-bc-sep{color:var(--pod-violet);margin:0 4px;font-weight:700}
+.podz-home .pod-bc .pod-bc-current{color:var(--pod-fonce);font-weight:600}
+.podz-home .pod-loading{padding:14px 4px;font-size:12.5px;color:var(--pod-muted);font-style:italic}
+
+.podz-home .pod-home-hero{text-align:center;margin-bottom:22px}
+.podz-home .pod-home-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:#F7F5FC;color:var(--pod-fonce);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;margin-bottom:16px;border:1px solid rgba(200,181,232,0.5)}
+.podz-home .pod-home-eyebrow::before{content:"⬡";color:var(--pod-violet);font-size:14px}
+.podz-home .pod-home-title{font-size:38px;font-weight:800;margin:0 0 12px;letter-spacing:-0.025em;color:var(--pod-fonce);line-height:1.05}
+.podz-home .pod-home-title em{font-style:normal;color:var(--pod-orange)}
+.podz-home .pod-home-sub{font-size:15px;color:var(--pod-muted);margin:0 auto;max-width:480px;line-height:1.55}
+.podz-home .pod-home-quick{margin:22px auto 26px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.podz-home .pod-home-quick a{color:var(--pod-fonce);font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;transition:all .2s;background:#FFFFFF;border:1px solid rgba(0,32,96,0.14);font-weight:600}
+.podz-home .pod-home-quick a:hover{background:var(--pod-fonce);color:#FFFFFF;border-color:var(--pod-fonce);transform:translateY(-1px)}
+.podz-home .pod-home-divider{text-align:center;font-size:11px;color:var(--pod-muted);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin:0 0 18px}
+.podz-home .pod-home-divider::before,.podz-home .pod-home-divider::after{content:"";display:inline-block;width:60px;height:1px;background:rgba(0,32,96,0.15);vertical-align:middle;margin:0 14px}
+.podz-home .pod-home-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media (max-width:1100px){.podz-home .pod-home-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:700px){.podz-home .pod-home-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:420px){.podz-home .pod-home-grid{grid-template-columns:1fr}}
+
+.podz-home .persona{background:#FFFFFF;border-radius:20px;padding:18px 14px 16px;text-decoration:none;display:block;transition:transform .35s cubic-bezier(.34,1.4,.64,1),box-shadow .35s ease;border:1px solid rgba(0,32,96,0.06);position:relative;text-align:center}
+.podz-home .persona::before{content:"";position:absolute;top:-1px;left:-1px;right:-1px;height:5px;background:var(--accent);border-radius:20px 20px 0 0}
+.podz-home .persona:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 20px 40px -10px rgba(0,32,96,.12),0 12px 24px -10px var(--accent-shadow)}
+.podz-home .persona__bee{width:140px;height:140px;margin:8px auto 12px;transition:transform .4s ease}
+.podz-home .persona:hover .persona__bee{transform:translateY(-3px) rotate(-4deg) scale(1.06)}
+.podz-home .persona__bee svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 6px 8px rgba(0,32,96,.08))}
+.podz-home .persona__bee img{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 6px 8px rgba(0,32,96,.08))}
+.podz-home .persona__pollen{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;opacity:0;transition:opacity .4s}
+.podz-home .persona:hover .persona__pollen{opacity:1}
+.podz-home .persona__pollen span{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:0;animation:podpol 1.5s ease-out infinite}
+.podz-home .persona:hover .persona__pollen span{opacity:.7}
+.podz-home .persona__pollen span:nth-child(1){top:10%;left:10%;animation-delay:0s}
+.podz-home .persona__pollen span:nth-child(2){top:20%;right:8%;animation-delay:.3s}
+.podz-home .persona__pollen span:nth-child(3){bottom:30%;left:5%;animation-delay:.6s}
+.podz-home .persona__pollen span:nth-child(4){top:50%;right:5%;animation-delay:.9s;width:4px;height:4px}
+@keyframes podpol{0%{transform:translateY(0) scale(.5);opacity:0}30%{opacity:.8}100%{transform:translateY(-20px) scale(1);opacity:0}}
+.podz-home .persona__tag{display:inline-block;padding:4px 11px;background:var(--accent);color:var(--accent-text, var(--pod-fonce));font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;margin-bottom:10px}
+.podz-home .persona__name{font-size:16px;font-weight:700;margin:0 0 5px;color:var(--pod-fonce);line-height:1.2;letter-spacing:-0.01em}
+.podz-home .persona__job{font-size:12px;color:var(--pod-muted);margin:0 0 14px;line-height:1.4;min-height:34px;padding:0 4px}
+.podz-home .persona__stats{text-align:center;font-size:11px;color:var(--pod-muted);padding:10px 6px 0;border-top:1px solid rgba(0,32,96,0.06);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.podz-home .persona__stats b{color:var(--pod-fonce);font-weight:700;font-size:13.5px}
+.podz-home .persona__stats span{color:#D0D0D0}
+.podz-home .persona__commence{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--accent-text, var(--pod-fonce));font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;box-shadow:0 2px 6px rgba(0,32,96,.18);white-space:nowrap}
+
+</style>
+<style>
+.podz-profile{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box;}
+.podz-profile *,.podz-profile *::before,.podz-profile *::after{box-sizing:border-box}
+.podz-profile h1,.podz-profile h2,.podz-profile h3{color:var(--pod-fonce);margin:0}
+.podz-profile .pod-wrap{max-width:1240px;margin:0 auto;padding:4px 4px 32px}
+.podz-profile .pod-widget-wrap{max-width:1240px;margin:0 auto}
+.podz-profile a{cursor:pointer}
+
+
+
+/* Fil d'Ariane */
+.podz-profile .pod-bc{font-size:13px;color:var(--pod-muted);margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;gap:2px;min-height:18px}
+.podz-profile .pod-bc a{color:var(--pod-muted);text-decoration:none}
+.podz-profile .pod-bc a:hover{color:var(--pod-fonce);text-decoration:underline}
+.podz-profile .pod-bc .pod-bc-sep{color:var(--pod-violet);margin:0 4px;font-weight:700}
+.podz-profile .pod-bc .pod-bc-current{color:var(--pod-fonce);font-weight:600}
+
+
+
+/* Titres génériques */
+.podz-profile .pod-h1{font-size:32px;font-weight:800;color:var(--pod-fonce);letter-spacing:-0.02em;margin:0 0 10px}
+.podz-profile .pod-h2{font-size:28px;font-weight:800;color:var(--pod-fonce);letter-spacing:-0.02em;margin:0 0 6px}
+.podz-profile .pod-sub{font-size:14.5px;color:var(--pod-muted);margin:0;line-height:1.6}
+.podz-profile .pod-loading{padding:14px 4px;font-size:12.5px;color:var(--pod-muted);font-style:italic}
+
+
+
+/* Chips / badges génériques */
+.podz-profile .pod-chip{display:inline-block;padding:3px 10px;background:#F1F3F8;color:var(--pod-muted);font-size:11px;font-weight:600;border-radius:999px}
+.podz-profile .pod-chip.oblig{background:var(--pod-orange);color:#FFFFFF;font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-size:9.5px}
+.podz-profile .pod-chip.certif{background:var(--pod-orange);color:#FFFFFF;font-weight:700}
+.podz-profile .pod-badge-offre{display:inline-block;padding:3px 11px;font-size:10.5px;font-weight:700;color:var(--pod-fonce);border-radius:999px;letter-spacing:.02em}
+
+
+
+/* Accordéon "étape" (parcours) */
+.podz-profile .pod-etape{background:#FFFFFF;border:1px solid rgba(0,32,96,0.08);border-left:4px solid var(--ac,var(--pod-violet));border-radius:0 10px 10px 0;margin-bottom:8px;overflow:hidden;transition:box-shadow .2s}
+.podz-profile .pod-etape:hover{box-shadow:0 4px 14px -6px rgba(0,32,96,0.18)}
+.podz-profile .pod-etape__main{padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;cursor:pointer;transition:background .15s}
+.podz-profile .pod-etape__main:hover{background:#FAFAFD}
+.podz-profile .pod-etape__num{background:var(--ac,var(--pod-violet));color:var(--ac-text, var(--pod-fonce));font-weight:800;font-size:11px;padding:5px 11px;border-radius:999px;white-space:nowrap;min-width:24px;text-align:center}
+.podz-profile .pod-etape__core{min-width:0}
+.podz-profile .pod-etape__titre{font-weight:700;font-size:14.5px;color:var(--pod-fonce);margin-bottom:3px}
+.podz-profile .pod-etape__tags{font-size:11px;color:var(--pod-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.podz-profile .pod-etape__duree{font-size:12px;color:var(--pod-muted);font-weight:600;white-space:nowrap;background:#F7F7F8;padding:3px 9px;border-radius:6px}
+.podz-profile .pod-etape__chev{color:#A0A0A0;font-size:11px;transition:transform .2s}
+.podz-profile .pod-etape.open .pod-etape__chev{transform:rotate(180deg);color:var(--pod-fonce)}
+.podz-profile .pod-etape__detail{display:none;padding:0 15px 15px;border-top:1px dashed rgba(0,32,96,0.1)}
+.podz-profile .pod-etape.open .pod-etape__detail{display:block}
+.podz-profile .pod-etape__detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.podz-profile .pod-etape__detail-item{background:#FAFAFA;padding:8px 10px;border-radius:6px}
+.podz-profile .pod-etape__detail-label{font-size:9px;font-weight:700;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.podz-profile .pod-etape__detail-value{font-size:12px;font-weight:600;color:var(--pod-fonce)}
+.podz-profile .pod-etape__detail-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.podz-profile .pod-etape__detail-tag{padding:2px 9px;background:#F0F4F7;color:var(--pod-fonce);font-size:10.5px;font-weight:500;border-radius:999px}
+.podz-profile .pod-etape__detail-notes{background:#FFF9DD;border-left:3px solid var(--pod-jaune);padding:9px 11px;border-radius:4px;font-size:12px;line-height:1.5;color:var(--pod-muted);margin-bottom:10px;white-space:pre-line}
+.podz-profile .pod-etape__detail-notes-label{font-size:9px;font-weight:800;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.podz-profile .pod-etape__detail-links{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.podz-profile .pod-etape__detail-links a{color:var(--pod-fonce);font-size:11.5px;font-weight:500;text-decoration:none;padding:5px 11px;border:1px solid rgba(0,32,96,0.18);border-radius:7px;background:#FFFFFF;transition:all .15s}
+.podz-profile .pod-etape__detail-links a:hover{background:var(--pod-fonce);color:#FFFFFF;border-color:var(--pod-fonce)}
+
+
+
+/* Bloc certification */
+.podz-profile .pod-certif{margin-top:14px;padding:14px 16px;background:#FFF6EC;border:1px solid rgba(245,146,106,0.3);border-radius:11px;display:flex;align-items:center;gap:12px}
+.podz-profile .pod-certif-icon{width:38px;height:38px;background:var(--pod-orange);color:#FFFFFF;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
+.podz-profile .pod-certif-text strong{display:block;color:var(--pod-orange);font-weight:800;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.podz-profile .pod-certif-text span{font-size:13.5px;color:var(--pod-fonce);font-weight:600}
+
+
+
+/* Socle commun */
+.podz-profile .pod-socle{margin-top:26px;padding:20px;background:#FBFAFF;border:1px solid rgba(200,181,232,0.4);border-radius:14px}
+.podz-profile .pod-socle-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.podz-profile .pod-socle-title{font-weight:700;font-size:13px;color:var(--pod-fonce);text-transform:uppercase;letter-spacing:.06em;margin:0}
+.podz-profile .pod-socle-sub{font-size:11.5px;color:var(--pod-muted)}
+.podz-profile .pod-socle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+
+
+
+/* Aiguillage (newcomer -> offres) */
+.podz-profile .pod-aiguillage{margin-top:22px;padding:20px;background:#F7F9FC;border-radius:14px;border:1px solid rgba(0,32,96,0.06)}
+.podz-profile .pod-aiguillage-title{font-weight:700;font-size:13px;color:var(--pod-fonce);margin:0 0 14px;text-transform:uppercase;letter-spacing:.06em}
+.podz-profile .pod-aiguillage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.podz-profile .pod-aiguillage-btn{padding:12px 14px;background:#FFFFFF;border:1px solid rgba(0,32,96,0.08);border-radius:10px;text-decoration:none;text-align:center;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.podz-profile .pod-aiguillage-btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,32,96,0.12);border-color:rgba(0,32,96,0.25)}
+.podz-profile .pod-aiguillage-bee{width:50px;height:50px}
+.podz-profile .pod-aiguillage-bee svg{width:100%;height:100%}
+.podz-profile .pod-aiguillage-bee img{width:100%;height:100%}
+.podz-profile .pod-aiguillage-btn-title{font-weight:700;font-size:12.5px;color:var(--pod-fonce);line-height:1.2}
+.podz-profile .pod-aiguillage-btn-sub{font-size:10.5px;color:var(--pod-muted)}
+
+
+
+/* Hero de page persona */
+.podz-profile .pod-hero{background:#FFFFFF;border-radius:20px;padding:22px;margin-bottom:18px;display:flex;gap:20px;align-items:center;border:1px solid rgba(0,32,96,0.06);border-left:6px solid var(--ac,var(--pod-violet));box-shadow:0 4px 20px -12px rgba(0,32,96,0.15);flex-wrap:wrap}
+.podz-profile .pod-hero-bee{width:110px;height:110px;flex-shrink:0}
+.podz-profile .pod-hero-bee svg{width:100%;height:100%;filter:drop-shadow(0 4px 8px rgba(0,32,96,0.1))}
+.podz-profile .pod-hero-bee img{width:100%;height:100%;filter:drop-shadow(0 4px 8px rgba(0,32,96,0.1))}
+.podz-profile .pod-hero-text{flex:1;min-width:240px}
+.podz-profile .pod-hero-tag{display:inline-block;padding:3px 10px;background:var(--ac,var(--pod-violet));color:var(--ac-text, var(--pod-fonce));font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;margin-bottom:8px}
+.podz-profile .pod-hero-title{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-0.02em;color:var(--pod-fonce);line-height:1.15}
+.podz-profile .pod-hero-desc{font-size:13.5px;color:var(--pod-muted);margin:0;max-width:600px;line-height:1.55}
+.podz-profile .pod-hero-meta{text-align:right;font-size:11px;color:var(--pod-muted);white-space:nowrap;align-self:flex-start}
+.podz-profile .pod-hero-meta strong{font-size:22px;color:var(--pod-fonce);font-weight:800;display:block;line-height:1}
+
+
+
+/* Bloc parcours */
+.podz-profile .pod-parcours{background:#FFFFFF;border-radius:18px;padding:22px;margin-bottom:14px;border:1px solid rgba(0,32,96,0.06)}
+.podz-profile .pod-parcours-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #F0F0F0;flex-wrap:wrap}
+.podz-profile .pod-parcours-head h2{font-size:18px;font-weight:700;margin:0 0 4px;color:var(--pod-fonce)}
+.podz-profile .pod-parcours-head p{margin:0;font-size:12.5px;color:var(--pod-muted)}
+.podz-profile .pod-parcours-meta{text-align:right;font-size:11px;color:var(--pod-muted);white-space:nowrap}
+.podz-profile .pod-parcours-meta strong{font-size:17px;color:var(--pod-fonce);font-weight:700;display:block}
+
+
+
+@media (max-width:640px){
+  .podz-profile .pod-hero{padding:16px}
+  .podz-profile .pod-hero-meta{text-align:left}
+}
+</style>
+<style>
+/* Navigation entre les vues du fichier autonome */
+.pod-view[hidden]{display:none}
+</style>
+
+
+
+
+<div class="pod-view" id="view-accueil">
+<div id="podz-home-root" class="podz-home">
+<div class="pod-wrap">
+<div class="pod-bc" id="podz-home-bc"><span>POD</span><span class="pod-bc-sep">/</span> <span class="pod-bc-current">PODz Academy</span></div>
+<div class="pod-home-hero">
+      <div class="pod-home-eyebrow">PODz Academy</div>
+      <h1 class="pod-home-title">Quel <em>PODz</em> es-tu&nbsp;?</h1>
+      <p class="pod-home-sub">Choisis ton avatar métier pour découvrir le parcours de formation pensé pour toi.</p>
+    </div>
+    <div class="pod-home-quick">
+      <a href="#catalogue"><span>⊞</span>Explorer tout le catalogue</a>
+    </div>
+    <div class="pod-home-divider">ou choisis ton profil</div>
+    <div class="pod-home-grid" id="podz-home-grid">
+      <div class="pod-loading">Chargement des profils…</div>
+    </div>
+</div>
+</div>
+</div>
+
+<div class="pod-view" id="view-catalogue" hidden>
+<div id="podz-cat-root" class="podz-cat">
+<div class="pod-wrap">
+<div class="pod-bc" id="podz-cat-bc"></div>
+<div class="pod-cat-head">
+      <div class="pod-cat-head-icon">⊞</div>
+      <div class="pod-cat-head-text">
+        <h1>Catalogue d'exploration</h1>
+        <p>Les formations PODz Academy, filtrables librement par offre, bucket, niveau et type.</p>
+      </div>
+      <div class="pod-cat-head-stats"><b id="podz-cat-count">…</b>affichée(s)</div>
+    </div>
+    <div class="pod-cat-search"><input type="text" id="podz-cat-search" placeholder="Rechercher un titre…"></div>
+    <div class="pod-cat-filters">
+      <div class="pod-cat-filter-row" data-group="offre"><span class="pod-cat-filter-label">Nos offres</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="offre" data-value="">Toutes</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 1 - Data Products &amp; Analytics" style="--tag-color:#A8C4B8">Data Products &amp; Analytics</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 2 - Process &amp; Automation" style="--tag-color:#F2A8BC">Process &amp; Automation</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 3 - Data Strategy &amp; Projects" style="--tag-color:#C8B5E8">Data Strategy &amp; Projects</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 4 - Data Culture &amp; Change" style="--tag-color:#F5926A">Data Culture &amp; Change</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Transverse" style="--tag-color:var(--pod-theme-accent, var(--pod-violet))">Transverse</div></div></div>
+      <div class="pod-cat-filter-row" data-group="bucket"><span class="pod-cat-filter-label">Buckets</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="bucket" data-value="">Tous</div><div class="pod-tag" data-group="bucket" data-value="Adoption">Adoption</div><div class="pod-tag" data-group="bucket" data-value="Analyse">Analyse</div><div class="pod-tag" data-group="bucket" data-value="Certifs">Certifs</div><div class="pod-tag" data-group="bucket" data-value="Pilotage">Pilotage</div><div class="pod-tag" data-group="bucket" data-value="Process">Process</div></div></div>
+      <div class="pod-cat-filter-row" data-group="niveau"><span class="pod-cat-filter-label">Niveaux</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="niveau" data-value="">Tous</div><div class="pod-tag" data-group="niveau" data-value="Fondamentaux">Fondamentaux</div><div class="pod-tag" data-group="niveau" data-value="Intermédiaire">Intermédiaire</div><div class="pod-tag" data-group="niveau" data-value="Avancé">Avancé</div></div></div>
+      <div class="pod-cat-filter-row" data-group="type"><span class="pod-cat-filter-label">Type</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="type" data-value="">Tout type</div><div class="pod-tag" data-group="type" data-value="Formation">Formation</div><div class="pod-tag" data-group="type" data-value="Certification">Certification</div></div></div>
+    </div>
+    <div class="pod-cat-grid" id="podz-cat-grid"><div class="pod-loading">Chargement du catalogue…</div></div>
+</div>
+</div>
+</div>
+
+
+
+<div class="pod-view" id="view-profil" hidden>
+<div id="podz-profile-root" class="podz-profile">
+<div class="pod-wrap">
+<div class="pod-bc" id="podz-profile-bc"></div>
+<div id="podz-profile-hero"><div class="pod-loading">Chargement du profil…</div></div>
+    <div id="podz-profile-parcours"><div class="pod-loading">Chargement des parcours…</div></div>
+    <div class="pod-socle">
+      <div class="pod-socle-head">
+        <h3 class="pod-socle-title">⬡ Socle commun POD</h3>
+        <span class="pod-socle-sub">à connaître quel que soit ton parcours · clique pour le détail</span>
+      </div>
+      <div class="pod-socle-grid" id="podz-profile-socle"><div class="pod-loading">Chargement…</div></div>
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+(function(){
+  var bcEl = document.getElementById("podz-cat-bc");
+  if(!bcEl) return;
+  bcEl.innerHTML = '<span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">Catalogue d\'exploration</span>';
+})();
+</script>
+<script>
+(function(){
+  window.PODZ = window.PODZ || {};
+
+
+
+  function splitLines(s){
+    // Tolerant aux deux conventions : nouveaux formulaires = un lien par ligne
+    // (vrais sauts de ligne) ; donnees heritees de l'import CSV initial =
+    // plusieurs liens sur UNE seule ligne separes par " | ". On decoupe sur
+    // les deux a la fois pour ne pas devoir corriger les lignes existantes.
+    return String(s||"").split(/\r\n|\r|\n|\s*\|\s*/).map(function(x){return x.trim();}).filter(Boolean);
+  }
+  function splitCsv(s){
+    return String(s||"").split(",").map(function(x){return x.trim();}).filter(Boolean);
+  }
+  function isOui(s){
+    return String(s||"").trim().toLowerCase() === "oui";
+  }
+
+
+
+  // 1 jour = 7h (regle deja utilisee partout dans le catalogue). En dessous
+  // d'une demi-journee (3.5h), affichage en heures ; au-dessus, en jours.
+  window.PODZ.hoursToLabel = function(h){
+    if(h == null || isNaN(h)) return "—";
+    h = Number(h);
+    function fr(n){ return (n % 1 === 0) ? String(n) : String(n).replace(".", ","); }
+    if(h < 3.5) return fr(h) + " h";
+    var j = Math.round((h / 7) * 2) / 2;
+    return fr(j) + " j";
+  };
+
+
+
+  function mapItem(raw){
+    var plateformes = (raw.field_9 && raw.field_9.results) ? raw.field_9.results : [];
+    var parcours = (raw.Parcours && raw.Parcours.results) ? raw.Parcours.results : [];
+    var dureeHeures = (raw.DureeHeures != null && raw.DureeHeures !== "") ? Number(raw.DureeHeures) : null;
+    return {
+      spId: raw.ID,
+      // Identifiant supprime : la cle stable est desormais l'ID natif SharePoint
+      // (spId), utilise pour les liens de modification et les appels REST.
+      id: raw.ID,
+      titre: raw.Title || "(sans titre)",
+      type: raw.field_2 || "",
+      offre: raw.field_3 || "Transverse",
+      bucket: raw.field_4 || "",
+      niveau: raw.field_5 || "",
+      // DureeHeures (nouvelle colonne Nombre) prioritaire ; repli sur l'ancien
+      // texte field_6 tant que toutes les formations n'ont pas ete migrees.
+      duree: dureeHeures != null ? window.PODZ.hoursToLabel(dureeHeures) : (raw.field_6 || "—"),
+      dureeHeures: dureeHeures,
+      liens: splitLines(raw.field_7),
+      tags: splitCsv(raw.field_8),
+      plateformes: plateformes,
+      // Robuste aux deux colonnes tant que la migration Obligat -> Obligatoire
+      // n'est pas confirmée terminee cote SharePoint.
+      obligatoire: !!raw.Obligatoire || isOui(raw.field_10),
+      notes: raw.field_11 || "",
+      parcours: parcours,
+      ordre: (raw.Ordre != null && raw.Ordre !== "") ? Number(raw.Ordre) : 9999
+    };
+  }
+
+
+
+  // Donnees d'exemple embarquees : page autoportante, aucun appel reseau.
+  function row(id, titre, type, offre, bucket, niveau, h, liens, tags, plat, oblig, notes, parcours){
+    return {ID:id, Title:titre, field_2:type, field_3:offre, field_4:bucket, field_5:niveau,
+      DureeHeures:h, field_7:liens.join("\n"), field_8:tags, field_9:{results:plat},
+      Obligatoire:oblig, field_11:notes||"", Parcours:{results:parcours||[]}, Ordre:id};
+  }
+  var O1="Offre 1 - Data Products & Analytics", O2="Offre 2 - Process & Automation",
+      O3="Offre 3 - Data Strategy & Projects", O4="Offre 4 - Data Culture & Change";
+  var DEMO = [
+    row(1,"Power BI — Les fondamentaux","Formation",O1,"Analyse","Fondamentaux",7,["https://learn.microsoft.com/power-bi/"],"Power BI, DAX, Dataviz",["Microsoft Learn"],false,"",["Analyste Power BI"]),
+    row(2,"Modélisation de données avancée","Formation",O1,"Analyse","Avancé",14,["https://learn.microsoft.com/","https://www.sqlbi.com/","https://example.com/modelisation"],"DAX, Modèle étoile, Performance",["Microsoft Learn","SQLBI"],false,"Prérequis : Power BI fondamentaux.",["Analyste Power BI"]),
+    row(3,"PL-300 Power BI Data Analyst","Certification",O1,"Certifs","Intermédiaire",21,["https://learn.microsoft.com/credentials/"],"Power BI, Certification",["Microsoft Learn"],false,"",["Analyste Power BI"]),
+    row(4,"Power Automate — Premiers flux","Formation",O2,"Process","Fondamentaux",3,["https://learn.microsoft.com/power-automate/"],"Power Automate, Automatisation",["Microsoft Learn"],false,"",["Automatisation des processus"]),
+    row(5,"Cartographie de processus","Formation",O2,"Process","Intermédiaire",7,["https://example.com/bpmn","https://example.com/process-mining"],"BPMN, Process mining",["Interne POD"],false,"",["Automatisation des processus"]),
+    row(6,"Cadrer un projet Data","Formation",O3,"Pilotage","Intermédiaire",7,["https://example.com/cadrage"],"Cadrage, Roadmap, KPI",["Interne POD"],true,"Formation obligatoire pour tout nouveau consultant.",["Bien démarrer chez POD","Pilotage de projet Data"]),
+    row(7,"Stratégie Data & gouvernance","Formation",O3,"Pilotage","Avancé",14,["https://example.com/strategie","https://example.com/gouvernance","https://example.com/cas-clients"],"Stratégie, Gouvernance, Data Mesh",["Interne POD","Coursera"],false,"",["Pilotage de projet Data"]),
+    row(8,"Conduite du changement Data","Formation",O4,"Adoption","Fondamentaux",3.5,["https://example.com/change"],"Adoption, Change management",["Interne POD"],false,"",["Acculturation Data"]),
+    row(9,"Acculturation Data pour managers","Formation",O4,"Adoption","Intermédiaire",7,["https://example.com/acculturation","https://example.com/kit"],"Data literacy, Animation",["Interne POD"],false,"",["Acculturation Data"]),
+    row(10,"Onboarding PODz","Formation","","Adoption","Fondamentaux",2,["https://example.com/onboarding"],"Onboarding, Culture POD",["Interne POD"],true,"",["Bien démarrer chez POD"]),
+    row(11,"IA générative au quotidien","Formation","","Adoption","Fondamentaux",3,["https://example.com/ia","https://example.com/prompting"],"IA, Prompting, Copilot",["Interne POD"],false,"",["Bien démarrer chez POD","Automatisation des processus"])
+  ];
+  window.PODZ.fetchCatalogue = function(){
+    return Promise.resolve(DEMO.map(mapItem));
+  };
+})();
+</script>
+<script>
+(function(){
+  window.PODZ = window.PODZ || {};
+
+
+
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function offreLabel(o){return String(o||"").replace(/^Offre \d+ - /, "");}
+
+
+
+  function renderLinks(liens){
+    if(!liens || !liens.length) return '<em style="font-size:11px;color:#888">Aucun lien disponible</em>';
+    var multi = liens.length > 1;
+    return liens.map(function(l,i){
+      var label = (i===0 && !multi) ? "Accéder ›" : ("Lien " + (i+1));
+      return '<a href="' + esc(l) + '" target="_blank" rel="noopener">' + label + '</a>';
+    }).join("");
+  }
+
+
+
+  function renderDetail(f){
+    var tags = (f.tags||[]).map(function(t){return '<span class="pod-etape__detail-tag">' + esc(t) + '</span>';}).join("");
+    var plat = (f.plateformes||[]).join(" · ");
+    var notesHtml = f.notes ? ('<div class="pod-etape__detail-notes"><div class="pod-etape__detail-notes-label">Notes</div>' + esc(f.notes) + '</div>') : "";
+    var tagsHtml = tags ? ('<div class="pod-etape__detail-tags">' + tags + '</div>') : "";
+    return '<div class="pod-etape__detail">' +
+      '<div class="pod-etape__detail-grid">' +
+        '<div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Offre</div><div class="pod-etape__detail-value">' + esc(offreLabel(f.offre)) + '</div></div>' +
+        '<div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Niveau</div><div class="pod-etape__detail-value">' + esc(f.niveau) + '</div></div>' +
+        '<div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Type</div><div class="pod-etape__detail-value">' + esc(f.type) + '</div></div>' +
+        '<div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Plateforme</div><div class="pod-etape__detail-value">' + esc(plat) + '</div></div>' +
+      '</div>' +
+      tagsHtml + notesHtml +
+      '<div class="pod-etape__detail-links">' + renderLinks(f.liens) + '</div>' +
+    '</div>';
+  }
+
+
+
+  function missingCard(id){
+    return '<div class="pod-etape" style="--ac:#F5926A">' +
+      '<div class="pod-etape__main" style="cursor:default">' +
+        '<div class="pod-etape__num">?</div>' +
+        '<div class="pod-etape__core">' +
+          '<div class="pod-etape__titre">Formation ' + esc(id) + ' introuvable</div>' +
+          '<div class="pod-etape__tags">Vérifier l\'identifiant de la formation</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+
+
+  window.PODZ.renderDetail = renderDetail;
+
+
+
+  // Meme formule de contraste que sur les Web Parts profil : un accent sombre
+  // (bleu fonce #002060 du Socle commun) exige un texte de badge blanc.
+  function contrastTextColor(hex){
+    hex = String(hex || "").replace("#", "");
+    if(hex.length !== 6){ return "#002060"; }
+    var r = parseInt(hex.substr(0,2), 16);
+    var g = parseInt(hex.substr(2,2), 16);
+    var b = parseInt(hex.substr(4,2), 16);
+    var luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+    return luminance > 0.6 ? "#002060" : "#ffffff";
+  }
+
+  window.PODZ.renderEtape = function(f, index, accent){
+    var tagsPreview = (f.tags||[]).slice(0,4).join(" · ");
+    return '<div class="pod-etape" style="--ac:' + accent + ';--ac-text:' + contrastTextColor(accent) + '">' +
+      '<div class="pod-etape__main">' +
+        '<div class="pod-etape__num">' + index + '</div>' +
+        '<div class="pod-etape__core">' +
+          '<div class="pod-etape__titre">' + esc(f.titre) + '</div>' +
+          '<div class="pod-etape__tags">' + esc(tagsPreview) + '</div>' +
+        '</div>' +
+        '<div class="pod-etape__duree">' + esc(f.duree || "—") + '</div>' +
+        '<div class="pod-etape__chev">▾</div>' +
+      '</div>' +
+      renderDetail(f) +
+    '</div>';
+  };
+
+
+
+  window.PODZ.renderSocleItem = function(f, index, accent){
+    var oblig = f.obligatoire ? ' <span class="pod-chip oblig">Oblig.</span>' : "";
+    var tagsPreview = (f.tags||[]).slice(0,3).join(", ");
+    return '<div class="pod-etape" style="--ac:' + accent + ';--ac-text:' + contrastTextColor(accent) + '">' +
+      '<div class="pod-etape__main" style="grid-template-columns:auto 1fr auto">' +
+        '<div class="pod-etape__num">' + index + '</div>' +
+        '<div class="pod-etape__core">' +
+          '<div class="pod-etape__titre" style="font-size:13px">' + esc(f.titre) + oblig + '</div>' +
+          '<div class="pod-etape__tags">' + esc(f.duree || "—") + ' · ' + esc(tagsPreview) + '</div>' +
+        '</div>' +
+        '<div class="pod-etape__chev">▾</div>' +
+      '</div>' +
+      renderDetail(f) +
+    '</div>';
+  };
+
+
+
+  window.PODZ.renderCertifBlock = function(label, certifs){
+    if(!certifs.length) return "";
+    var names = certifs.map(function(c){return esc(c.titre);}).join(" · ");
+    return '<div class="pod-certif">' +
+      '<div class="pod-certif-icon">★</div>' +
+      '<div class="pod-certif-text"><strong>' + esc(label) + '</strong><span>' + names + '</span></div>' +
+    '</div>';
+  };
+
+
+
+  window.PODZ.missingCard = missingCard;
+})();
+</script>
+<script>
+(function(){
+  var root = document.getElementById("podz-cat-root");
+  if(!root) return;
+
+
+
+  function contrastTextColor(hex){
+    hex = String(hex || "").replace("#", "");
+    if(hex.length !== 6){ return "#002060"; }
+    var r = parseInt(hex.substr(0,2), 16);
+    var g = parseInt(hex.substr(2,2), 16);
+    var b = parseInt(hex.substr(4,2), 16);
+    var luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+    return luminance > 0.6 ? "#002060" : "#ffffff";
+  }
+
+
+
+  // "Transverse" (formations non liees a une offre precise) suit le theme
+  // SharePoint live plutot qu'une couleur fixe, pour ne pas entrer en
+  // conflit avec la couleur d'une vraie offre (Data Strategy & Projects
+  // utilise desormais le violet de la charte). Repli sur ce meme violet si
+  // le theme n'est pas accessible -- meme principe que sur le Web Part
+  // Missions (missionExplorerSE / --pod-violet + --pod-violet-text).
+  var themeAccent = "#C8B5E8";
+  try {
+    if(window.__themeState__ && window.__themeState__.theme && window.__themeState__.theme.themePrimary){
+      themeAccent = window.__themeState__.theme.themePrimary;
+    }
+  } catch(e) {}
+  // Expose la couleur du theme comme variable CSS sur le root : la pilule
+  // "Transverse" (--tag-color:var(--pod-theme-accent, ...)) et le hover/actif
+  // des filtres generiques (Buckets/Niveaux/Type/"Toutes") s'y accrochent,
+  // au lieu de rester figes sur le violet de la charte. Le texte suit en
+  // contraste calcule (blanc si le theme est sombre, bleu fonce sinon) --
+  // sans quoi un theme sombre comme celui actuellement actif sur le site
+  // rendrait le texte illisible (bleu fonce sur fond bleu fonce).
+  root.style.setProperty("--pod-theme-accent", themeAccent);
+  root.style.setProperty("--pod-theme-accent-text", contrastTextColor(themeAccent));
+
+
+
+  var OFFRE_COLORS = {
+    "Offre 1 - Data Products & Analytics": "#A8C4B8",
+    "Offre 2 - Process & Automation": "#F2A8BC",
+    "Offre 3 - Data Strategy & Projects": "#C8B5E8",
+    "Offre 4 - Data Culture & Change": "#F5926A",
+    "Transverse": themeAccent
+  };
+
+
+
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function offreLabel(o){return String(o||"").replace(/^Offre \d+ - /, "");}
+  function offreColor(o){return OFFRE_COLORS[o] || OFFRE_COLORS["Transverse"];}
+
+
+
+  var ALL = [];
+  var state = {q:"", offre:"", bucket:"", niveau:"", type:""};
+  var searchEl = document.getElementById("podz-cat-search");
+  var gridEl = document.getElementById("podz-cat-grid");
+  var countEl = document.getElementById("podz-cat-count");
+
+
+
+  function renderGrid(){
+    var q = state.q.toLowerCase();
+    var filtered = ALL.filter(function(f){
+      if(state.offre && f.offre !== state.offre) return false;
+      if(state.bucket && f.bucket !== state.bucket) return false;
+      if(state.niveau && f.niveau !== state.niveau) return false;
+      if(state.type && f.type !== state.type) return false;
+      if(q){
+        var hay = f.titre.toLowerCase();
+        if(hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+    filtered.sort(function(a,b){
+      if(a.type !== b.type) return a.type < b.type ? -1 : 1;
+      return a.titre.localeCompare(b.titre);
+    });
+    countEl.textContent = filtered.length;
+    if(filtered.length === 0){
+      gridEl.innerHTML = '<div class="pod-cat-empty">Aucune formation ne correspond à ces critères.</div>';
+      return;
+    }
+    gridEl.innerHTML = filtered.map(function(f){
+      var ac = offreColor(f.offre);
+      var oblig = f.obligatoire ? '<span class="pod-chip oblig">Oblig.</span>' : "";
+      var typeChip = f.type === "Certification"
+        ? '<span class="pod-chip certif">' + esc(f.type) + '</span>'
+        : '<span class="pod-chip">' + esc(f.type) + '</span>';
+      var summary =
+        '<div class="pod-mini__meta">' + esc(offreLabel(f.offre)) + ' · ' + esc(f.bucket) + '</div>' +
+        '<div class="pod-mini__title">' + esc(f.titre) + '</div>' +
+        '<div class="pod-mini__row">' +
+          '<span class="pod-chip">' + esc(f.niveau) + '</span>' +
+          '<span class="pod-chip">' + esc(f.duree || "—") + '</span>' +
+          typeChip + oblig +
+        '</div>';
+      var liens = f.liens || [];
+
+
+
+      // Un seul lien (ou aucun) : toute la carte reste un lien direct, comme
+      // avant -- acces en un clic pour le cas le plus frequent.
+      if(liens.length <= 1){
+        var link = liens[0] || "#";
+        return '<a class="pod-mini" style="--ac:' + ac + '" href="' + esc(link) + '" target="_blank" rel="noopener">' +
+          summary +
+          '<span class="pod-mini__cta">Accéder ›</span>' +
+        '</a>';
+      }
+
+
+
+      // Plusieurs liens (20 formations sur 40, certaines jusqu'a 10) : un
+      // seul href ne peut pas representer plusieurs destinations -- la carte
+      // devient depliable, meme panneau de detail que sur les pages parcours
+      // (memes classes .pod-etape__detail*, tous les liens listes et cliquables).
+      return '<div class="pod-mini pod-etape" style="--ac:' + ac + '">' +
+        '<div class="pod-mini__summary">' +
+          summary +
+          '<div class="pod-mini__toggle">' + liens.length + ' liens <span class="pod-etape__chev">▾</span></div>' +
+        '</div>' +
+        window.PODZ.renderDetail(f) +
+      '</div>';
+    }).join("");
+  }
+
+
+
+  root.addEventListener("click", function(e){
+    var summary = e.target.closest(".pod-mini__summary");
+    if(summary){
+      var card = summary.closest(".pod-etape");
+      if(card) card.classList.toggle("open");
+      return;
+    }
+    var tag = e.target.closest(".pod-tag");
+    if(!tag) return;
+    var row = tag.closest(".pod-cat-filter-row");
+    var group = row.getAttribute("data-group");
+    var value = tag.getAttribute("data-value");
+    Array.prototype.forEach.call(row.querySelectorAll(".pod-tag"), function(t){ t.classList.remove("active"); });
+    tag.classList.add("active");
+    state[group] = value;
+    renderGrid();
+  });
+
+
+
+  if(searchEl){
+    searchEl.addEventListener("input", function(){
+      state.q = searchEl.value;
+      renderGrid();
+    });
+  }
+
+
+
+  window.PODZ.fetchCatalogue().then(function(list){
+    ALL = list;
+    renderGrid();
+  }).catch(function(err){
+    gridEl.innerHTML = '<div class="pod-cat-empty">Erreur de chargement du catalogue ('
+      + esc(err && err.message ? err.message : err) + ').</div>';
+    countEl.textContent = "0";
+  });
+})();
+</script>
+<script>
+(function(){
+  window.PODZ = window.PODZ || {};
+  // Profils et parcours d'exemple embarques (remplacent les listes
+  // SharePoint "Profils" et "Parcours") : page autoportante, aucun appel reseau.
+  var PROFILS = [
+    {slug:"nouveau-podz", name:"Nouveau PODz", tag:"Bienvenue", job:"Tu arrives chez POD et tu poses tes bases.", heroDesc:"Tes premières semaines chez POD : la culture maison, les outils du quotidien et les fondamentaux à maîtriser avant de rejoindre une offre.", couleur:"Jaune", pageDepart:true, ordre:1},
+    {slug:"analyste-data", name:"Analyste Data", tag:"Data Products & Analytics", job:"Tu transformes la donnée en produits et en décisions.", heroDesc:"Modélisation, visualisation et restitution : le parcours pour concevoir des produits data utiles et fiables.", couleur:"Vert", pageDepart:false, ordre:2},
+    {slug:"builder-ia", name:"Builder IA", tag:"Process & Automation", job:"Tu automatises les processus et construis avec l'IA.", heroDesc:"Cartographier, automatiser, intégrer l'IA : le parcours pour fluidifier les processus métier de nos clients.", couleur:"Rose", pageDepart:false, ordre:3},
+    {slug:"chef-de-projet", name:"Chef de Projet", tag:"Data Strategy & Projects", job:"Tu cadres, pilotes et fais grandir les projets data.", heroDesc:"Cadrage, pilotage et stratégie data : le parcours pour mener les projets de bout en bout.", couleur:"Violet", pageDepart:false, ordre:4},
+    {slug:"guide-adoption", name:"Guide adoption", tag:"Data Culture & Change", job:"Tu embarques les équipes dans la culture data.", heroDesc:"Conduite du changement et acculturation : le parcours pour faire adopter la donnée durablement.", couleur:"Orange", pageDepart:false, ordre:5}
+  ];
+  var PARCOURS = [
+    {title:"Bien démarrer chez POD", description:"Les incontournables des premières semaines.", profils:["nouveau-podz"]},
+    {title:"Analyste Power BI", description:"De la donnée brute au rapport qui fait décider.", profils:["analyste-data"]},
+    {title:"Automatisation des processus", description:"Cartographier puis automatiser un processus métier.", profils:["builder-ia"]},
+    {title:"Pilotage de projet Data", description:"Cadrer, planifier et piloter un projet data.", profils:["chef-de-projet"]},
+    {title:"Acculturation Data", description:"Faire grandir la culture data d'une organisation.", profils:["guide-adoption"]}
+  ];
+  window.PODZ.fetchProfils = function(){ return Promise.resolve(PROFILS.slice()); };
+  window.PODZ.fetchParcours = function(){ return Promise.resolve(PARCOURS.slice()); };
+})();
+</script>
+<script>
+(function(){
+  var root = document.getElementById("podz-home-root");
+  if(!root) return;
+  var gridEl = document.getElementById("podz-home-grid");
+  var COULEUR_HEX = {"Orange": "#F5926A", "Jaune": "#E8C96A", "Vert": "#A8C4B8", "Bleu": "#BDD1FF", "Rose": "#F2A8BC", "Violet": "#C8B5E8"};
+
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function couleurHex(c){
+    var key = String(c||"").trim().toLowerCase();
+    for(var k in COULEUR_HEX){ if(k.toLowerCase() === key) return COULEUR_HEX[k]; }
+    return "#C8B5E8";
+  }
+  function hexToRgba(hex, a){
+    hex = String(hex||"#C8B5E8").replace("#","");
+    var r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
+    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+  }
+  function contrastTextColor(hex){
+    hex = String(hex || "").replace("#", "");
+    if(hex.length !== 6){ return "#002060"; }
+    var r = parseInt(hex.substr(0,2), 16);
+    var g = parseInt(hex.substr(2,2), 16);
+    var b = parseInt(hex.substr(4,2), 16);
+    var luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+    return luminance > 0.6 ? "#002060" : "#ffffff";
+  }
+  // Abeille d'illustration (remplace l'image jointe au profil dans SharePoint).
+  window.PODZ.beeSvg = beeSvg;
+  function beeSvg(accent){
+    return '<svg viewBox="0 0 140 140" aria-hidden="true">' +
+      '<ellipse cx="48" cy="44" rx="22" ry="30" fill="#FFFFFF" stroke="#002060" stroke-width="3" opacity=".9" transform="rotate(-25 48 44)"/>' +
+      '<ellipse cx="92" cy="44" rx="22" ry="30" fill="#FFFFFF" stroke="#002060" stroke-width="3" opacity=".9" transform="rotate(25 92 44)"/>' +
+      '<ellipse cx="70" cy="86" rx="38" ry="34" fill="' + accent + '" stroke="#002060" stroke-width="3"/>' +
+      '<path d="M44 74 Q70 66 96 74" fill="none" stroke="#002060" stroke-width="7" stroke-linecap="round"/>' +
+      '<path d="M38 94 Q70 86 102 94" fill="none" stroke="#002060" stroke-width="7" stroke-linecap="round"/>' +
+      '<circle cx="58" cy="60" r="4" fill="#002060"/><circle cx="82" cy="60" r="4" fill="#002060"/>' +
+      '<path d="M62 106 Q70 112 78 106" fill="none" stroke="#002060" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M60 52 Q52 30 44 26" fill="none" stroke="#002060" stroke-width="3" stroke-linecap="round"/><circle cx="44" cy="26" r="4" fill="#002060"/>' +
+      '<path d="M80 52 Q88 30 96 26" fill="none" stroke="#002060" stroke-width="3" stroke-linecap="round"/><circle cx="96" cy="26" r="4" fill="#002060"/>' +
+    '</svg>';
+  }
+
+  Promise.all([window.PODZ.fetchProfils(), window.PODZ.fetchParcours(), window.PODZ.fetchCatalogue()]).then(function(results){
+    var profils = results[0], parcoursList = results[1], catalogue = results[2];
+    gridEl.innerHTML = profils.map(function(p){
+      var accent = couleurHex(p.couleur);
+      var accentText = contrastTextColor(accent);
+      var badge = p.pageDepart ? '<div class="persona__commence">⬡ Commence ici</div>' : "";
+      var myTitles = parcoursList.filter(function(pp){ return pp.profils.indexOf(p.slug) !== -1; }).map(function(pp){ return pp.title; });
+      var nbParcours = myTitles.length;
+      var members = catalogue.filter(function(f){
+        return (f.parcours||[]).some(function(t){ return myTitles.indexOf(t) !== -1; });
+      });
+      var nbFormations = members.filter(function(f){ return f.type !== "Certification"; }).length;
+      var nbCertifs = members.filter(function(f){ return f.type === "Certification"; }).length;
+      var stats = "<b>" + nbParcours + "</b> parcours <span>·</span> <b>" + nbFormations + "</b> formation" + (nbFormations > 1 ? "s" : "");
+      if(nbCertifs > 0) stats += " <span>·</span> <b>" + nbCertifs + "</b> certif" + (nbCertifs > 1 ? "s" : "");
+      return '<a class="persona" href="#profil=' + esc(p.slug) + '" style="--accent:' + accent + ';--accent-text:' + accentText + ';--accent-shadow:' + hexToRgba(accent,0.35) + '">' +
+        badge +
+        '<div class="persona__pollen"><span></span><span></span><span></span><span></span></div>' +
+        '<div class="persona__bee">' + beeSvg(accent) + '</div>' +
+        '<span class="persona__tag">' + esc(p.tag) + '</span>' +
+        '<h3 class="persona__name">' + esc(p.name) + '</h3>' +
+        '<p class="persona__job">' + esc(p.job) + '</p>' +
+        '<div class="persona__stats">' + stats + '</div>' +
+      '</a>';
+    }).join("");
+  });
+})();
+</script>
+<script>
+(function(){
+  var root = document.getElementById("podz-profile-root");
+  if(!root) return;
+  root.addEventListener("click", function(e){
+    var main = e.target.closest(".pod-etape__main");
+    if(!main) return;
+    var etape = main.closest(".pod-etape");
+    if(etape) etape.classList.toggle("open");
+  });
+})();
+</script>
+<script>
+(function(){
+  window.PODZ = window.PODZ || {};
+  var root = document.getElementById("podz-profile-root");
+  if(!root) return;
+  var COULEUR_HEX = {"Orange": "#F5926A", "Jaune": "#E8C96A", "Vert": "#A8C4B8", "Bleu": "#BDD1FF", "Rose": "#F2A8BC", "Violet": "#C8B5E8", "Offre 1 - Data Products & Analytics": "#A8C4B8", "Offre 2 - Process & Automation": "#F2A8BC", "Offre 3 - Data Strategy & Projects": "#C8B5E8", "Offre 4 - Data Culture & Change": "#F5926A", "Transverse": "#002060"};
+  var bcEl = document.getElementById("podz-profile-bc");
+  var heroEl = document.getElementById("podz-profile-hero");
+  var parcoursEl = document.getElementById("podz-profile-parcours");
+  var socleEl = document.getElementById("podz-profile-socle");
+
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function couleurHex(c){
+    var key = String(c||"").trim().toLowerCase();
+    for(var k in COULEUR_HEX){ if(k.toLowerCase() === key) return COULEUR_HEX[k]; }
+    return "#C8B5E8";
+  }
+  function contrastTextColor(hex){
+    hex = String(hex || "").replace("#", "");
+    if(hex.length !== 6){ return "#002060"; }
+    var r = parseInt(hex.substr(0,2), 16);
+    var g = parseInt(hex.substr(2,2), 16);
+    var b = parseInt(hex.substr(4,2), 16);
+    var luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+    return luminance > 0.6 ? "#002060" : "#ffffff";
+  }
+  function drawBc(name){
+    bcEl.innerHTML = '<span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">' + esc(name) + '</span>';
+  }
+
+  function renderHero(p, accent, nbParcours){
+    return '<div class="pod-hero" style="--ac:' + accent + ';--ac-text:' + contrastTextColor(accent) + '">' +
+      '<div class="pod-hero-bee">' + window.PODZ.beeSvg(accent) + '</div>' +
+      '<div class="pod-hero-text">' +
+        '<div class="pod-hero-tag">' + esc(p.tag) + '</div>' +
+        '<h1 class="pod-hero-title">' + esc(p.name) + '</h1>' +
+        '<p class="pod-hero-desc">' + esc(p.heroDesc) + '</p>' +
+      '</div>' +
+      '<div class="pod-hero-meta"><strong>' + nbParcours + '</strong>parcours</div>' +
+    '</div>';
+  }
+
+  function fatal(msg){
+    heroEl.innerHTML = '<div class="pod-loading">Erreur : ' + esc(msg) + '</div>';
+    parcoursEl.innerHTML = "";
+  }
+
+  // Appele par la navigation (#profil=<slug>) : remplace la reconnaissance
+  // par ?profilId= / URL de page SharePoint du Web Part d'origine.
+  window.PODZ.renderProfile = function(slug){
+    Promise.all([
+      window.PODZ.fetchProfils(),
+      window.PODZ.fetchParcours(),
+      window.PODZ.fetchCatalogue()
+    ]).then(function(results){
+      var profils = results[0], parcoursList = results[1], catalogue = results[2];
+      var me = profils.filter(function(p){ return p.slug === slug; })[0];
+      if(!me){ drawBc("Profil"); fatal("Profil « " + slug + " » introuvable."); return; }
+      var accent = couleurHex(me.couleur);
+      drawBc(me.name);
+      document.title = "PODz Academy — " + me.name;
+
+      var myParcours = parcoursList.filter(function(pp){ return pp.profils.indexOf(me.slug) !== -1; });
+      heroEl.innerHTML = renderHero(me, accent, myParcours.length);
+
+      var parcoursHtml = myParcours.map(function(par){
+        var members = catalogue.filter(function(f){ return (f.parcours||[]).indexOf(par.title) !== -1; });
+        var formations = members.filter(function(f){ return f.type !== "Certification"; })
+          .sort(function(a,b){ return a.ordre - b.ordre; });
+        var certifs = members.filter(function(f){ return f.type === "Certification"; });
+        var totalH = formations.reduce(function(s,f){ return s + (f.dureeHeures || 0); }, 0);
+        var dureeLabel = window.PODZ.hoursToLabel(totalH) + (certifs.length ? " + certif" : "");
+        var etapesHtml = formations.map(function(f,i){ return window.PODZ.renderEtape(f, i+1, accent); }).join("");
+        var certifHtml = certifs.length
+          ? window.PODZ.renderCertifBlock(certifs.length > 1 ? "Certifications recommandées (au choix)" : "Certification recommandée", certifs)
+          : "";
+        var empty = formations.length === 0 ? '<p class="pod-loading">Aucune formation associée à ce parcours pour le moment.</p>' : "";
+        return '<div class="pod-parcours">' +
+          '<div class="pod-parcours-head"><div><h2>' + esc(par.title) + '</h2><p>' + esc(par.description) + '</p></div>' +
+          '<div class="pod-parcours-meta"><strong>' + esc(dureeLabel) + '</strong>' + formations.length + ' étape(s)</div></div>' +
+          etapesHtml + empty + certifHtml +
+        '</div>';
+      }).join("");
+
+      var aiguillageHtml = "";
+      if(me.pageDepart){
+        var others = profils.filter(function(p){ return p.slug !== me.slug; });
+        aiguillageHtml = '<div class="pod-aiguillage"><p class="pod-aiguillage-title">Et après ? Choisis ton offre.</p><div class="pod-aiguillage-grid">' +
+          others.map(function(p){
+            return '<a class="pod-aiguillage-btn" href="#profil=' + esc(p.slug) + '">' +
+              '<div class="pod-aiguillage-bee">' + window.PODZ.beeSvg(couleurHex(p.couleur)) + '</div>' +
+              '<div class="pod-aiguillage-btn-title">Je rejoins ' + esc(p.name) + '</div>' +
+              '<div class="pod-aiguillage-btn-sub">' + esc(p.job) + '</div>' +
+            '</a>';
+          }).join("") +
+        '</div></div>';
+      }
+
+      parcoursEl.innerHTML = (parcoursHtml || '<p class="pod-loading">Aucun parcours assigné à ce profil pour le moment.</p>') + aiguillageHtml;
+
+      var socle = catalogue.filter(function(f){ return f.offre === "Transverse"; })
+        .sort(function(a,b){ return String(a.titre).localeCompare(String(b.titre)); });
+      socleEl.innerHTML = socle.map(function(f,i){ return window.PODZ.renderSocleItem(f, i+1, "#002060"); }).join("");
+    }).catch(function(err){
+      fatal(err && err.message ? err.message : String(err));
+    });
+  };
+})();
+</script>
+<script>
+// Navigation entre les vues (#accueil / #catalogue / #profil=<slug>).
+(function(){
+  function show(){
+    var h = location.hash;
+    var view = h === "#catalogue" ? "catalogue" : (h.indexOf("#profil=") === 0 ? "profil" : "accueil");
+    ["accueil","catalogue","profil"].forEach(function(v){ document.getElementById("view-" + v).hidden = v !== view; });
+    if(view === "profil") window.PODZ.renderProfile(decodeURIComponent(h.slice(8)));
+    else document.title = view === "catalogue" ? "PODz Academy — Catalogue d'exploration" : "PODz Academy";
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", show);
+  show();
+})();
+</script>
+
+</body>
+</html>
