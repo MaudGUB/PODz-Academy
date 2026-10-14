@@ -421,7 +421,7 @@
     </div>
     <div class="pod-cat-search"><input type="text" id="podz-cat-search" placeholder="Rechercher un titre…"></div>
     <div class="pod-cat-filters">
-      <div class="pod-cat-filter-row" data-group="offre"><span class="pod-cat-filter-label">Nos offres</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="offre" data-value="">Toutes</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 1 - Data Products &amp; Analytics" style="--tag-color:#A8C4B8">Data Products &amp; Analytics</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 2 - Process &amp; Automation" style="--tag-color:#F2A8BC">Process &amp; Automation</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 3 - Data Strategy &amp; Projects" style="--tag-color:#C8B5E8">Data Strategy &amp; Projects</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 4 - Data Culture &amp; Change" style="--tag-color:#F5926A">Data Culture &amp; Change</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Transverse" style="--tag-color:var(--pod-theme-accent, var(--pod-violet))">Transverse</div></div></div>
+      <div class="pod-cat-filter-row" data-group="offre"><span class="pod-cat-filter-label">Nos offres</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="offre" data-value="">Toutes</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 1 - Data Products &amp; Analytics" style="--tag-color:#A8C4B8">Data Products &amp; Analytics</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 2 - Automation &amp; AI" style="--tag-color:#F2A8BC">Automation &amp; AI</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 3 - Data Strategy &amp; Projects" style="--tag-color:#C8B5E8">Data Strategy &amp; Projects</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Offre 4 - Data Culture &amp; Governance" style="--tag-color:#F5926A">Data Culture &amp; Governance</div><div class="pod-tag pod-tag-offre" data-group="offre" data-value="Transverse" style="--tag-color:var(--pod-theme-accent, var(--pod-violet))">Transverse</div></div></div>
       <div class="pod-cat-filter-row" data-group="bucket"><span class="pod-cat-filter-label">Buckets</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="bucket" data-value="">Tous</div><div class="pod-tag" data-group="bucket" data-value="Adoption">Adoption</div><div class="pod-tag" data-group="bucket" data-value="Analyse">Analyse</div><div class="pod-tag" data-group="bucket" data-value="Certifs">Certifs</div><div class="pod-tag" data-group="bucket" data-value="Pilotage">Pilotage</div><div class="pod-tag" data-group="bucket" data-value="Process">Process</div></div></div>
       <div class="pod-cat-filter-row" data-group="niveau"><span class="pod-cat-filter-label">Niveaux</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="niveau" data-value="">Tous</div><div class="pod-tag" data-group="niveau" data-value="Fondamentaux">Fondamentaux</div><div class="pod-tag" data-group="niveau" data-value="Intermédiaire">Intermédiaire</div><div class="pod-tag" data-group="niveau" data-value="Avancé">Avancé</div></div></div>
       <div class="pod-cat-filter-row" data-group="type"><span class="pod-cat-filter-label">Type</span><div class="pod-cat-filter-pills"><div class="pod-tag active" data-group="type" data-value="">Tout type</div><div class="pod-tag" data-group="type" data-value="Formation">Formation</div><div class="pod-tag" data-group="type" data-value="Certification">Certification</div></div></div>
@@ -450,6 +450,7 @@
 </div>
 </div>
 
+<script src="data/catalogue.js"></script>
 <script>
 (function(){
   var bcEl = document.getElementById("podz-cat-bc");
@@ -524,29 +525,14 @@
 
 
 
-  // Donnees d'exemple embarquees : page autoportante, aucun appel reseau.
-  function row(id, titre, type, offre, bucket, niveau, h, liens, tags, plat, oblig, notes, parcours){
-    return {ID:id, Title:titre, field_2:type, field_3:offre, field_4:bucket, field_5:niveau,
-      DureeHeures:h, field_7:liens.join("\n"), field_8:tags, field_9:{results:plat},
-      Obligatoire:oblig, field_11:notes||"", Parcours:{results:parcours||[]}, Ordre:id};
-  }
-  var O1="Offre 1 - Data Products & Analytics", O2="Offre 2 - Process & Automation",
-      O3="Offre 3 - Data Strategy & Projects", O4="Offre 4 - Data Culture & Change";
-  var DEMO = [
-    row(1,"Power BI — Les fondamentaux","Formation",O1,"Analyse","Fondamentaux",7,["https://learn.microsoft.com/power-bi/"],"Power BI, DAX, Dataviz",["Microsoft Learn"],false,"",["Analyste Power BI"]),
-    row(2,"Modélisation de données avancée","Formation",O1,"Analyse","Avancé",14,["https://learn.microsoft.com/","https://www.sqlbi.com/","https://example.com/modelisation"],"DAX, Modèle étoile, Performance",["Microsoft Learn","SQLBI"],false,"Prérequis : Power BI fondamentaux.",["Analyste Power BI"]),
-    row(3,"PL-300 Power BI Data Analyst","Certification",O1,"Certifs","Intermédiaire",21,["https://learn.microsoft.com/credentials/"],"Power BI, Certification",["Microsoft Learn"],false,"",["Analyste Power BI"]),
-    row(4,"Power Automate — Premiers flux","Formation",O2,"Process","Fondamentaux",3,["https://learn.microsoft.com/power-automate/"],"Power Automate, Automatisation",["Microsoft Learn"],false,"",["Automatisation des processus"]),
-    row(5,"Cartographie de processus","Formation",O2,"Process","Intermédiaire",7,["https://example.com/bpmn","https://example.com/process-mining"],"BPMN, Process mining",["Interne POD"],false,"",["Automatisation des processus"]),
-    row(6,"Cadrer un projet Data","Formation",O3,"Pilotage","Intermédiaire",7,["https://example.com/cadrage"],"Cadrage, Roadmap, KPI",["Interne POD"],true,"Formation obligatoire pour tout nouveau consultant.",["Bien démarrer chez POD","Pilotage de projet Data"]),
-    row(7,"Stratégie Data & gouvernance","Formation",O3,"Pilotage","Avancé",14,["https://example.com/strategie","https://example.com/gouvernance","https://example.com/cas-clients"],"Stratégie, Gouvernance, Data Mesh",["Interne POD","Coursera"],false,"",["Pilotage de projet Data"]),
-    row(8,"Conduite du changement Data","Formation",O4,"Adoption","Fondamentaux",3.5,["https://example.com/change"],"Adoption, Change management",["Interne POD"],false,"",["Acculturation Data"]),
-    row(9,"Acculturation Data pour managers","Formation",O4,"Adoption","Intermédiaire",7,["https://example.com/acculturation","https://example.com/kit"],"Data literacy, Animation",["Interne POD"],false,"",["Acculturation Data"]),
-    row(10,"Onboarding PODz","Formation","","Adoption","Fondamentaux",2,["https://example.com/onboarding"],"Onboarding, Culture POD",["Interne POD"],true,"",["Bien démarrer chez POD"]),
-    row(11,"IA générative au quotidien","Formation","","Adoption","Fondamentaux",3,["https://example.com/ia","https://example.com/prompting"],"IA, Prompting, Copilot",["Interne POD"],false,"",["Bien démarrer chez POD","Automatisation des processus"])
-  ];
+  // Donnees de dev : data/catalogue.js, genere depuis l'Excel du catalogue
+  // par tools/excel-vers-catalogue.ps1 (meme format que les items de la
+  // liste SharePoint, d'ou le passage par mapItem comme en prod).
   window.PODZ.fetchCatalogue = function(){
-    return Promise.resolve(DEMO.map(mapItem));
+    if(!window.PODZ_CATALOGUE){
+      return Promise.reject(new Error("data/catalogue.js introuvable — lancer tools/excel-vers-catalogue.ps1"));
+    }
+    return Promise.resolve(window.PODZ_CATALOGUE.map(mapItem));
   };
 })();
 </script>
@@ -716,9 +702,9 @@
 
   var OFFRE_COLORS = {
     "Offre 1 - Data Products & Analytics": "#A8C4B8",
-    "Offre 2 - Process & Automation": "#F2A8BC",
+    "Offre 2 - Automation & AI": "#F2A8BC",
     "Offre 3 - Data Strategy & Projects": "#C8B5E8",
-    "Offre 4 - Data Culture & Change": "#F5926A",
+    "Offre 4 - Data Culture & Governance": "#F5926A",
     "Transverse": themeAccent
   };
 
@@ -853,9 +839,9 @@
   var PROFILS = [
     {slug:"nouveau-podz", name:"Nouveau PODz", tag:"Bienvenue", job:"Tu arrives chez POD et tu poses tes bases.", heroDesc:"Tes premières semaines chez POD : la culture maison, les outils du quotidien et les fondamentaux à maîtriser avant de rejoindre une offre.", couleur:"Jaune", pageDepart:true, ordre:1},
     {slug:"analyste-data", name:"Analyste Data", tag:"Data Products & Analytics", job:"Tu transformes la donnée en produits et en décisions.", heroDesc:"Modélisation, visualisation et restitution : le parcours pour concevoir des produits data utiles et fiables.", couleur:"Vert", pageDepart:false, ordre:2},
-    {slug:"builder-ia", name:"Builder IA", tag:"Process & Automation", job:"Tu automatises les processus et construis avec l'IA.", heroDesc:"Cartographier, automatiser, intégrer l'IA : le parcours pour fluidifier les processus métier de nos clients.", couleur:"Rose", pageDepart:false, ordre:3},
+    {slug:"builder-ia", name:"Builder IA", tag:"Automation & AI", job:"Tu automatises les processus et construis avec l'IA.", heroDesc:"Cartographier, automatiser, intégrer l'IA : le parcours pour fluidifier les processus métier de nos clients.", couleur:"Rose", pageDepart:false, ordre:3},
     {slug:"chef-de-projet", name:"Chef de Projet", tag:"Data Strategy & Projects", job:"Tu cadres, pilotes et fais grandir les projets data.", heroDesc:"Cadrage, pilotage et stratégie data : le parcours pour mener les projets de bout en bout.", couleur:"Violet", pageDepart:false, ordre:4},
-    {slug:"guide-adoption", name:"Guide adoption", tag:"Data Culture & Change", job:"Tu embarques les équipes dans la culture data.", heroDesc:"Conduite du changement et acculturation : le parcours pour faire adopter la donnée durablement.", couleur:"Orange", pageDepart:false, ordre:5}
+    {slug:"guide-adoption", name:"Guide adoption", tag:"Data Culture & Governance", job:"Tu embarques les équipes dans la culture data.", heroDesc:"Conduite du changement et acculturation : le parcours pour faire adopter la donnée durablement.", couleur:"Orange", pageDepart:false, ordre:5}
   ];
   var PARCOURS = [
     {title:"Bien démarrer chez POD", description:"Les incontournables des premières semaines.", profils:["nouveau-podz"]},
@@ -956,7 +942,7 @@
   window.PODZ = window.PODZ || {};
   var root = document.getElementById("podz-profile-root");
   if(!root) return;
-  var COULEUR_HEX = {"Orange": "#F5926A", "Jaune": "#E8C96A", "Vert": "#A8C4B8", "Bleu": "#BDD1FF", "Rose": "#F2A8BC", "Violet": "#C8B5E8", "Offre 1 - Data Products & Analytics": "#A8C4B8", "Offre 2 - Process & Automation": "#F2A8BC", "Offre 3 - Data Strategy & Projects": "#C8B5E8", "Offre 4 - Data Culture & Change": "#F5926A", "Transverse": "#002060"};
+  var COULEUR_HEX = {"Orange": "#F5926A", "Jaune": "#E8C96A", "Vert": "#A8C4B8", "Bleu": "#BDD1FF", "Rose": "#F2A8BC", "Violet": "#C8B5E8", "Offre 1 - Data Products & Analytics": "#A8C4B8", "Offre 2 - Automation & AI": "#F2A8BC", "Offre 3 - Data Strategy & Projects": "#C8B5E8", "Offre 4 - Data Culture & Governance": "#F5926A", "Transverse": "#002060"};
   var bcEl = document.getElementById("podz-profile-bc");
   var heroEl = document.getElementById("podz-profile-hero");
   var parcoursEl = document.getElementById("podz-profile-parcours");
