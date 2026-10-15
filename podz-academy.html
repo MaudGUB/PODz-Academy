@@ -247,6 +247,13 @@
 .podz-cat .pod-mini__toggle{margin-top:2px;font-size:11.5px;font-weight:700;color:var(--ac,var(--pod-fonce));display:flex;align-items:center;gap:5px}
 .podz-cat .pod-cat-grid .pod-etape__detail{padding:0 15px 14px}
 
+/* Carte a un lien : lien (resume + Acceder) + bouton "Ajouter a mes formations" */
+.podz-cat .pod-mini__lien{display:flex;flex-direction:column;gap:7px;text-decoration:none;color:inherit}
+.podz-cat .pod-ajout{align-self:flex-start;appearance:none;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--pod-fonce);background:#FFFFFF;border:1px solid rgba(0,32,96,0.18);border-radius:7px;padding:5px 11px;cursor:pointer;transition:all .15s}
+.podz-cat .pod-ajout:hover{background:var(--pod-fonce);color:#FFFFFF;border-color:var(--pod-fonce)}
+.podz-cat .pod-ajout[disabled]{opacity:.6;cursor:wait}
+.podz-cat .pod-ajout-deja{align-self:flex-start;background:#E3EEE9;color:#2F6B55}
+
 
 
 </style>
@@ -423,6 +430,13 @@
 .podz-profile .pod-parcours-meta strong{font-size:17px;color:var(--pod-fonce);font-weight:700;display:block}
 
 
+
+/* "Suivre ce parcours" (US4b) */
+.podz-profile .pod-suivre-zone{margin-top:8px}
+.podz-profile .pod-suivre{appearance:none;font-family:inherit;font-size:12px;font-weight:700;color:#FFFFFF;background:var(--pod-fonce);border:1px solid var(--pod-fonce);border-radius:9px;padding:7px 13px;cursor:pointer}
+.podz-profile .pod-suivre:hover{background:#0B2F7A}
+.podz-profile .pod-suivre[disabled]{opacity:.6;cursor:wait}
+.podz-profile .pod-suivre-deja{display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:#E3EEE9;color:#2F6B55}
 
 @media (max-width:640px){
   .podz-profile .pod-hero{padding:16px}
@@ -1460,6 +1474,82 @@
 })();
 </script>
 <script>
+// Autonomie du consultant (US4b, US4c) : suivre un parcours type, ajouter un module
+// a "Mes formations", retirer un parcours. Passe uniquement par window.PODZ.*.
+(function(){
+  window.PODZ = window.PODZ || {};
+  var P = window.PODZ;
+
+  // Etat de l'utilisateur courant pour les boutons ; null hors dev (pas d'implementation prod).
+  P.mesParcours = function(){
+    return P.fetchUtilisateur().then(function(u){
+      return P.fetchAssignations([u.id]).then(function(liste){
+        var actives = liste.filter(function(a){ return a.etat === "Actif"; });
+        var modules = {}, types = {};
+        actives.forEach(function(a){
+          a.modules.forEach(function(id){ modules[id] = true; });
+          if(a.parcoursType) types[a.parcoursType] = true;
+        });
+        return {u: u, toutes: liste, actives: actives, modules: modules, types: types};
+      });
+    }).catch(function(){ return null; });
+  };
+
+  // "Suivre ce parcours" : reactive la ligne archivee en autonomie (D-P4) ou cree
+  // une copie de la composition du parcours type, sans date cible (RG9, RG11, D-P7).
+  P.suivreParcours = function(titre){
+    return Promise.all([P.mesParcours(), P.fetchCatalogue()]).then(function(r){
+      var etat = r[0], catalogue = r[1];
+      if(!etat) throw new Error(P.MSG_PROD);
+      if(etat.types[titre]) return null;
+      var archivee = etat.toutes.filter(function(a){
+        return a.etat === "Archivé" && a.source === "Autonomie" && a.parcoursType === titre;
+      })[0];
+      if(archivee){
+        archivee.etat = "Actif";
+        return P.saveAssignation(archivee);
+      }
+      return P.saveAssignation({
+        titre: titre, consultant: {id: etat.u.id}, source: "Autonomie", parcoursType: titre,
+        modules: P.calc.compositionParcoursType(titre, catalogue), dateCible: null, etat: "Actif"
+      });
+    });
+  };
+
+  // "Ajouter a mes formations" : ajoute le module a la fin du parcours libre unique
+  // "Mes formations" (D-P5, RG19), cree au premier ajout (ou reactive s'il avait ete retire).
+  P.ajouterAMesFormations = function(formationId){
+    return P.mesParcours().then(function(etat){
+      if(!etat) throw new Error(P.MSG_PROD);
+      if(etat.modules[formationId]) return null;
+      var mf = etat.actives.filter(function(a){ return a.estMesFormations; })[0] ||
+        etat.toutes.filter(function(a){ return a.estMesFormations; })[0];
+      if(mf){
+        mf.etat = "Actif";
+        if(mf.modules.indexOf(formationId) === -1) mf.modules.push(formationId);
+        return P.saveAssignation(mf);
+      }
+      return P.saveAssignation({
+        titre: "Mes formations", consultant: {id: etat.u.id}, source: "Autonomie", parcoursType: "",
+        modules: [formationId], dateCible: null, etat: "Actif"
+      });
+    });
+  };
+
+  // "Retirer de mes parcours" : archive un parcours en autonomie ; la progression est conservee (RG18).
+  P.retirerParcours = function(assignationId){
+    return P.mesParcours().then(function(etat){
+      if(!etat) throw new Error(P.MSG_PROD);
+      var a = etat.actives.filter(function(x){ return x.id === assignationId; })[0];
+      if(!a) throw new Error("Parcours introuvable");
+      if(a.source !== "Autonomie") throw new Error("Un parcours assigné ne peut être retiré que par ton manager (RG18)");
+      a.etat = "Archivé";
+      return P.saveAssignation(a);
+    });
+  };
+})();
+</script>
+<script>
 (function(){
   window.PODZ = window.PODZ || {};
 
@@ -1483,7 +1573,7 @@
 
 
 
-  function renderDetail(f){
+  function renderDetail(f, extraHtml){
     var tags = (f.tags||[]).map(function(t){return '<span class="pod-etape__detail-tag">' + esc(t) + '</span>';}).join("");
     var plat = (f.plateformes||[]).join(" · ");
     var notesHtml = f.notes ? ('<div class="pod-etape__detail-notes"><div class="pod-etape__detail-notes-label">Notes</div>' + esc(f.notes) + '</div>') : "";
@@ -1496,7 +1586,7 @@
         '<div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Plateforme</div><div class="pod-etape__detail-value">' + esc(plat) + '</div></div>' +
       '</div>' +
       tagsHtml + notesHtml +
-      '<div class="pod-etape__detail-links">' + renderLinks(f.liens, f.id) + '</div>' +
+      '<div class="pod-etape__detail-links">' + renderLinks(f.liens, f.id) + (extraHtml || "") + '</div>' +
     '</div>';
   }
 
@@ -1689,15 +1779,15 @@
 
 
 
-      // Un seul lien (ou aucun) : toute la carte reste un lien direct, comme
-      // avant -- acces en un clic pour le cas le plus frequent.
+      // Un seul lien (ou aucun) : la carte reste un lien direct (resume + "Accéder ›"),
+      // acces en un clic pour le cas le plus frequent ; le bouton "Ajouter a mes
+      // formations" est a cote du lien, pas dedans (US4c).
       if(liens.length <= 1){
-        var link = liens[0] || "#";
-        var df = liens[0] ? ' data-formation="' + esc(f.id) + '"' : "";
-        return '<a class="pod-mini" style="--ac:' + ac + '" href="' + esc(link) + '" target="_blank" rel="noopener"' + df + '>' +
-          summary +
-          '<span class="pod-mini__cta">Accéder ›</span>' +
-        '</a>';
+        var corps = summary + '<span class="pod-mini__cta">' + (liens[0] ? "Accéder ›" : "Aucun lien disponible") + '</span>';
+        var lienCarte = liens[0]
+          ? '<a class="pod-mini__lien" href="' + esc(liens[0]) + '" target="_blank" rel="noopener" data-formation="' + esc(f.id) + '">' + corps + '</a>'
+          : '<div class="pod-mini__lien">' + corps + '</div>';
+        return '<div class="pod-mini pod-mini--simple" style="--ac:' + ac + '">' + lienCarte + boutonAjout(f) + '</div>';
       }
 
 
@@ -1711,14 +1801,37 @@
           summary +
           '<div class="pod-mini__toggle">' + liens.length + ' liens <span class="pod-etape__chev">▾</span></div>' +
         '</div>' +
-        window.PODZ.renderDetail(f) +
+        window.PODZ.renderDetail(f, boutonAjout(f)) +
       '</div>';
     }).join("");
   }
 
+  // Etat "Mes parcours" de l'utilisateur courant (null hors dev : pas de bouton).
+  var MES = null;
+  function boutonAjout(f){
+    if(!MES) return "";
+    if(MES.modules[f.id]) return '<span class="pod-chip pod-ajout-deja">✓ Déjà dans mes parcours</span>';
+    return '<button type="button" class="pod-ajout" data-ajout="' + esc(f.id) + '">+ Ajouter à mes formations</button>';
+  }
+  // Recalcule l'etat a chaque affichage du catalogue (route #catalogue).
+  window.PODZ.majCatalogue = function(){
+    return window.PODZ.mesParcours().then(function(etat){
+      MES = etat;
+      if(ALL.length) renderGrid();
+    });
+  };
+
 
 
   root.addEventListener("click", function(e){
+    var ajout = e.target.closest("[data-ajout]");
+    if(ajout){
+      ajout.disabled = true;
+      window.PODZ.ajouterAMesFormations(ajout.getAttribute("data-ajout"))
+        .then(function(){ return window.PODZ.majCatalogue(); })
+        .catch(function(err){ ajout.disabled = false; ajout.textContent = err && err.message ? err.message : String(err); });
+      return;
+    }
     var summary = e.target.closest(".pod-mini__summary");
     if(summary){
       var card = summary.closest(".pod-etape");
@@ -1747,8 +1860,9 @@
 
 
 
-  window.PODZ.fetchCatalogue().then(function(list){
-    ALL = list;
+  Promise.all([window.PODZ.fetchCatalogue(), window.PODZ.mesParcours()]).then(function(r){
+    ALL = r[0];
+    MES = r[1];
     renderGrid();
   }).catch(function(err){
     gridEl.innerHTML = '<div class="pod-cat-empty">Erreur de chargement du catalogue ('
@@ -1914,13 +2028,25 @@
 
   // Appele par la navigation (#profil=<slug>) : remplace la reconnaissance
   // par ?profilId= / URL de page SharePoint du Web Part d'origine.
+  var slugCourant = null;
+  root.addEventListener("click", function(e){
+    var b = e.target.closest("[data-suivre]");
+    if(!b) return;
+    b.disabled = true;
+    window.PODZ.suivreParcours(b.getAttribute("data-suivre"))
+      .then(function(){ window.PODZ.renderProfile(slugCourant); })
+      .catch(function(err){ b.disabled = false; b.textContent = err && err.message ? err.message : String(err); });
+  });
+
   window.PODZ.renderProfile = function(slug){
+    slugCourant = slug;
     Promise.all([
       window.PODZ.fetchProfils(),
       window.PODZ.fetchParcours(),
-      window.PODZ.fetchCatalogue()
+      window.PODZ.fetchCatalogue(),
+      window.PODZ.mesParcours()
     ]).then(function(results){
-      var profils = results[0], parcoursList = results[1], catalogue = results[2];
+      var profils = results[0], parcoursList = results[1], catalogue = results[2], mes = results[3];
       var me = profils.filter(function(p){ return p.slug === slug; })[0];
       if(!me){ drawBc("Profil"); fatal("Profil « " + slug + " » introuvable."); return; }
       var accent = couleurHex(me.couleur);
@@ -1942,9 +2068,15 @@
           ? window.PODZ.renderCertifBlock(certifs.length > 1 ? "Certifications recommandées (au choix)" : "Certification recommandée", certifs)
           : "";
         var empty = formations.length === 0 ? '<p class="pod-loading">Aucune formation associée à ce parcours pour le moment.</p>' : "";
+        // "Suivre ce parcours" (CA4b.1, CA4b.2) ; absent hors dev (mes = null).
+        var suivre = !mes ? ""
+          : (mes.types[par.title]
+            ? '<span class="pod-suivre-deja">✓ Déjà dans mes parcours</span>'
+            : '<button type="button" class="pod-suivre" data-suivre="' + esc(par.title) + '">+ Suivre ce parcours</button>');
         return '<div class="pod-parcours">' +
           '<div class="pod-parcours-head"><div><h2>' + esc(par.title) + '</h2><p>' + esc(par.description) + '</p></div>' +
-          '<div class="pod-parcours-meta"><strong>' + esc(dureeLabel) + '</strong>' + formations.length + ' étape(s)</div></div>' +
+          '<div class="pod-parcours-meta"><strong>' + esc(dureeLabel) + '</strong>' + formations.length + ' étape(s)' +
+          (suivre ? '<div class="pod-suivre-zone">' + suivre + '</div>' : "") + '</div></div>' +
           etapesHtml + empty + certifHtml +
         '</div>';
       }).join("");
@@ -2114,6 +2246,10 @@
       ? '<strong' + (s.enRetard ? ' class="retard"' : "") + '>' + esc(calc.formatDate(a.dateCible)) + (s.enRetard ? " · en retard" : "") + '</strong>Date cible · '
       : '<strong>Pas d\'échéance</strong>';
     meta += pluriel(s.nb, "module") + " · " + fmtH(s.heuresRestantes) + " restantes sur " + fmtH(s.heuresTotal);
+    // Retirer : parcours en autonomie seulement, par le consultant lui-meme (CA4b.3, RG18).
+    if(ctx.mode === "consultant" && a.source === "Autonomie"){
+      meta += '<div style="margin-top:8px"><button type="button" class="pod-btn ghost" data-action="retirer" data-assignation="' + esc(a.id) + '">Retirer de mes parcours</button></div>';
+    }
     function largeur(n){ return s.nb ? (n * 100 / s.nb).toFixed(1) : 0; }
     var ps = s.parStatut;
     var nbCours = ps["en-cours"] + ps.refuse;
@@ -2273,6 +2409,12 @@
         '<button type="button" class="pod-btn ghost" data-action="annuler-declarer">Annuler</button>';
       conteneur.parentNode.insertBefore(form, conteneur.nextSibling);
       form.querySelector("input").focus();
+    } else if(act === "retirer"){
+      if(!window.confirm("Retirer ce parcours de tes parcours ? Ta progression sur ses modules est conservée.")) return;
+      btn.disabled = true;
+      window.PODZ.retirerParcours(Number(btn.getAttribute("data-assignation")))
+        .then(function(){ return rafraichir(el); })
+        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
     } else if(act === "valider" || act === "dispenser"){
       if(act === "dispenser" && !window.confirm("Dispenser ce module ? Il passera « Terminé · dispensé » dans tous les parcours du collaborateur, sans retour possible.")) return;
       btn.disabled = true;
@@ -2684,7 +2826,7 @@
 // exact = le hash doit etre identique ; sinon c'est un prefixe (la suite est passee au rendu).
 (function(){
   var ROUTES = [
-    {hash: "#catalogue", exact: true, vue: "catalogue", titre: "Catalogue d'exploration"},
+    {hash: "#catalogue", exact: true, vue: "catalogue", titre: "Catalogue d'exploration", rendu: function(){ window.PODZ.majCatalogue(); }},
     {hash: "#profil=", vue: "profil", rendu: function(suite){ window.PODZ.renderProfile(decodeURIComponent(suite)); }},
     {hash: "#mon-parcours", exact: true, vue: "mon-parcours", titre: "Mon parcours", rendu: function(){ window.PODZ.renderMonParcours(); }},
     {hash: "#mon-equipe", vue: "mon-equipe", titre: "Mon équipe", rendu: function(suite){ window.PODZ.renderMonEquipe(suite); }}
