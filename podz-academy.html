@@ -576,6 +576,9 @@
 .podz-mp .pod-mp-empty li{margin-bottom:4px}
 .podz-mp .pod-mp-empty li a{color:var(--pod-fonce);font-weight:600}
 .podz-mp .pod-mp-actions{display:flex;flex-wrap:wrap;gap:8px}
+.podz-mp .pod-mp-declare{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;background:#F7F5FC;border:1px solid rgba(200,181,232,0.5);border-radius:10px;font-size:12.5px;font-weight:600}
+.podz-mp .pod-mp-declare input{font-family:inherit;font-size:12.5px;padding:5px 8px;border:1px solid rgba(0,32,96,0.18);border-radius:7px;color:var(--pod-fonce);margin-left:6px}
+.podz-mp .pod-mp-err{flex-basis:100%;font-size:12px;font-weight:600;color:#9A3412}
 </style>
 <style>
 /* Navigation entre les vues du fichier autonome */
@@ -1328,12 +1331,14 @@
 
 
 
-  function renderLinks(liens){
+  function renderLinks(liens, formationId){
     if(!liens || !liens.length) return '<em style="font-size:11px;color:#888">Aucun lien disponible</em>';
     var multi = liens.length > 1;
     return liens.map(function(l,i){
       var label = (i===0 && !multi) ? "Accéder ›" : ("Lien " + (i+1));
-      return '<a href="' + esc(l) + '" target="_blank" rel="noopener">' + label + '</a>';
+      // data-formation : un clic du consultant demarre le module (D-P8).
+      var df = formationId ? ' data-formation="' + esc(formationId) + '"' : "";
+      return '<a href="' + esc(l) + '" target="_blank" rel="noopener"' + df + '>' + label + '</a>';
     }).join("");
   }
 
@@ -1352,7 +1357,7 @@
         '<div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Plateforme</div><div class="pod-etape__detail-value">' + esc(plat) + '</div></div>' +
       '</div>' +
       tagsHtml + notesHtml +
-      '<div class="pod-etape__detail-links">' + renderLinks(f.liens) + '</div>' +
+      '<div class="pod-etape__detail-links">' + renderLinks(f.liens, f.id) + '</div>' +
     '</div>';
   }
 
@@ -1549,7 +1554,8 @@
       // avant -- acces en un clic pour le cas le plus frequent.
       if(liens.length <= 1){
         var link = liens[0] || "#";
-        return '<a class="pod-mini" style="--ac:' + ac + '" href="' + esc(link) + '" target="_blank" rel="noopener">' +
+        var df = liens[0] ? ' data-formation="' + esc(f.id) + '"' : "";
+        return '<a class="pod-mini" style="--ac:' + ac + '" href="' + esc(link) + '" target="_blank" rel="noopener"' + df + '>' +
           summary +
           '<span class="pod-mini__cta">Accéder ›</span>' +
         '</a>';
@@ -1894,10 +1900,10 @@
     if(ctx.mode !== "consultant") return "";
     var b = "";
     if(st.code === "a-faire"){
-      b = '<button type="button" class="pod-btn ghost" data-action="demarrer" data-formation="' + esc(f.id) + '" disabled>Je commence</button>' +
+      b = '<button type="button" class="pod-btn ghost" data-action="demarrer" data-formation="' + esc(f.id) + '">Je commence</button>' +
         '<span class="pod-mp-hint">Le premier clic sur un lien passe aussi le module « En cours »</span>';
     } else if(st.code === "en-cours" || st.code === "refuse"){
-      b = '<button type="button" class="pod-btn" data-action="declarer" data-formation="' + esc(f.id) + '" disabled>J\'ai terminé…</button>' +
+      b = '<button type="button" class="pod-btn" data-action="declarer" data-formation="' + esc(f.id) + '">J\'ai terminé…</button>' +
         '<span class="pod-mp-hint">→ passe « À valider » : ' + esc(ctx.managerNom || "ton manager") + ' le verra dans sa file de validation</span>';
     } else if(st.code === "a-valider"){
       b = '<span class="pod-mp-hint">En attente de validation par ' + esc(ctx.managerNom || "ton manager") + '</span>';
@@ -2036,8 +2042,8 @@
     var action = "";
     if(ctx.mode === "consultant"){
       action = pe.statut.code === "a-faire"
-        ? '<button type="button" class="pod-btn ghost" data-action="demarrer" data-formation="' + esc(f.id) + '" disabled>Je commence</button>'
-        : '<button type="button" class="pod-btn ghost" data-action="declarer" data-formation="' + esc(f.id) + '" disabled>J\'ai terminé…</button>';
+        ? '<button type="button" class="pod-btn ghost" data-action="demarrer" data-formation="' + esc(f.id) + '">Je commence</button>'
+        : '<button type="button" class="pod-btn ghost" data-action="declarer" data-formation="' + esc(f.id) + '">J\'ai terminé…</button>';
     }
     return t + chipStatut(pe.statut) +
       '<div class="pod-mp-next-titre">' + esc(f.titre) + '</div>' +
@@ -2069,10 +2075,70 @@
       '<div class="pod-mp-actions"><a class="pod-btn ghost" href="#catalogue">Parcourir le catalogue</a></div></div>';
   }
 
+  // Re-affiche le cockpit apres une ecriture, en gardant les modules deplies.
+  function rafraichir(el, ouvrir){
+    var etat = el.podzCockpit;
+    if(!etat) return Promise.resolve();
+    var ouverts = Array.prototype.map.call(el.querySelectorAll(".pod-etape.open[data-formation-id]"), function(x){ return x.getAttribute("data-formation-id"); });
+    if(ouvrir) ouverts.push(ouvrir);
+    return window.PODZ.renderCockpit(el, etat.consultantId, etat.opts).then(function(){
+      Array.prototype.forEach.call(el.querySelectorAll(".pod-etape[data-formation-id]"), function(x){
+        if(ouverts.indexOf(x.getAttribute("data-formation-id")) !== -1) x.classList.add("open");
+      });
+    });
+  }
+  window.PODZ.rafraichirCockpit = rafraichir;
+
+  function erreur(apres, err){
+    var zone = apres.parentNode.querySelector(".pod-mp-err");
+    if(!zone){
+      zone = document.createElement("span");
+      zone.className = "pod-mp-err";
+      apres.parentNode.appendChild(zone);
+    }
+    zone.textContent = err && err.message ? err.message : String(err);
+  }
+
+  function action(el, btn){
+    var etat = el.podzCockpit;
+    var fid = btn.getAttribute("data-formation");
+    var act = btn.getAttribute("data-action");
+    if(act === "demarrer"){
+      btn.disabled = true;
+      window.PODZ.saveStatut(etat.consultantId, fid, {action: "demarrer"})
+        .then(function(){ return rafraichir(el, fid); })
+        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
+    } else if(act === "declarer"){
+      // Petit formulaire en ligne : date de fin (defaut et max = aujourd'hui).
+      var conteneur = btn.parentNode;
+      if(conteneur.parentNode.querySelector('.pod-mp-declare[data-formation="' + fid + '"]')) return;
+      var today = window.PODZ.aujourdhui();
+      var form = document.createElement("div");
+      form.className = "pod-mp-declare";
+      form.setAttribute("data-formation", fid);
+      form.innerHTML = '<label>Date de fin <input type="date" value="' + today + '" max="' + today + '"></label>' +
+        '<button type="button" class="pod-btn" data-action="confirmer-declarer" data-formation="' + esc(fid) + '">Déclarer terminé</button>' +
+        '<button type="button" class="pod-btn ghost" data-action="annuler-declarer">Annuler</button>';
+      conteneur.parentNode.insertBefore(form, conteneur.nextSibling);
+      form.querySelector("input").focus();
+    } else if(act === "annuler-declarer"){
+      var f = btn.closest(".pod-mp-declare");
+      if(f) f.parentNode.removeChild(f);
+    } else if(act === "confirmer-declarer"){
+      var dateFin = btn.closest(".pod-mp-declare").querySelector("input").value;
+      btn.disabled = true;
+      window.PODZ.saveStatut(etat.consultantId, fid, {action: "declarer", dateFin: dateFin})
+        .then(function(){ return rafraichir(el, fid); })
+        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
+    }
+  }
+
   function brancher(el){
     if(el.getAttribute("data-podz-cockpit")) return;
     el.setAttribute("data-podz-cockpit", "1");
     el.addEventListener("click", function(e){
+      var btn = e.target.closest("button[data-action]");
+      if(btn && el.podzCockpit){ action(el, btn); return; }
       var tab = e.target.closest(".pod-mp-niv-tab");
       if(tab){
         var card = tab.closest(".pod-mp-card");
@@ -2090,6 +2156,9 @@
     opts = opts || {};
     var mode = opts.mode === "manager" ? "manager" : "consultant";
     brancher(el);
+    el.podzCockpit = {consultantId: Number(consultantId), opts: opts};
+    // En mode manager, aucun demarrage automatique au clic sur un lien (RG4).
+    el.setAttribute("data-podz-mode", mode);
     return Promise.all([
       window.PODZ.fetchCatalogue(), window.PODZ.fetchUtilisateurs(),
       window.PODZ.fetchAssignations([consultantId]), window.PODZ.fetchProgression([consultantId]),
@@ -2152,6 +2221,34 @@
       el.innerHTML = '<div class="pod-loading">Erreur : ' + esc(err && err.message ? err.message : err) + '</div>';
     });
   };
+})();
+</script>
+<script>
+// Suivi des clics (D-P8, RG4) : un clic du consultant connecte sur un lien d'un
+// module de SES parcours actifs le passe "En cours", quel que soit l'ecran
+// (cockpit, catalogue, profil). Pas de demarrage quand un manager consulte le
+// cockpit d'un collaborateur. Le lien s'ouvre normalement (pas de preventDefault).
+(function(){
+  function surClic(e){
+    if(e.type === "auxclick" && e.button !== 1) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[data-formation]") : null;
+    if(!a || a.closest('[data-podz-mode="manager"]')) return;
+    var fid = a.getAttribute("data-formation");
+    var cockpit = a.closest("[data-podz-cockpit]");
+    var P = window.PODZ;
+    P.fetchUtilisateur().then(function(u){
+      return Promise.all([P.fetchAssignations([u.id]), P.fetchProgression([u.id])]).then(function(r){
+        var dansParcours = r[0].some(function(x){ return x.etat === "Actif" && x.modules.indexOf(fid) !== -1; });
+        var dejaDemarre = r[1].some(function(p){ return p.formationId === fid; });
+        if(!dansParcours || dejaDemarre) return;
+        return P.saveStatut(u.id, fid, {action: "demarrer"}).then(function(){
+          if(cockpit && P.rafraichirCockpit) return P.rafraichirCockpit(cockpit, fid);
+        });
+      });
+    }).catch(function(){ /* prod sans implementation, ou ecriture refusee : le lien s'ouvre quand meme */ });
+  }
+  document.addEventListener("click", surClic);
+  document.addEventListener("auxclick", surClic);
 })();
 </script>
 <style>
