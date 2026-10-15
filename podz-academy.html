@@ -518,6 +518,9 @@
       // n'est pas confirmée terminee cote SharePoint.
       obligatoire: !!raw.Obligatoire || isOui(raw.field_10),
       notes: raw.field_11 || "",
+      // Techno ou methode (colonne Techno, PO12) : vide tant que le metier ne
+      // l'a pas remplie dans l'Excel -> niveau par techno affiche "—".
+      techno: raw.Techno || "",
       parcours: parcours,
       ordre: (raw.Ordre != null && raw.Ordre !== "") ? Number(raw.Ordre) : 9999
     };

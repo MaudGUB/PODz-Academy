@@ -18,6 +18,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  true,
         "field_11":  "Présentation POD avec Maud \u0026 Fabienne : 30min | Parcours d\u0027intégration Datatorii en ligne",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Bien démarrer chez POD"
@@ -43,6 +44,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Jusqu\u0027à «préparation de la certif» inclus — ne pas refaire le Data management si déjà fait — ne pas faire le niveau 2 | +Mastering DAX SQLBI",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Analyste Power BI"
@@ -68,6 +70,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Formation Data 101 avec Maud (2h30) : initiation couches data + modélisation étoile et 3NF | Enterprise Data management 101 (1h15) | Data architecture basics (30m) | GCP 101 (2h) | MDM 101 (30m)",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Analyste Power BI"
@@ -93,6 +96,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Data modeling 101 (2h) | Data modeling avancé (10+8h) | Best practices modélisation SharePoint Datatorii",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Analyste Power BI"
@@ -118,6 +122,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Faire les 6 modules de l\u0027academy DataGalaxy",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Acculturation Data"
@@ -143,6 +148,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Article blog DataGalaxy + vidéo YouTube introductive",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Acculturation Data"
@@ -168,6 +174,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Basique 2j + Avancé 1j (pour aller plus loin)",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Acculturation Data"
@@ -193,6 +200,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Méthode ADKAR complète — complémentaire à la certif Prosci",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Acculturation Data"
@@ -218,6 +226,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Vyond 101 (18min) | Vyond motion paths (38min) | Vyond advanced studio tips (1h)",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Bien démarrer chez POD"
@@ -243,6 +252,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Make your PPT stand out (1h) + PPT 2021 Advanced (2h)",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Bien démarrer chez POD"
@@ -268,6 +278,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Brief UX Datatorii — à combiner avec F012 Design/DataViz",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Analyste Power BI"
@@ -293,6 +304,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "TK Dataviz | Wiki tableaux | Thème Power BI | Typographie | Couleurs | Bar graphs",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Analyste Power BI"
@@ -318,6 +330,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Gestion des parties prenantes | Entretien \u0026 focus group | Personas",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -343,6 +356,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "BA techniques (2h45) | ECBA path (16h)",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -368,6 +382,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "COPROJ | Bilan de projet et post-mortem",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -393,6 +408,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Recette (UAT) | Best Practices Gestion de Projet",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -418,6 +434,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "DTR SCRUM (PPT) | Official SCRUM Guide 2017 (PDF)",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -443,6 +460,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -468,6 +486,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "BPM Coursera Vanderbilt (~4h) + BPMN 2.0 YouTube (1h) + RACI via carte Gouvernance F020",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -493,6 +512,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Gouvernance | Matrice RACI projet — lié à F019 Ways of working",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Acculturation Data"
@@ -518,6 +538,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Gestion cycle en V | GDP 101 | Best Practices GDP | COPROJ",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -543,6 +564,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "GDP 101 (1h30) | Toolkit cadrage (1h) | Best Practices GDP (2h) | Business Rules Document (1h) | WBS \u0026 Chiffrage (1h) | Personas (1h) | Entretien \u0026 focus group (1h30) | Matrice RACI",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -568,6 +590,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "TK Power Automate POD — lien ajouté en mai 2026",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Automatisation des processus"
@@ -593,6 +616,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Basics (1,5j) : Power Platform 101 (6h) | Dataverse MS Learn (15min) | Create Apps MS Learn (15min) | Model-driven 101 (1h) — Advanced (4j) : Power Apps \u0026 Automate 201 (14h) | Model-driven 201 (12h) | Logic \u0026 Process MS Learn (15min) | Manage environments MS Learn (15min)",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Automatisation des processus"
@@ -618,6 +642,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Training kit SQL Datatorii",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Analyste Power BI"
@@ -643,6 +668,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Intro QoD (SharePoint POD) + Data Quality Core Concepts LinkedIn Learning (essai Premium gratuit)",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Analyste Power BI"
@@ -668,6 +694,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Documentation et parcours MS Learn Copilot Studio",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Automatisation des processus"
@@ -693,6 +720,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Parcours MS Learn : développer des agents IA avec Azure OpenAI et Semantic Kernel",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Automatisation des processus"
@@ -718,6 +746,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Cours Data Literacy Coursera — à destination des équipes clients et consultants juniors",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Acculturation Data"
@@ -743,6 +772,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Cours Skilljar : Claude 101 + AI Capabilities and Limitations",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Bien démarrer chez POD"
@@ -768,6 +798,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Cours Skilljar : AI Fluency Framework \u0026 Foundations",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Bien démarrer chez POD"
@@ -793,6 +824,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Cours Skilljar : Introduction to Claude CoWork — task loop, plugins, skills, fichiers",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Automatisation des processus"
@@ -818,6 +850,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Cours Skilljar : Introduction to Agent Skills + Introduction to Subagents",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Automatisation des processus"
@@ -843,6 +876,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Préparation guidée sur SharePoint POD",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -868,6 +902,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Parcours complet",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -893,6 +928,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Version accélérée — pour profils déjà agile",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"
@@ -918,6 +954,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "~3 jours de formation + examen — programme payant",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Acculturation Data"
@@ -943,6 +980,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Remplace l\u0027ancienne PL-100 (retirée en 2021) — à passer après F002 Power BI",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Analyste Power BI"
@@ -968,6 +1006,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "À passer après F024 Power Apps formation",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Automatisation des processus"
@@ -993,6 +1032,7 @@ window.PODZ_CATALOGUE = [
                     },
         "Obligatoire":  false,
         "field_11":  "Certification internationale — requiert 36 mois d\u0027expérience",
+        "Techno":  "",
         "Parcours":  {
                          "results":  [
                                          "Pilotage de projet Data"

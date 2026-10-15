@@ -72,30 +72,64 @@ foreach ($row in $ws.SelectNodes("//*[local-name()='sheetData']/*[local-name()='
   $lignes += , $cells
 }
 
-# Colonnes : A ID | B Titre | C Type | D Offre POD | E Bucket | F Niveau | G Duree
-#            H Lien(s) | I Tags Skills | J Plateforme | K Obligatoire | L Notes
+# Les colonnes sont reperees par le NOM de leur en-tete (ligne 1), compare sans
+# accents ni casse : ajouter, deplacer ou inserer une colonne (ex. Techno) dans
+# l'Excel ne casse pas la conversion. Repli sur la lettre historique si un
+# en-tete est introuvable ; Techno absente -> "" (en attente du metier).
+function Normaliser($s) {
+  $d = ([string]$s).Trim().ToLowerInvariant().Normalize([Text.NormalizationForm]::FormD)
+  return (($d.ToCharArray() | Where-Object {
+    [Globalization.CharUnicodeInfo]::GetUnicodeCategory($_) -ne [Globalization.UnicodeCategory]::NonSpacingMark
+  }) -join '')
+}
+$COLONNES = [ordered]@{
+  id = "A"; titre = "B"; type = "C"; "offre pod" = "D"; bucket = "E"; niveau = "F"
+  duree = "G"; "lien(s)" = "H"; "tags skills" = "I"; plateforme = "J"
+  obligatoire = "K"; notes = "L"; techno = $null
+}
+$entete = @{}
+if ($lignes.Count -gt 0) {
+  foreach ($lettre in $lignes[0].Keys) { $entete[(Normaliser $lignes[0][$lettre])] = $lettre }
+}
+$col = @{}
+foreach ($nom in $COLONNES.Keys) {
+  if ($entete.ContainsKey($nom)) { $col[$nom] = $entete[$nom] }
+  else {
+    $col[$nom] = $COLONNES[$nom]
+    if ($COLONNES[$nom]) { Write-Warning "En-tete '$nom' introuvable : repli sur la colonne $($COLONNES[$nom])" }
+  }
+}
+function Cellule($c, $nom) {
+  $lettre = $col[$nom]
+  if (-not $lettre -or -not $c.ContainsKey($lettre)) { return "" }
+  return $c[$lettre]
+}
+
 $items = @()
 $ordre = 0
 foreach ($c in ($lignes | Select-Object -Skip 1)) {
-  if (-not $c["A"]) { continue }
+  if (-not (Cellule $c "id")) { continue }
   $ordre++
-  $offre = $c["D"]
+  $offre = Cellule $c "offre pod"
+  $duree = Cellule $c "duree"
+  $plateforme = Cellule $c "plateforme"
   $parcours = @()
   if ($PARCOURS_PAR_OFFRE.ContainsKey($offre)) { $parcours = @($PARCOURS_PAR_OFFRE[$offre]) }
   $items += [ordered]@{
-    ID          = $c["A"]
-    Title       = $c["B"]
-    field_2     = $c["C"]
+    ID          = Cellule $c "id"
+    Title       = Cellule $c "titre"
+    field_2     = Cellule $c "type"
     field_3     = $offre
-    field_4     = $c["E"]
-    field_5     = $c["F"]
-    field_6     = $c["G"]
-    DureeHeures = Duree-EnHeures $c["G"]
-    field_7     = $c["H"]
-    field_8     = $c["I"]
-    field_9     = @{ results = @(if ($c["J"]) { $c["J"] }) }
-    Obligatoire = ($c["K"] -eq "Oui")
-    field_11    = $c["L"]
+    field_4     = Cellule $c "bucket"
+    field_5     = Cellule $c "niveau"
+    field_6     = $duree
+    DureeHeures = Duree-EnHeures $duree
+    field_7     = Cellule $c "lien(s)"
+    field_8     = Cellule $c "tags skills"
+    field_9     = @{ results = @(if ($plateforme) { $plateforme }) }
+    Obligatoire = ((Cellule $c "obligatoire") -eq "Oui")
+    field_11    = Cellule $c "notes"
+    Techno      = Cellule $c "techno"
     Parcours    = @{ results = $parcours }
     Ordre       = $ordre
   }
