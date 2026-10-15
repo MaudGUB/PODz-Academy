@@ -571,6 +571,21 @@
 .podz-home .pod-home-badge{display:inline-block;margin-left:6px;background:var(--pod-orange);color:#FFFFFF;font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 7px}
 .podz-mgr .pod-detail-cockpit{margin-top:4px}
 .podz-mgr .pod-val__refus{flex-wrap:wrap}
+/* Formulaire d'assignation (L11) */
+.podz-mgr .pod-asg-ordre{display:flex;flex-direction:column;gap:2px}
+.podz-mgr .pod-asg-fleche{appearance:none;border:1px solid rgba(0,32,96,0.14);background:#FFFFFF;color:var(--pod-fonce);border-radius:5px;font-size:10px;line-height:1;padding:2px 5px;cursor:pointer;font-family:inherit}
+.podz-mgr .pod-asg-fleche:hover{background:var(--pod-fonce);color:#FFFFFF}
+.podz-mgr .pod-asg-fleche[disabled]{opacity:.3;cursor:default;background:#FFFFFF;color:var(--pod-fonce)}
+.podz-mgr .pod-build .pod-etape__x{appearance:none;border:0;background:none;font-family:inherit;font-size:13px}
+.podz-mgr .pod-build .pod-etape__x:hover{color:#B4471F}
+.podz-mgr .pod-hint a{color:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
+.podz-mgr .pod-catpick #podz-asg-cat{max-height:520px;overflow:auto}
+.podz-mgr .pod-asg-choix{margin-top:8px;padding:10px 12px;background:#FFF6EC;border:1px solid rgba(245,146,106,0.3);border-radius:10px;font-size:12px}
+.podz-mgr .pod-asg-choix strong{display:block;color:var(--pod-orange);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.podz-mgr .pod-asg-bloque{margin:0 0 14px;padding:12px 14px;background:#FFE6DC;border-radius:10px;color:#9A3412;font-size:13px;font-weight:600}
+.podz-mgr .pod-asg-bloque a{color:#9A3412;text-decoration:underline}
+.podz-mgr .pod-asg-actions{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.podz-mgr .pod-asg-err{flex-basis:100%;font-size:12px;font-weight:600;color:#9A3412}
 .podz-mgr .pod-val__err{grid-column:1/-1;font-size:12px;font-weight:600;color:#9A3412}
 </style>
 <style>
@@ -801,6 +816,15 @@
 <div class="pod-wrap">
 <div class="pod-bc" id="podz-mp-bc"><span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">Mon parcours</span></div>
 <div id="podz-mp-cockpit"><div class="pod-loading">Chargement de ton parcours…</div></div>
+</div>
+</div>
+</div>
+
+<div class="pod-view" id="view-assigner" hidden>
+<div id="podz-asg-root" class="podz-mgr">
+<div class="pod-wrap">
+<div class="pod-bc" id="podz-asg-bc"></div>
+<div id="podz-asg-contenu"><div class="pod-loading">Chargement…</div></div>
 </div>
 </div>
 </div>
@@ -2663,8 +2687,7 @@
     var tabs = '<div class="pod-tabs">' +
       '<button type="button" class="pod-tag' + (onglet === "file" ? " active" : "") + '" data-onglet="file">À valider' + (d.file.length ? ' <span class="pod-count">' + d.file.length + '</span>' : "") + '</button>' +
       '<button type="button" class="pod-tag' + (onglet === "equipe" ? " active" : "") + '" data-onglet="equipe">Équipe</button>' +
-      // Assignation : lot L11.
-      '<span class="pod-tag is-disabled" title="Disponible prochainement" style="opacity:.5;cursor:not-allowed">Assigner un parcours</span>' +
+      '<a class="pod-tag" href="#assigner">Assigner un parcours</a>' +
     '</div>';
     var corps = onglet === "equipe"
       ? '<section class="pod-section"><div class="pod-section-head"><div><h2>Équipe</h2><p>Une ligne par collaborateur. Clique sur une ligne pour voir son détail.</p></div></div>' + renderEquipe(d) + '</section>'
@@ -2680,8 +2703,7 @@
     contenu.innerHTML = '<section class="pod-section"><div class="pod-section-head">' +
       '<div><h2>' + esc(u.nom) + '</h2><p>' + esc(u.email) + ' · lecture de son cockpit</p></div>' +
       '<span><a class="pod-btn ghost" href="#mon-equipe">← Équipe</a> ' +
-      // Assignation : lot L11.
-      '<button type="button" class="pod-btn" disabled title="Disponible prochainement">+ Assigner un parcours à ' + esc(u.nom.split(" ")[0]) + '</button></span>' +
+      '<a class="pod-btn" href="#assigner=c' + u.id + '">+ Assigner un parcours à ' + esc(u.nom.split(" ")[0]) + '</a></span>' +
       '</div></section>' +
       '<div class="podz-mp pod-detail-cockpit" id="podz-mgr-cockpit"><div class="pod-loading">Chargement du cockpit…</div></div>';
     return P.renderCockpit(document.getElementById("podz-mgr-cockpit"), u.id, {mode: "manager"});
@@ -2747,6 +2769,275 @@
     if(b){ actionFile(b); return; }
     var tr = e.target.closest(".pod-team tbody tr[data-consultant]");
     if(tr) location.hash = "#mon-equipe/c=" + tr.getAttribute("data-consultant");
+  });
+})();
+</script>
+<script>
+// Assignation par le manager (#assigner, #assigner=c<consultantId>) : US7, RG10, RG11,
+// D-P2 (ordre global puis reordonnable), D-P3 (boutons haut / bas), D-P7.
+(function(){
+  window.PODZ = window.PODZ || {};
+  var P = window.PODZ, calc = P.calc;
+  var contenu = document.getElementById("podz-asg-contenu");
+  var bcEl = document.getElementById("podz-asg-bc");
+  var OFFRE_COLORS = {
+    "Offre 1 - Data Products & Analytics": "#A8C4B8", "Offre 2 - Automation & AI": "#F2A8BC",
+    "Offre 3 - Data Strategy & Projects": "#C8B5E8", "Offre 4 - Data Culture & Governance": "#F5926A",
+    "Transverse": "#E8C96A"
+  };
+  // Etat du formulaire (une seule assignation en cours d'edition).
+  var E = null;
+
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function prenom(nom){ return String(nom || "").split(" ")[0]; }
+  function pluriel(n, s, p){ return n + " " + (n > 1 ? (p || s + "s") : s); }
+  function demain(){
+    var t = P.aujourdhui().split("-"), d = new Date(Date.UTC(+t[0], +t[1] - 1, +t[2] + 1));
+    return d.toISOString().substr(0, 10);
+  }
+  function drawBc(){
+    bcEl.innerHTML = '<span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> ' +
+      '<a href="#mon-equipe">Mon équipe</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">Assigner un parcours</span>';
+  }
+  function consultant(){ return E.equipe.filter(function(u){ return u.id === E.consultantId; })[0] || null; }
+
+  // Charge les parcours et la progression du collaborateur choisi (mentions CA7.5, doublon RG9).
+  function chargerConsultant(){
+    if(!E.consultantId){ E.assignations = []; E.progIdx = {}; return Promise.resolve(); }
+    return Promise.all([P.fetchAssignations([E.consultantId]), P.fetchProgression([E.consultantId])]).then(function(r){
+      E.assignations = r[0];
+      E.progIdx = calc.indexer(r[1], "formationId");
+    });
+  }
+
+  function doublon(){
+    if(!E.depart || !E.consultantId) return null;
+    return E.assignations.filter(function(a){ return a.etat === "Actif" && a.parcoursType === E.depart; })[0] || null;
+  }
+
+  function mention(id){
+    var st = calc.statutModule(E.progIdx, id), p = st.prog, c = consultant(), qui = c ? prenom(c.nom) : "";
+    if(st.code === "termine") return {txt: "Déjà terminé par " + qui + " le " + calc.formatDate(p.dateValidation), fait: true};
+    if(st.code === "dispense") return {txt: "Déjà terminé par " + qui + " (dispense)", fait: true};
+    if(st.code === "a-valider") return {txt: "Déclaré terminé par " + qui + " · en attente de ta validation", fait: false, aValider: true};
+    if(st.code === "en-cours" || st.code === "refuse") return {txt: "En cours chez " + qui, fait: false};
+    return null;
+  }
+
+  function renderListe(){
+    var el = document.getElementById("podz-asg-liste");
+    var html = E.modules.map(function(id, i){
+      var f = E.catIdx[id];
+      if(!f) return '<div class="pod-etape"><span></span><span class="pod-etape__num">?</span><div class="pod-etape__titre">' + esc(id) + '<small>Introuvable dans le catalogue</small></div><span></span>' +
+        '<span class="pod-etape__x" data-asg="retirer" data-i="' + i + '" title="Retirer">✕</span></div>';
+      var m = mention(id);
+      var certif = f.type === "Certification" ? ' <span class="pod-chip certif">Certification</span>' : "";
+      var sous = m ? m.txt : (f.bucket + " · " + f.niveau);
+      if(!m && E.depart && E.typeIds.indexOf(id) === -1) sous = "Ajouté hors parcours type · " + sous;
+      return '<div class="pod-etape' + (m && m.fait ? " is-done" : "") + '" style="--ac:' + (m && m.aValider ? "#E8C96A" : (OFFRE_COLORS[f.offre] || "#C8B5E8")) + '">' +
+        '<span class="pod-asg-ordre">' +
+          '<button type="button" class="pod-asg-fleche" data-asg="haut" data-i="' + i + '"' + (i === 0 ? " disabled" : "") + ' title="Monter">↑</button>' +
+          '<button type="button" class="pod-asg-fleche" data-asg="bas" data-i="' + i + '"' + (i === E.modules.length - 1 ? " disabled" : "") + ' title="Descendre">↓</button>' +
+        '</span>' +
+        '<span class="pod-etape__num">' + (m && m.fait ? "✓" : (i + 1)) + '</span>' +
+        '<div class="pod-etape__titre">' + esc(f.titre) + certif + '<small>' + esc(sous) + '</small></div>' +
+        '<span class="pod-etape__duree">' + esc(f.duree || "—") + '</span>' +
+        '<button type="button" class="pod-etape__x" data-asg="retirer" data-i="' + i + '" title="Retirer">✕</button>' +
+      '</div>';
+    }).join("");
+    if(!E.modules.length) html = '<p class="pod-hint">Aucun module : ajoute-en depuis le catalogue.</p>';
+    var retires = E.typeIds.filter(function(id){ return E.modules.indexOf(id) === -1; });
+    if(retires.length){
+      html += '<div class="pod-hint">' + pluriel(retires.length, "module") + ' du parcours type retiré' + (retires.length > 1 ? "s" : "") + ' (' +
+        esc(retires.map(function(id){ return E.catIdx[id] ? E.catIdx[id].titre : id; }).join(", ")) + ') · <a data-asg="retablir">rétablir</a></div>';
+    }
+    // Certification au choix (D-P7) : aucune copiee, le manager l'ajoute depuis le catalogue.
+    if(E.depart){
+      var certifs = calc.certifsAuChoix(E.depart, E.catalogue);
+      if(certifs.length && !certifs.some(function(c){ return E.modules.indexOf(c.id) !== -1; })){
+        html += '<div class="pod-asg-choix"><strong>Certification au choix</strong>' + esc(certifs.map(function(c){ return c.titre; }).join(" · ")) +
+          ' — ajoute celle visée depuis le catalogue ci-contre.</div>';
+      }
+    }
+    el.innerHTML = html;
+  }
+
+  function renderCatalogue(){
+    var el = document.getElementById("podz-asg-cat");
+    var q = String(E.q || "").toLowerCase().trim();
+    var liste = E.catalogue.filter(function(f){
+      if(!q) return true;
+      return (f.titre + " " + f.bucket + " " + f.offre + " " + (f.tags || []).join(" ")).toLowerCase().indexOf(q) !== -1;
+    }).sort(function(a, b){ return a.titre.localeCompare(b.titre); });
+    el.innerHTML = liste.length ? liste.map(function(f){
+      var deja = E.modules.indexOf(f.id) !== -1;
+      return '<div class="pod-mini" style="--ac:' + (OFFRE_COLORS[f.offre] || "#C8B5E8") + '"><div class="pod-mini__title"><small>' + esc(f.bucket + " · " + f.niveau) + '</small>' + esc(f.titre) + '</div>' +
+        (deja ? '<span class="pod-chip">Déjà ajouté</span>' : '<button type="button" class="pod-btn ghost sm" data-asg="ajouter" data-id="' + esc(f.id) + '">+ Ajouter</button>') + '</div>';
+    }).join("") : '<p class="pod-hint">Aucun module ne correspond.</p>';
+  }
+
+  // Raison qui empeche d'enregistrer, ou "" si le formulaire est valide.
+  function blocage(){
+    if(!E.consultantId) return "Choisis un collaborateur.";
+    var d = doublon();
+    if(d && !E.assignation) return "dejà";
+    if(!String(E.nom || "").trim()) return "Donne un nom au parcours.";
+    if(!E.dateCible) return "La date cible est obligatoire.";
+    if(E.dateCible <= P.aujourdhui()) return "La date cible doit être après aujourd'hui.";
+    if(!E.modules.length) return "Ajoute au moins un module.";
+    return "";
+  }
+
+  function renderResume(){
+    var el = document.getElementById("podz-asg-sum");
+    var c = consultant();
+    var total = 0, reste = 0, nbFaits = 0, nbAVal = 0;
+    E.modules.forEach(function(id){
+      var f = E.catIdx[id]; if(!f) return;
+      var h = Number(f.dureeHeures) || 0, m = mention(id);
+      total += h;
+      if(m && m.fait) nbFaits++; else reste += h;
+      if(m && m.aValider) nbAVal++;
+    });
+    var raison = blocage();
+    var d = doublon();
+    var alerte = document.getElementById("podz-asg-alerte");
+    alerte.innerHTML = (raison === "dejà" && d)
+      ? '<div class="pod-asg-bloque">' + esc(c.nom) + ' suit déjà le parcours type « ' + esc(E.depart) + ' » (« ' + esc(d.titre) + ' »). Un même parcours type ne peut pas être suivi deux fois (RG9). ' +
+        '<a href="#assigner=a' + d.id + '">Modifier ce parcours</a></div>'
+      : "";
+    var phrase = '<b>' + pluriel(E.modules.length, "module") + '</b> · ' + esc(P.hoursToLabel(total));
+    if(c && (nbFaits || nbAVal)){
+      var parts = [];
+      if(nbFaits) parts.push('<b>' + pluriel(nbFaits, "déjà terminé") + '</b>');
+      if(nbAVal) parts.push('<b>' + nbAVal + ' à valider</b>');
+      phrase += ' · dont ' + parts.join(" et ") + ' par ' + esc(prenom(c.nom));
+    }
+    phrase += ' → reste <b>' + esc(P.hoursToLabel(reste)) + '</b>' + (E.dateCible ? " d'ici le " + esc(calc.formatDate(E.dateCible)) : "");
+    var libelle = E.assignation ? "Enregistrer les modifications" : ("Assigner à " + (c ? prenom(c.nom) : "…"));
+    el.innerHTML = '<span>' + phrase + '</span>' +
+      '<span class="pod-asg-actions">' + (raison && raison !== "dejà" ? '<span class="pod-hint">' + esc(raison) + '</span> ' : "") +
+      '<a class="pod-btn ghost" data-asg="annuler">Annuler</a> ' +
+      '<button type="button" class="pod-btn" data-asg="enregistrer"' + (raison ? " disabled" : "") + '>' + esc(libelle) + '</button></span>' +
+      '<div class="pod-asg-err" id="podz-asg-err"></div>';
+  }
+
+  function majTout(){ renderListe(); renderCatalogue(); renderResume(); }
+
+  function appliquerDepart(titre){
+    E.depart = titre;
+    E.typeIds = titre ? calc.compositionParcoursType(titre, E.catalogue) : [];
+    E.modules = E.typeIds.slice();
+    E.nom = titre;
+    var champ = document.getElementById("podz-asg-nom");
+    if(champ) champ.value = E.nom;
+  }
+
+  function renderFormulaire(){
+    var c = consultant();
+    var options = '<option value="">— Choisir —</option>' + E.equipe.map(function(u){
+      return '<option value="' + u.id + '"' + (u.id === E.consultantId ? " selected" : "") + '>' + esc(u.nom) + '</option>';
+    }).join("");
+    var departs = '<option value=""' + (!E.depart ? " selected" : "") + '>Parcours vide (construit module par module)</option>' +
+      E.parcoursTypes.map(function(t){
+        return '<option value="' + esc(t) + '"' + (t === E.depart ? " selected" : "") + '>Parcours type : ' + esc(t) + '</option>';
+      }).join("");
+    contenu.innerHTML = '<section class="pod-section">' +
+      '<div class="pod-section-head"><div><h2>Assigner un parcours' + (c ? " à " + esc(c.nom) : "") + '</h2>' +
+        '<p>Pars d\'un parcours type et adapte-le, ou construis-le module par module. Le parcours assigné est une copie : modifier le parcours type ensuite ne le change pas.</p></div></div>' +
+      '<div class="pod-form">' +
+        '<div class="pod-field"><label for="podz-asg-qui">Collaborateur</label><select id="podz-asg-qui">' + options + '</select></div>' +
+        '<div class="pod-field"><label for="podz-asg-depart">Point de départ</label><select id="podz-asg-depart">' + departs + '</select></div>' +
+        '<div class="pod-field"><label for="podz-asg-nom">Nom du parcours *</label><input id="podz-asg-nom" type="text" maxlength="120" value="' + esc(E.nom) + '" placeholder="Ex. Montée en compétence Power Platform"></div>' +
+        '<div class="pod-field"><label for="podz-asg-date">Date cible *</label><input id="podz-asg-date" type="date" min="' + demain() + '" value="' + esc(E.dateCible || "") + '"></div>' +
+      '</div>' +
+      '<div id="podz-asg-alerte"></div>' +
+      '<div class="pod-build">' +
+        '<div><div class="pod-label">Modules du parcours · ↑ / ↓ pour réordonner</div><div id="podz-asg-liste"></div></div>' +
+        '<div class="pod-catpick"><div class="pod-label">Ajouter depuis le catalogue</div>' +
+          '<input id="podz-asg-q" type="text" placeholder="Rechercher un module (titre, compétence, offre…)" value="' + esc(E.q || "") + '">' +
+          '<div id="podz-asg-cat"></div></div>' +
+      '</div>' +
+      '<div class="pod-sum" id="podz-asg-sum"></div>' +
+    '</section>';
+    majTout();
+  }
+
+  // suite = "" | "=c<consultantId>" | "=a<assignationId>" (modification : lot L12).
+  P.renderAssigner = function(suite){
+    drawBc();
+    contenu.innerHTML = '<div class="pod-loading">Chargement…</div>';
+    return P.fetchUtilisateur().then(function(moi){
+      if(!(moi.estManager || moi.estAdmin)){ location.hash = "#accueil"; return; }
+      return Promise.all([P.fetchEquipe(moi.id), P.fetchCatalogue(), P.fetchParcours()]).then(function(r){
+        E = {
+          moi: moi, equipe: r[0], catalogue: r[1], catIdx: calc.indexer(r[1], "id"),
+          parcoursTypes: r[2].map(function(p){ return p.title; }),
+          consultantId: null, depart: "", typeIds: [], modules: [], nom: "", dateCible: "", q: "",
+          assignation: null, assignations: [], progIdx: {}
+        };
+        var m = /^=c(\d+)$/.exec(suite || "");
+        if(m && E.equipe.some(function(u){ return u.id === Number(m[1]); })) E.consultantId = Number(m[1]);
+        return chargerConsultant().then(renderFormulaire);
+      });
+    }).catch(function(err){
+      contenu.innerHTML = '<div class="pod-loading">Erreur : ' + esc(err && err.message ? err.message : err) + '</div>';
+    });
+  };
+
+  function enregistrer(btn){
+    var c = consultant();
+    btn.disabled = true;
+    var nom = String(E.nom).trim();
+    P.saveAssignation({
+      id: E.assignation ? E.assignation.id : null,
+      titre: nom, consultant: {id: c.id}, source: "Manager",
+      // Parcours type garde seulement si le nom n'a pas change (sinon parcours personnalise).
+      parcoursType: (E.depart && nom === E.depart) ? E.depart : "",
+      modules: E.modules.slice(), dateCible: E.dateCible, etat: "Actif"
+    }).then(function(){
+      location.hash = "#mon-equipe/c=" + c.id;
+    }).catch(function(err){
+      btn.disabled = false;
+      document.getElementById("podz-asg-err").textContent = err && err.message ? err.message : String(err);
+    });
+  }
+
+  var root = document.getElementById("podz-asg-root");
+  root.addEventListener("click", function(e){
+    var t = e.target.closest("[data-asg]");
+    if(!t || !E || t.disabled) return;
+    var act = t.getAttribute("data-asg"), i = Number(t.getAttribute("data-i"));
+    if(act === "haut" && i > 0){ var x = E.modules[i - 1]; E.modules[i - 1] = E.modules[i]; E.modules[i] = x; }
+    else if(act === "bas" && i < E.modules.length - 1){ var y = E.modules[i + 1]; E.modules[i + 1] = E.modules[i]; E.modules[i] = y; }
+    else if(act === "retirer"){ E.modules.splice(i, 1); }
+    else if(act === "ajouter"){ var id = t.getAttribute("data-id"); if(E.modules.indexOf(id) === -1) E.modules.push(id); }
+    else if(act === "retablir"){
+      E.typeIds.forEach(function(id){ if(E.modules.indexOf(id) === -1) E.modules.push(id); });
+    }
+    else if(act === "annuler"){ location.hash = E.consultantId ? "#mon-equipe/c=" + E.consultantId : "#mon-equipe"; return; }
+    else if(act === "enregistrer"){ enregistrer(t); return; }
+    majTout();
+  });
+  root.addEventListener("change", function(e){
+    if(!E) return;
+    if(e.target.id === "podz-asg-qui"){
+      E.consultantId = e.target.value ? Number(e.target.value) : null;
+      chargerConsultant().then(function(){
+        var h = root.querySelector(".pod-section-head h2"), c = consultant();
+        if(h) h.textContent = "Assigner un parcours" + (c ? " à " + c.nom : "");
+        majTout();
+      });
+    } else if(e.target.id === "podz-asg-depart"){
+      appliquerDepart(e.target.value);
+      majTout();
+    }
+  });
+  root.addEventListener("input", function(e){
+    if(!E) return;
+    if(e.target.id === "podz-asg-nom"){ E.nom = e.target.value; renderResume(); }
+    else if(e.target.id === "podz-asg-date"){ E.dateCible = e.target.value; renderResume(); }
+    else if(e.target.id === "podz-asg-q"){ E.q = e.target.value; renderCatalogue(); }
   });
 })();
 </script>
@@ -2829,7 +3120,8 @@
     {hash: "#catalogue", exact: true, vue: "catalogue", titre: "Catalogue d'exploration", rendu: function(){ window.PODZ.majCatalogue(); }},
     {hash: "#profil=", vue: "profil", rendu: function(suite){ window.PODZ.renderProfile(decodeURIComponent(suite)); }},
     {hash: "#mon-parcours", exact: true, vue: "mon-parcours", titre: "Mon parcours", rendu: function(){ window.PODZ.renderMonParcours(); }},
-    {hash: "#mon-equipe", vue: "mon-equipe", titre: "Mon équipe", rendu: function(suite){ window.PODZ.renderMonEquipe(suite); }}
+    {hash: "#mon-equipe", vue: "mon-equipe", titre: "Mon équipe", rendu: function(suite){ window.PODZ.renderMonEquipe(suite); }},
+    {hash: "#assigner", vue: "assigner", titre: "Assigner un parcours", rendu: function(suite){ window.PODZ.renderAssigner(suite); }}
   ];
   var VUES = ["accueil"];
   ROUTES.forEach(function(r){ if(VUES.indexOf(r.vue) === -1) VUES.push(r.vue); });
