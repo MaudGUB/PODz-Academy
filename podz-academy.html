@@ -586,6 +586,24 @@
 .podz-mgr .pod-asg-bloque a{color:#9A3412;text-decoration:underline}
 .podz-mgr .pod-asg-actions{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
 .podz-mgr .pod-asg-err{flex-basis:100%;font-size:12px;font-weight:600;color:#9A3412}
+.podz-mgr .pod-team-wrap{overflow-x:auto}
+/* Petits ecrans (L12) */
+@media (max-width:860px){
+  .podz-mgr .pod-kpis{width:100%}
+}
+@media (max-width:640px){
+  .podz-mgr .pod-hero{padding:16px}
+  .podz-mgr .pod-kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .podz-mgr .pod-kpi{padding:8px 6px}
+  .podz-mgr .pod-kpi strong{font-size:18px}
+  .podz-mgr .pod-kpi span{font-size:9px;letter-spacing:.02em}
+  .podz-mgr .pod-section{padding:16px}
+  .podz-mgr .pod-team .pod-chip{display:none}
+  .podz-mgr .pod-minibar{min-width:90px}
+  .podz-mgr .pod-build .pod-etape{grid-template-columns:auto auto 1fr auto}
+  .podz-mgr .pod-build .pod-etape__duree{display:none}
+  .podz-mgr .pod-sum{flex-direction:column;align-items:flex-start}
+}
 .podz-mgr .pod-val__err{grid-column:1/-1;font-size:12px;font-weight:600;color:#9A3412}
 </style>
 <style>
@@ -1504,6 +1522,19 @@
   window.PODZ = window.PODZ || {};
   var P = window.PODZ;
 
+  // Message d'erreur d'un save* affiche juste apres le bouton (style en ligne : utilise
+  // dans les racines .podz-cat et .podz-profile).
+  P.afficherErreur = function(apres, err){
+    var z = apres.nextElementSibling;
+    if(!z || !z.classList.contains("pod-erreur")){
+      z = document.createElement("span");
+      z.className = "pod-erreur";
+      z.style.cssText = "display:block;margin-top:4px;font-size:11.5px;font-weight:600;color:#9A3412;white-space:normal";
+      apres.parentNode.insertBefore(z, apres.nextSibling);
+    }
+    z.textContent = err && err.message ? err.message : String(err);
+  };
+
   // Etat de l'utilisateur courant pour les boutons ; null hors dev (pas d'implementation prod).
   P.mesParcours = function(){
     return P.fetchUtilisateur().then(function(u){
@@ -1853,7 +1884,7 @@
       ajout.disabled = true;
       window.PODZ.ajouterAMesFormations(ajout.getAttribute("data-ajout"))
         .then(function(){ return window.PODZ.majCatalogue(); })
-        .catch(function(err){ ajout.disabled = false; ajout.textContent = err && err.message ? err.message : String(err); });
+        .catch(function(err){ ajout.disabled = false; window.PODZ.afficherErreur(ajout, err); });
       return;
     }
     var summary = e.target.closest(".pod-mini__summary");
@@ -2059,7 +2090,7 @@
     b.disabled = true;
     window.PODZ.suivreParcours(b.getAttribute("data-suivre"))
       .then(function(){ window.PODZ.renderProfile(slugCourant); })
-      .catch(function(err){ b.disabled = false; b.textContent = err && err.message ? err.message : String(err); });
+      .catch(function(err){ b.disabled = false; window.PODZ.afficherErreur(b, err); });
   });
 
   window.PODZ.renderProfile = function(slug){
@@ -2274,6 +2305,12 @@
     if(ctx.mode === "consultant" && a.source === "Autonomie"){
       meta += '<div style="margin-top:8px"><button type="button" class="pod-btn ghost" data-action="retirer" data-assignation="' + esc(a.id) + '">Retirer de mes parcours</button></div>';
     }
+    // Manager (detail collaborateur) : modifier ou archiver un parcours ASSIGNE seulement (CA7.7, RG18, RG20).
+    if(ctx.mode === "manager" && a.source === "Manager"){
+      meta += '<div class="pod-mp-actions" style="margin-top:8px;justify-content:flex-end">' +
+        '<a class="pod-btn ghost" href="#assigner=a' + esc(a.id) + '">Modifier le parcours</a>' +
+        '<button type="button" class="pod-btn ghost" data-action="archiver" data-assignation="' + esc(a.id) + '">Archiver</button></div>';
+    }
     function largeur(n){ return s.nb ? (n * 100 / s.nb).toFixed(1) : 0; }
     var ps = s.parStatut;
     var nbCours = ps["en-cours"] + ps.refuse;
@@ -2438,6 +2475,17 @@
       btn.disabled = true;
       window.PODZ.retirerParcours(Number(btn.getAttribute("data-assignation")))
         .then(function(){ return rafraichir(el); })
+        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
+    } else if(act === "archiver"){
+      if(!window.confirm("Archiver ce parcours ? Il disparaîtra du cockpit du collaborateur ; sa progression sur les modules est conservée.")) return;
+      btn.disabled = true;
+      var idA = Number(btn.getAttribute("data-assignation"));
+      window.PODZ.fetchAssignations([etat.consultantId]).then(function(liste){
+        var a = liste.filter(function(x){ return x.id === idA; })[0];
+        if(!a) throw new Error("Parcours introuvable");
+        a.etat = "Archivé";
+        return window.PODZ.saveAssignation(a);
+      }).then(function(){ return rafraichir(el); })
         .catch(function(err){ btn.disabled = false; erreur(btn, err); });
     } else if(act === "valider" || act === "dispenser"){
       if(act === "dispenser" && !window.confirm("Dispenser ce module ? Il passera « Terminé · dispensé » dans tous les parcours du collaborateur, sans retour possible.")) return;
@@ -2651,7 +2699,7 @@
 
   function renderEquipe(d){
     if(!d.lignes.length) return '<p class="pod-vide">Aucun collaborateur rattaché.</p>';
-    return '<table class="pod-team"><thead><tr><th>Collaborateur</th><th>Parcours actifs</th><th>Avancement global</th>' +
+    return '<div class="pod-team-wrap"><table class="pod-team"><thead><tr><th>Collaborateur</th><th>Parcours actifs</th><th>Avancement global</th>' +
       '<th class="hide-m">Prochaine échéance</th><th class="hide-m">À valider</th></tr></thead><tbody>' +
       d.lignes.map(function(l){
         var detail = [];
@@ -2670,7 +2718,7 @@
           '<td class="hide-m">' + ech + '</td>' +
           '<td class="hide-m">' + (l.nbAValider ? '<span class="pod-st pod-st--avalider">' + l.nbAValider + '</span>' : "—") + '</td>' +
         '</tr>';
-      }).join("") + '</tbody></table>';
+      }).join("") + '</tbody></table></div>';
   }
 
   function renderVue(d){
@@ -2820,7 +2868,8 @@
     if(st.code === "termine") return {txt: "Déjà terminé par " + qui + " le " + calc.formatDate(p.dateValidation), fait: true};
     if(st.code === "dispense") return {txt: "Déjà terminé par " + qui + " (dispense)", fait: true};
     if(st.code === "a-valider") return {txt: "Déclaré terminé par " + qui + " · en attente de ta validation", fait: false, aValider: true};
-    if(st.code === "en-cours" || st.code === "refuse") return {txt: "En cours chez " + qui, fait: false};
+    if(st.code === "refuse") return {txt: "En cours chez " + qui + " · refusé le " + calc.formatDate(p.dateValidation), fait: false};
+    if(st.code === "en-cours") return {txt: "En cours chez " + qui, fait: false};
     return null;
   }
 
@@ -2833,7 +2882,7 @@
       var m = mention(id);
       var certif = f.type === "Certification" ? ' <span class="pod-chip certif">Certification</span>' : "";
       var sous = m ? m.txt : (f.bucket + " · " + f.niveau);
-      if(!m && E.depart && E.typeIds.indexOf(id) === -1) sous = "Ajouté hors parcours type · " + sous;
+      if(!m && (E.depart || E.assignation) && E.typeIds.indexOf(id) === -1) sous = (E.assignation ? "Ajouté à ce parcours · " : "Ajouté hors parcours type · ") + sous;
       return '<div class="pod-etape' + (m && m.fait ? " is-done" : "") + '" style="--ac:' + (m && m.aValider ? "#E8C96A" : (OFFRE_COLORS[f.offre] || "#C8B5E8")) + '">' +
         '<span class="pod-asg-ordre">' +
           '<button type="button" class="pod-asg-fleche" data-asg="haut" data-i="' + i + '"' + (i === 0 ? " disabled" : "") + ' title="Monter">↑</button>' +
@@ -2848,7 +2897,7 @@
     if(!E.modules.length) html = '<p class="pod-hint">Aucun module : ajoute-en depuis le catalogue.</p>';
     var retires = E.typeIds.filter(function(id){ return E.modules.indexOf(id) === -1; });
     if(retires.length){
-      html += '<div class="pod-hint">' + pluriel(retires.length, "module") + ' du parcours type retiré' + (retires.length > 1 ? "s" : "") + ' (' +
+      html += '<div class="pod-hint">' + pluriel(retires.length, "module") + (E.assignation ? " du parcours" : " du parcours type") + ' retiré' + (retires.length > 1 ? "s" : "") + ' (' +
         esc(retires.map(function(id){ return E.catIdx[id] ? E.catIdx[id].titre : id; }).join(", ")) + ') · <a data-asg="retablir">rétablir</a></div>';
     }
     // Certification au choix (D-P7) : aucune copiee, le manager l'ajoute depuis le catalogue.
@@ -2883,7 +2932,9 @@
     if(d && !E.assignation) return "dejà";
     if(!String(E.nom || "").trim()) return "Donne un nom au parcours.";
     if(!E.dateCible) return "La date cible est obligatoire.";
-    if(E.dateCible <= P.aujourdhui()) return "La date cible doit être après aujourd'hui.";
+    // En modification, une date cible deja depassee peut etre conservee telle quelle.
+    var inchangee = E.assignation && E.dateCible === E.assignation.dateCible;
+    if(!inchangee && E.dateCible <= P.aujourdhui()) return "La date cible doit être après aujourd'hui.";
     if(!E.modules.length) return "Ajoute au moins un module.";
     return "";
   }
@@ -2942,12 +2993,20 @@
       E.parcoursTypes.map(function(t){
         return '<option value="' + esc(t) + '"' + (t === E.depart ? " selected" : "") + '>Parcours type : ' + esc(t) + '</option>';
       }).join("");
+    var modif = !!E.assignation;
+    // En modification (CA7.7), le collaborateur et le point de depart sont figes.
+    var fige = modif ? " disabled" : "";
+    var titre = modif ? "Modifier « " + esc(E.assignation.titre) + " »" + (c ? " de " + esc(c.nom) : "")
+                      : "Assigner un parcours" + (c ? " à " + esc(c.nom) : "");
+    var intro = modif
+      ? "Ajoute, retire ou réordonne les modules et change la date cible. Retirer un module n'efface pas la progression du collaborateur : s'il revient, son statut est retrouvé."
+      : "Pars d'un parcours type et adapte-le, ou construis-le module par module. Le parcours assigné est une copie : modifier le parcours type ensuite ne le change pas.";
     contenu.innerHTML = '<section class="pod-section">' +
-      '<div class="pod-section-head"><div><h2>Assigner un parcours' + (c ? " à " + esc(c.nom) : "") + '</h2>' +
-        '<p>Pars d\'un parcours type et adapte-le, ou construis-le module par module. Le parcours assigné est une copie : modifier le parcours type ensuite ne le change pas.</p></div></div>' +
+      '<div class="pod-section-head"><div><h2>' + titre + '</h2>' +
+        '<p>' + esc(intro) + '</p></div></div>' +
       '<div class="pod-form">' +
-        '<div class="pod-field"><label for="podz-asg-qui">Collaborateur</label><select id="podz-asg-qui">' + options + '</select></div>' +
-        '<div class="pod-field"><label for="podz-asg-depart">Point de départ</label><select id="podz-asg-depart">' + departs + '</select></div>' +
+        '<div class="pod-field"><label for="podz-asg-qui">Collaborateur</label><select id="podz-asg-qui"' + fige + '>' + options + '</select></div>' +
+        '<div class="pod-field"><label for="podz-asg-depart">Point de départ</label><select id="podz-asg-depart"' + fige + '>' + departs + '</select></div>' +
         '<div class="pod-field"><label for="podz-asg-nom">Nom du parcours *</label><input id="podz-asg-nom" type="text" maxlength="120" value="' + esc(E.nom) + '" placeholder="Ex. Montée en compétence Power Platform"></div>' +
         '<div class="pod-field"><label for="podz-asg-date">Date cible *</label><input id="podz-asg-date" type="date" min="' + demain() + '" value="' + esc(E.dateCible || "") + '"></div>' +
       '</div>' +
@@ -2978,7 +3037,27 @@
         };
         var m = /^=c(\d+)$/.exec(suite || "");
         if(m && E.equipe.some(function(u){ return u.id === Number(m[1]); })) E.consultantId = Number(m[1]);
-        return chargerConsultant().then(renderFormulaire);
+        var ma = /^=a(\d+)$/.exec(suite || "");
+        if(!ma) return chargerConsultant().then(renderFormulaire);
+        // Modification d'un parcours assigne (CA7.7, RG20) : collaborateur de l'equipe, Source Manager, actif.
+        var idA = Number(ma[1]);
+        var ids = E.equipe.map(function(u){ return u.id; });
+        return P.fetchAssignations(ids).then(function(liste){
+          var a = liste.filter(function(x){ return x.id === idA; })[0];
+          if(!a || a.source !== "Manager" || a.etat !== "Actif"){
+            contenu.innerHTML = '<div class="pod-loading">Ce parcours n\'existe pas, n\'est pas un parcours assigné actif, ou n\'appartient pas à ton équipe. <a href="#mon-equipe">Retour à l\'équipe</a></div>';
+            return;
+          }
+          E.assignation = a;
+          E.consultantId = a.consultant.id;
+          E.depart = a.parcoursType || "";
+          E.typeIds = a.modules.slice();
+          E.modules = a.modules.slice();
+          E.nom = a.titre;
+          E.dateCible = a.dateCible || "";
+          document.title = "PODz Academy — Modifier « " + a.titre + " »";
+          return chargerConsultant().then(renderFormulaire);
+        });
       });
     }).catch(function(err){
       contenu.innerHTML = '<div class="pod-loading">Erreur : ' + esc(err && err.message ? err.message : err) + '</div>';

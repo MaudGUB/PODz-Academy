@@ -4,6 +4,8 @@
 > Référence fonctionnelle : `SPECS.md` (US*, CA*, RG*). Maquettes :
 > `maquettes/mon-parcours.html`, `maquettes/vue-manager.html`.
 > Brief de la session suivante : `SESSION-4-EXECUTION.md`.
+> **Exécution (session 4, 15/10/2026) : lots L1 à L12 faits, recette validée (`RECETTE.md`).
+> Écarts : § 6. Suite : `SESSION-5-PROD.md` (passage en prod).**
 
 ---
 
@@ -537,3 +539,5 @@ locale dans `map*` ; récupérer `ListItemEntityTypeFullName` de chaque liste ;
 | L10 | Cartes du catalogue à un lien : `div.pod-mini` contenant `a.pod-mini__lien` (résumé + « Accéder › », toujours cliquable) et le bouton. `renderDetail(f, extraHtml)` reçoit un 2e paramètre pour placer le bouton dans le panneau des cartes à plusieurs liens. Nouvelles fonctions `PODZ.mesParcours`, `suivreParcours`, `ajouterAMesFormations`, `retirerParcours`, `majCatalogue`. | Nécessaire au lot. |
 | L11 | Vue `#view-assigner` séparée (racine `.podz-mgr` propre) plutôt qu'un bloc dans `#view-mon-equipe`. Point de départ par défaut : « Parcours vide ». Le récapitulatif compte un module À valider dans le « reste à faire ». | Formulaire indépendant de l'onglet ; routes `#assigner…` distinctes (§ 1.2). |
 | L11 | La recherche « Ajouter depuis le catalogue » porte sur le titre, la compétence, l'offre et les tags. | Maquette : « titre, compétence, offre… ». |
+| L12 | En modification, une date cible déjà dépassée peut être conservée telle quelle (seule une **nouvelle** date doit être après aujourd'hui). Le lien « rétablir » propose les modules retirés **pendant cette modification** ; pour remettre un module retiré lors d'une modification précédente, on le rajoute depuis le catalogue. | Ne pas forcer un changement de date pour simplement ajouter un module à un parcours en retard. |
+| L12 | Responsive : règles ≤ 860 px / ≤ 640 px ajoutées pour `.podz-mgr` (KPIs, tableau Équipe défilant, constructeur) ; erreurs des `save*` affichées sous le bouton (`PODZ.afficherErreur`) dans le catalogue et les profils. | Finitions du lot. |
