@@ -756,6 +756,30 @@
 .podz-mp .pod-mp-empty li{margin-bottom:4px}
 .podz-mp .pod-mp-empty li a{color:var(--pod-fonce);font-weight:600}
 .podz-mp .pod-mp-actions{display:flex;flex-wrap:wrap;gap:8px}
+/* Certification visee (en tete de parcours) et carte Certifications */
+.podz-mp .pod-mp-visee{margin:0 0 14px}
+.podz-mp .pod-mp-visee ul{margin:4px 0 4px;padding:0;list-style:none}
+.podz-mp .pod-mp-visee li{margin:2px 0}
+.podz-mp .pod-mp-visee li.ok b{color:#2F6B55}
+.podz-mp .pod-mp-visee p{margin:4px 0 0;color:var(--pod-muted)}
+.podz-mp .pod-mp-certifs{margin:0 0 6px;padding:0;list-style:none}
+.podz-mp .pod-mp-certifs li{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:7px 0;border-bottom:1px dashed rgba(0,32,96,0.1);font-size:13px}
+.podz-mp .pod-mp-certifs li:last-child{border-bottom:0}
+.podz-mp .pod-mp-certifs li span{font-size:11.5px;color:var(--pod-muted)}
+.podz-mp .pod-mp-certifs li.ok b{color:#C0532E}
+.podz-mp .pod-mp-sous-titre{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--pod-muted);margin:12px 0 2px}
+.podz-mp .pod-mp-compte{float:right;font-size:12px;color:var(--pod-muted);letter-spacing:0}
+/* Medailles : debloquees en couleur, les autres grisees */
+.podz-mp .pod-mp-medailles{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.podz-mp .pod-mp-medaille{border:1px solid rgba(0,32,96,0.08);border-radius:12px;padding:9px 8px;text-align:center;background:#FAFAFD;opacity:.55;filter:grayscale(1)}
+.podz-mp .pod-mp-medaille.obtenue{opacity:1;filter:none;background:#FFFFFF;box-shadow:0 4px 12px -8px rgba(0,32,96,.3)}
+.podz-mp .pod-mp-medaille__icone{display:block;font-size:24px;line-height:1.1;color:var(--med,#C8B5E8)}
+.podz-mp .pod-mp-medaille b{display:block;font-size:12px;line-height:1.25;margin-top:2px}
+.podz-mp .pod-mp-medaille small{display:block;font-size:10px;line-height:1.3;color:var(--pod-muted);margin-top:2px}
+.podz-mp .pod-mp-medaille--volume{--med:#7FA3F5}
+.podz-mp .pod-mp-medaille--certif{--med:#F5926A}
+.podz-mp .pod-mp-medaille--expert{--med:#9B7BD4}
+.podz-mp .pod-mp-medaille--parcours{--med:#5E9C84}
 .podz-mp .pod-mp-declare{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;background:#F7F5FC;border:1px solid rgba(200,181,232,0.5);border-radius:10px;font-size:12.5px;font-weight:600}
 .podz-mp .pod-mp-declare input{font-family:inherit;font-size:12.5px;padding:5px 8px;border:1px solid rgba(0,32,96,0.18);border-radius:7px;color:var(--pod-fonce);margin-left:6px}
 .podz-mp .pod-mp-err{flex-basis:100%;font-size:12px;font-weight:600;color:#9A3412}
@@ -1509,6 +1533,78 @@
   calc.certifsAuChoix = function(titre, catalogue){
     var certifs = membres(titre, catalogue).filter(function(f){ return f.type === "Certification"; });
     return certifs.length > 1 ? certifs : [];
+  };
+
+  // ---------------------------------------------------------------------------
+  // Certifications visees par un parcours : celles du parcours ou, a defaut, celles
+  // "au choix" de son parcours type (D-P7). modulesRestants = formations (hors
+  // certifications) du parcours pas encore terminees.
+  // -> {certifs: [{formation, statut}], auChoix: bool, modulesRestants} ou null si aucune.
+  calc.certifsParcours = function(assignation, catIdx, progIdx, catalogue){
+    var dans = (assignation.modules || []).map(function(id){ return catIdx[id]; })
+      .filter(function(f){ return f && f.type === "Certification"; });
+    var auChoix = false;
+    if(!dans.length && assignation.parcoursType){
+      dans = calc.certifsAuChoix(assignation.parcoursType, catalogue);
+      auChoix = dans.length > 0;
+    }
+    if(!dans.length) return null;
+    var restants = (assignation.modules || []).filter(function(id){
+      var f = catIdx[id];
+      return f && f.type !== "Certification" && !FAIT[calc.statutModule(progIdx, id).code];
+    }).length;
+    return {
+      certifs: dans.map(function(f){ return {formation: f, statut: calc.statutModule(progIdx, f.id)}; }),
+      auChoix: auChoix, modulesRestants: restants
+    };
+  };
+
+  // Medailles (gamification) : 4 familles validees avec le metier.
+  // Volume = modules termines (dispenses comprises, RG16) ; Certifications ;
+  // Expert <competence> = toutes les formations de la competence terminees ;
+  // Parcours = un parcours (hors "Mes formations") termine a 100 %, et termine au
+  // plus tard a sa date cible. Archives compris : ce qui est acquis le reste.
+  // -> [{id, famille, titre, critere, obtenue, avancement: "x / y"}]
+  calc.medailles = function(progIdx, catIdx, assignations){
+    var formations = Object.keys(catIdx).map(function(k){ return catIdx[k]; })
+      .sort(function(a, b){ return (a.ordre || 0) - (b.ordre || 0); });
+    function fait(id){ return !!FAIT[calc.statutModule(progIdx, id).code]; }
+    var nbFaits = 0, nbCertifs = 0;
+    Object.keys(progIdx || {}).forEach(function(id){
+      if(!catIdx[id] || !fait(id)) return;
+      nbFaits++;
+      if(catIdx[id].type === "Certification") nbCertifs++;
+    });
+    var m = [];
+    function ajouter(id, famille, titre, critere, valeur, seuil){
+      m.push({id: id, famille: famille, titre: titre, critere: critere, obtenue: valeur >= seuil,
+        avancement: Math.min(valeur, seuil) + " / " + seuil});
+    }
+    [[1, "Premier pas"], [5, "Lancé"], [10, "Assidu"], [20, "Marathonien"]].forEach(function(x){
+      ajouter("volume-" + x[0], "volume", x[1], x[0] === 1 ? "Terminer un premier module" : "Terminer " + x[0] + " modules", nbFaits, x[0]);
+    });
+    [[1, "Certifié"], [3, "Multi-certifié"], [5, "Collectionneur"]].forEach(function(x){
+      ajouter("certif-" + x[0], "certif", x[1], x[0] === 1 ? "Obtenir une certification" : "Obtenir " + x[0] + " certifications", nbCertifs, x[0]);
+    });
+    var buckets = [];
+    formations.forEach(function(f){ if(f.type !== "Certification" && f.bucket && buckets.indexOf(f.bucket) === -1) buckets.push(f.bucket); });
+    buckets.forEach(function(b){
+      var ids = formations.filter(function(f){ return f.bucket === b && f.type !== "Certification"; }).map(function(f){ return f.id; });
+      ajouter("expert-" + b, "expert", "Expert " + b, "Terminer toutes les formations « " + b + " »",
+        ids.filter(fait).length, ids.length);
+    });
+    var boucles = 0, aLHeure = 0;
+    (assignations || []).forEach(function(a){
+      if(a.estMesFormations) return;
+      var ids = (a.modules || []).filter(function(id){ return catIdx[id]; });
+      if(!ids.length || !ids.every(fait)) return;
+      boucles++;
+      var fin = ids.map(function(id){ return progIdx[id].dateValidation || ""; }).sort().pop();
+      if(a.dateCible && fin && fin <= a.dateCible) aLHeure++;
+    });
+    ajouter("parcours-1", "parcours", "Parcours bouclé", "Terminer un parcours à 100 %", boucles, 1);
+    ajouter("parcours-temps", "parcours", "Dans les temps", "Terminer un parcours assigné avant sa date cible", aLHeure, 1);
+    return m;
   };
 
   calc.formatDate = function(iso){
@@ -2355,25 +2451,87 @@
     var etapes = s.lignes.map(function(l, i){ return renderModule(l.formation, i + 1, l.statut, a, ctx); }).join("") +
       s.introuvables.map(function(id){ return window.PODZ.missingCard(id); }).join("");
     if(!s.lignes.length && !s.introuvables.length) etapes = '<p class="pod-mp-vide">Aucun module dans ce parcours pour le moment.</p>';
-    // Certification au choix (D-P7) : plusieurs certifs dans le parcours type, aucune copiee.
-    var choix = "";
-    if(a.parcoursType){
-      var certifs = calc.certifsAuChoix(a.parcoursType, ctx.catalogue);
-      var dejaUne = certifs.some(function(c){ return a.modules.indexOf(c.id) !== -1; });
-      if(certifs.length && !dejaUne){
-        choix = '<div class="pod-mp-choix"><strong>Certification au choix</strong>' +
-          esc(certifs.map(function(c){ return c.titre; }).join(" · ")) + ' — ' +
-          (ctx.mode === "consultant"
-            ? 'ajoute celle que tu vises via « Ajouter à mes formations » dans le <a href="#catalogue">catalogue</a>.'
-            : 'à ajouter au parcours depuis le formulaire de modification.') + '</div>';
-      }
-    }
+    // Certification visee par ce parcours (ou "au choix", D-P7) et ce qu'il reste avant de la passer.
+    var choix = renderCertifVisee(a, ctx);
     return '<section class="pod-parcours" style="--ac:' + accentParcours(a, ctx.catalogue) + '" data-assignation-id="' + esc(a.id) + '">' +
       '<div class="pod-parcours-head"><div>' + origine + '<h2>' + esc(a.titre) + '</h2>' + (desc ? '<p>' + esc(desc) + '</p>' : "") + '</div>' +
       '<div class="pod-parcours-meta">' + meta + '</div></div>' +
       alerte + barre + '<div class="pod-mp-counts">' + compte.join("") + '</div>' +
-      etapes + choix +
+      choix + etapes +
     '</section>';
+  }
+
+  function libelleCertif(c){
+    var p = c.statut.prog;
+    if(c.statut.code === "termine" || c.statut.code === "dispense") return "Obtenue" + (p && p.dateValidation ? " le " + calc.formatDate(p.dateValidation) : "");
+    if(c.statut.code === "a-valider") return "Déclarée, en attente de validation";
+    if(c.statut.code === "en-cours" || c.statut.code === "refuse") return "En préparation";
+    return "À passer";
+  }
+
+  // Encart en tete de parcours : la certification que le parcours permet de viser.
+  function renderCertifVisee(a, ctx){
+    var cv = calc.certifsParcours(a, ctx.catIdx, ctx.progIdx, ctx.catalogue);
+    if(!cv) return "";
+    var obtenue = cv.certifs.some(function(c){ return c.statut.code === "termine" || c.statut.code === "dispense"; });
+    var reste = obtenue ? "" : (cv.modulesRestants
+      ? "Encore " + pluriel(cv.modulesRestants, "formation") + " de ce parcours avant de la viser."
+      : "Toutes les formations du parcours sont terminées : tu peux la passer.");
+    var lignes = cv.certifs.map(function(c){
+      var ok = c.statut.code === "termine" || c.statut.code === "dispense";
+      return '<li' + (ok ? ' class="ok"' : "") + '><b>' + (ok ? "★ " : "☆ ") + esc(c.formation.titre) + '</b> · ' + esc(libelleCertif(c)) + '</li>';
+    }).join("");
+    var aide = "";
+    if(cv.auChoix && !obtenue){
+      aide = '<p>Au choix : ' + (ctx.mode === "consultant"
+        ? 'ajoute celle que tu vises via « Ajouter à mes formations » dans le <a href="#catalogue">catalogue</a>.'
+        : 'à ajouter au parcours depuis « Modifier le parcours ».') + '</p>';
+    }
+    return '<div class="pod-mp-choix pod-mp-visee"><strong>' + (cv.auChoix ? "Certifications visées (au choix)" : "Certification visée") + '</strong>' +
+      '<ul>' + lignes + '</ul>' + (reste ? '<p>' + esc(reste) + '</p>' : "") + aide + '</div>';
+  }
+
+  // Carte "Mes certifications" : obtenues (avec date), puis celles en ligne de mire dans les parcours actifs.
+  function renderCertifications(ctx){
+    var obtenues = ctx.catalogue.filter(function(f){
+      var c = calc.statutModule(ctx.progIdx, f.id).code;
+      return f.type === "Certification" && (c === "termine" || c === "dispense");
+    });
+    var vues = {}, visees = [];
+    ctx.actives.forEach(function(a){
+      var cv = calc.certifsParcours(a, ctx.catIdx, ctx.progIdx, ctx.catalogue);
+      if(!cv) return;
+      cv.certifs.forEach(function(c){
+        var code = c.statut.code;
+        if(code === "termine" || code === "dispense" || vues[c.formation.id]) return;
+        vues[c.formation.id] = true;
+        visees.push({c: c, a: a, restants: cv.modulesRestants});
+      });
+    });
+    var qui = ctx.mode === "consultant" ? "Tu n'as" : esc(prenom(ctx.consultant.nom)) + " n'a";
+    var html = obtenues.length
+      ? '<ul class="pod-mp-certifs">' + obtenues.map(function(f){
+          return '<li class="ok"><b>★ ' + esc(f.titre) + '</b><span>' + esc(libelleCertif({statut: calc.statutModule(ctx.progIdx, f.id)})) + '</span></li>';
+        }).join("") + '</ul>'
+      : '<p class="pod-mp-vide">' + qui + ' pas encore de certification.</p>';
+    if(visees.length){
+      html += '<div class="pod-mp-sous-titre">En ligne de mire</div><ul class="pod-mp-certifs">' + visees.map(function(v){
+        return '<li><b>☆ ' + esc(v.c.formation.titre) + '</b><span>« ' + esc(v.a.titre) + ' » · ' +
+          esc(v.restants ? "encore " + pluriel(v.restants, "formation") : libelleCertif(v.c)) + '</span></li>';
+      }).join("") + '</ul>';
+    }
+    return '<div class="pod-mp-card"><h3 class="pod-mp-card-title">Certifications</h3>' + html + '</div>';
+  }
+
+  // Carte "Mes medailles" : debloquees en couleur, les autres grisees avec leur critere.
+  function renderMedailles(medailles){
+    var nb = medailles.filter(function(m){ return m.obtenue; }).length;
+    return '<div class="pod-mp-card"><h3 class="pod-mp-card-title">Médailles <span class="pod-mp-compte">' + nb + ' / ' + medailles.length + '</span></h3>' +
+      '<div class="pod-mp-medailles">' + medailles.map(function(m){
+        return '<div class="pod-mp-medaille pod-mp-medaille--' + m.famille + (m.obtenue ? " obtenue" : "") + '" title="' + esc(m.critere) + '">' +
+          '<span class="pod-mp-medaille__icone">' + (m.obtenue ? "⬢" : "⬡") + '</span>' +
+          '<b>' + esc(m.titre) + '</b><small>' + esc(m.obtenue ? m.critere : m.critere + " · " + m.avancement) + '</small></div>';
+      }).join("") + '</div></div>';
   }
 
   function renderNiveaux(n){
@@ -2388,15 +2546,12 @@
     var techno = n.technoRenseignee
       ? lignes(n.parTechno)
       : '<p class="pod-mp-vide">La colonne <code>Techno</code> du catalogue n\'est pas encore renseignée : le niveau par techno s\'affichera dès qu\'elle le sera.</p>';
-    var badges = n.badges.length
-      ? '<div class="pod-mp-badges">' + n.badges.map(function(b){ return '<span class="pod-chip certif">★ Certifié ' + esc(b) + '</span>'; }).join("") + '</div>'
-      : "";
+    // Les certifications obtenues ont leur propre carte ("Certifications").
     return '<div class="pod-mp-card"><h3 class="pod-mp-card-title">Niveau</h3>' +
       '<div class="pod-mp-niv-tabs"><button type="button" class="pod-mp-niv-tab active" data-niv="competence">Par compétence</button>' +
       '<button type="button" class="pod-mp-niv-tab" data-niv="techno">Par techno</button></div>' +
       '<div class="pod-mp-niv-panel" data-niv-panel="competence">' + lignes(n.parCompetence) + '</div>' +
       '<div class="pod-mp-niv-panel" data-niv-panel="techno" hidden>' + techno + '</div>' +
-      badges +
       '<div class="pod-mp-note">Échelle Fondamentaux · Intermédiaire · Avancé : niveau le plus élevé parmi les modules terminés (dispenses comprises). Par compétence sans les certifications ; par techno avec.</div>' +
     '</div>';
   }
@@ -2589,6 +2744,10 @@
         actives: actives, today: window.PODZ.aujourdhui(), descParcours: descParcours
       };
       var g = calc.syntheseGlobale(actives, ctx.catIdx, ctx.progIdx);
+      // Gamification et certifications : sur toute la progression, parcours archives compris.
+      var medailles = calc.medailles(ctx.progIdx, ctx.catIdx, assignations);
+      var nbMedailles = medailles.filter(function(m){ return m.obtenue; }).length;
+      var nbCertifs = calc.niveaux(ctx.progIdx, ctx.catIdx).badges.length;
       var retards = actives.filter(function(a){ return calc.syntheseParcours(a, ctx.catIdx, ctx.progIdx, ctx.today).enRetard; });
       var titre = mode === "consultant" ? "Bonjour " + prenom(consultant.nom) : "Cockpit de " + consultant.nom;
       var hero = '<section class="pod-hero" style="--ac:var(--pod-violet)"><div class="pod-hero-text">' +
@@ -2597,8 +2756,8 @@
         '<p class="pod-hero-desc">' + esc(actives.length ? phraseSynthese(actives, g, retards, ctx) : "Aucun parcours en cours.") + '</p></div>' +
         (actives.length ? '<div class="pod-mp-kpis">' +
           '<div class="pod-mp-kpi"><strong>' + g.nbTermines + ' / ' + g.nbModules + '</strong><span>Modules terminés</span></div>' +
-          '<div class="pod-mp-kpi"><strong>' + fmtH(g.heuresRealisees) + '</strong><span>Réalisées' + (equivJ(g.heuresRealisees) ? " · " + equivJ(g.heuresRealisees) : "") + '</span></div>' +
-          '<div class="pod-mp-kpi"><strong>' + fmtH(g.heuresRestantes) + '</strong><span>Restantes' + (equivJ(g.heuresRestantes) ? " · " + equivJ(g.heuresRestantes) : "") + '</span></div>' +
+          '<div class="pod-mp-kpi"><strong>' + nbCertifs + '</strong><span>' + (nbCertifs > 1 ? "Certifications" : "Certification") + '</span></div>' +
+          '<div class="pod-mp-kpi"><strong>' + nbMedailles + ' / ' + medailles.length + '</strong><span>Médailles</span></div>' +
           '<div class="pod-mp-kpi"><strong>' + g.nbAValider + '</strong><span>À valider</span></div>' +
         '</div>' : "") +
       '</section>';
@@ -2611,7 +2770,8 @@
         return;
       }
       var pe = calc.prochaineEtape(actives, ctx.catIdx, ctx.progIdx, ctx.today);
-      var top = '<div class="pod-mp-top">' + renderProchaine(pe, ctx) + renderNiveaux(calc.niveaux(ctx.progIdx, ctx.catIdx)) + '</div>';
+      var top = '<div class="pod-mp-top">' + renderProchaine(pe, ctx) + renderNiveaux(calc.niveaux(ctx.progIdx, ctx.catIdx)) + '</div>' +
+        '<div class="pod-mp-top">' + renderCertifications(ctx) + renderMedailles(medailles) + '</div>';
       var blocs = actives.map(function(a){ return renderParcours(a, ctx); }).join("");
       var plus = mode === "consultant"
         ? '<div class="pod-mp-add"><p><b>Envie d\'aller plus loin ?</b> Ajoute un parcours type en autonomie, ou un module isolé du catalogue (« Ajouter à mes formations ») : il rejoindra ton parcours libre « Mes formations ».</p>' +

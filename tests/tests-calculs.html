@@ -216,6 +216,32 @@
     egal("parcours sans module à faire → parcours suivant", r4.assignation.id, "C");
     egal("rien à faire → null", calc.prochaineEtape([{modules: ["T1", "T2"]}], catIdx, pe, TODAY), null);
 
+    section("certifsParcours (certification visée)");
+    var pcV = calc.indexer([prog("T1", "termine"), prog("C1", "a-valider")], "formationId");
+    var cv = calc.certifsParcours({modules: ["T1", "T2", "T3", "C1"]}, catIdx, pcV, CAT);
+    egal("certification du parcours, son statut, formations restantes", [cv.certifs.map(function(c){ return c.formation.id; }), cv.certifs[0].statut.code, cv.auChoix, cv.modulesRestants], [["C1"], "a-valider", false, 2]);
+    egal("parcours sans certification ni parcours type → null", calc.certifsParcours({modules: ["T4"]}, catIdx, pcV, CAT), null);
+    var CAT2 = CAT.concat([f("C2", "Agile - PSM", "Certification", "Certifs", "Avancé", null, "Agile", ["PX"], 7), f("C3", "Agile - PSPO", "Certification", "Certifs", "Avancé", null, "Agile", ["PX"], 8)]);
+    var cv2 = calc.certifsParcours({modules: ["T5"], parcoursType: "PX"}, calc.indexer(CAT2, "id"), {}, CAT2);
+    egal("parcours type à plusieurs certifications : « au choix »", [cv2.auChoix, cv2.certifs.length, cv2.modulesRestants], [true, 2, 1]);
+
+    section("médailles");
+    function med(liste, id){ return liste.filter(function(x){ return x.id === id; })[0]; }
+    var m0 = calc.medailles({}, catIdx, []);
+    egal("12 médailles sur les données de test : 4 volume, 3 certifs, 3 expert (Analyse, Adoption, Pilotage), 2 parcours ; aucune au départ", [m0.length, m0.filter(function(x){ return x.obtenue; }).length], [12, 0]);
+    var pm = calc.indexer([prog("T1", "termine", {validation: "2026-09-01"}), prog("T2", "termine", {dispense: true, validation: "2026-09-10"}), prog("T3", "termine", {validation: "2026-09-20"}), prog("C1", "termine", {validation: "2026-09-25"}), prog("T4", "a-valider")], "formationId");
+    var assM = [{modules: ["T1", "T2", "T3", "C1"], dateCible: "2026-09-30"}, {modules: ["T4", "T5"]}, {modules: ["T1"], estMesFormations: true}];
+    var m1 = calc.medailles(pm, catIdx, assM);
+    egal("volume : 4 modules (dispense comprise) → « Premier pas » oui, « Lancé » non (4 / 5)", [med(m1, "volume-1").obtenue, med(m1, "volume-5").obtenue, med(m1, "volume-5").avancement], [true, false, "4 / 5"]);
+    egal("certifications : 1 → « Certifié »", [med(m1, "certif-1").obtenue, med(m1, "certif-3").avancement], [true, "1 / 3"]);
+    egal("Expert Analyse : toutes les formations Analyse terminées (sans la certif)", [med(m1, "expert-Analyse").obtenue, med(m1, "expert-Analyse").avancement], [true, "3 / 3"]);
+    egal("Expert Adoption : À valider ne compte pas", med(m1, "expert-Adoption").obtenue, false);
+    egal("parcours bouclé et dans les temps (fini le 25/09 pour une cible au 30/09)", [med(m1, "parcours-1").obtenue, med(m1, "parcours-temps").obtenue], [true, true]);
+    var m2 = calc.medailles(pm, catIdx, [{modules: ["T1", "T2", "T3", "C1"], dateCible: "2026-09-15"}]);
+    egal("parcours fini après la date cible : bouclé mais pas « Dans les temps »", [med(m2, "parcours-1").obtenue, med(m2, "parcours-temps").obtenue], [true, false]);
+    var m3 = calc.medailles(pm, catIdx, [{modules: ["T1"], estMesFormations: true}]);
+    egal("« Mes formations » ne compte pas comme parcours bouclé", med(m3, "parcours-1").obtenue, false);
+
     section("peutGerer / peutModifierAssignation (RG6, RG14, RG18, RG20)");
     vrai("manager direct", calc.peutGerer(SARAH, CAMILLE));
     vrai("administrateur", calc.peutGerer(ALEX, SARAH));

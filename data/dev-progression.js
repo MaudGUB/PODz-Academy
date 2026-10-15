@@ -37,6 +37,8 @@
     p(10, P.hugo,    "F021", "Terminé",   {debut: "2026-05-04", fin: "2026-05-29", validation: "2026-06-03", par: P.sarah}),
     p(11, P.ines,    "F029", "À valider", {debut: "2026-10-01", fin: "2026-10-14"}),
     p(12, P.sarah,   "F001", "Terminé",   {debut: "2026-09-01", fin: "2026-09-05", validation: "2026-09-10", par: P.alex}),
-    p(13, P.sarah,   "F030", "En cours",  {debut: "2026-10-01"})
+    p(13, P.sarah,   "F030", "En cours",  {debut: "2026-10-01"}),
+    // Certification obtenue : alimente la carte Certifications et la medaille « Certifié ».
+    p(14, P.sarah,   "C004", "Terminé",   {debut: "2026-06-01", fin: "2026-06-20", validation: "2026-06-24", par: P.alex})
   ];
 })();

@@ -134,18 +134,37 @@ En tant que consultant connecté, je vois **mes** parcours.
 - CA6.1 — Par parcours : barre de progression (% de modules Terminés), compteurs par
   statut, heures réalisées / heures totales, heures restantes, date cible et alerte si
   dépassée.
-- CA6.2 — Synthèse globale : nombre de modules terminés, heures réalisées, heures
-  restantes (tous parcours, modules en double comptés une fois).
+- CA6.2 — Synthèse globale : nombre de modules terminés (tous parcours, modules en double
+  comptés une fois), nombre de certifications obtenues, médailles débloquées, modules à
+  valider. *(Révisé le 15/10/2026, après la recette : les heures cumulées tous parcours
+  confondus sont retirées du cockpit, jugées sans valeur pour le consultant comme pour le
+  manager ; les heures restent affichées par parcours, CA6.1.)*
 - CA6.3 — **Niveau par compétence** et **par techno** : niveau le plus élevé parmi les
   modules Terminés (y compris dispensés) de cette compétence / techno, sur l'échelle
   Fondamentaux < Intermédiaire < Avancé ; « — » si aucun.
   - Par compétence : les certifications (compétence « Certifs ») sont exclues.
   - Par techno : basé sur la colonne `Techno` (annexe A) ; les certifications comptent
     (ex. PL-300 terminée → Power BI : Avancé).
-- CA6.3b — Les certifications terminées s'affichent aussi en **badges** (« Certifié
-  PL-300 »).
+- CA6.3b — Les certifications obtenues ont leur carte **« Certifications »** dans le
+  cockpit (avec la date d'obtention), suivie des certifications « en ligne de mire » des
+  parcours actifs. *(Révisé le 15/10/2026 : remplace les petits badges.)*
 - CA6.4 — Section « Prochaine étape » : le premier module non terminé du parcours le plus
   urgent (date cible la plus proche, sinon le premier parcours).
+- CA6.5 *(ajouté le 15/10/2026)* — En tête de chaque parcours, un encart **« Certification
+  visée »** : la certification du parcours (ou les certifications « au choix » de son
+  parcours type, D-P7), son état (obtenue / à valider / en préparation / à passer) et le
+  nombre de formations du parcours qu'il reste à terminer avant de la viser.
+- CA6.6 *(ajouté le 15/10/2026)* — **Médailles** (gamification), carte « Médailles » du
+  cockpit : débloquées en couleur, les autres grisées avec leur critère et l'avancement.
+  Calculées sur toute la progression (parcours archivés compris : ce qui est acquis le
+  reste), dispenses comprises (RG16).
+  - Volume (modules terminés) : Premier pas (1), Lancé (5), Assidu (10), Marathonien (20).
+  - Certifications : Certifié (1), Multi-certifié (3), Collectionneur (5).
+  - Expert <compétence> : toutes les formations de la compétence terminées (une médaille
+    par compétence du catalogue, certifications exclues). Choix du métier : le catalogue
+    n'a aucune formation de niveau Avancé, « Expert » ne dépend donc pas du niveau.
+  - Parcours : Parcours bouclé (un parcours terminé à 100 %, hors « Mes formations »),
+    Dans les temps (un parcours assigné terminé au plus tard à sa date cible).
 
 ### US7 — Assigner un parcours
 En tant que manager, j'assigne un parcours à un collaborateur de mon équipe.

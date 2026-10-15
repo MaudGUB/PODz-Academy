@@ -27,7 +27,10 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 ## 1. Camille Test — consultante (US2, US4, US5, US6, US4c)
 - [x] Accueil : pas d'entrée « Mon équipe »
 - [x] Accueil : « Mon parcours » porte le badge « 1 à reprendre » (PowerPoint avancé refusé)
-- [x] Mon parcours : « Bonjour Camille », 3 parcours en cours, KPIs 4 / 16 · 33,5 h · 146,5 h · 1
+- [x] Mon parcours : « Bonjour Camille », 3 parcours en cours, KPIs 4 / 16 · 0 certification · 1 / 13 médailles · 1 à valider
+- [x] Encart « Certification visée » en tête d'Analyste Power BI : PL-300 à passer, « Encore 4 formations… » ; aucun encart sur Restitution & DataViz
+- [x] Carte « Certifications » : aucune obtenue, PL-300 et PL-200 « en ligne de mire »
+- [x] Carte « Médailles » : « Premier pas » en couleur, les 12 autres grisées avec leur critère et leur avancement
 - [x] Analyste Power BI : « Assigné par Sarah Manager », cible 31/12/2026, 29 % (2/7)
 - [x] SQL « Terminé le 12/09/2026 », Data management « Terminé · dispensé », Modélisation « À valider · fini le 10/10 »
 - [x] Restitution & DataViz : « personnalisé », cible 30/09/2026 « en retard » (orange)
@@ -56,7 +59,7 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 
 ## 3. Hugo Test — consultant (D-P4, D-P7, RG9)
 - [x] Mon parcours : 1 parcours actif (Pilotage de projet Data), l'archivé n'apparaît pas
-- [x] Encart « Certification au choix » (PSM I · PSPO ×2 · PMP)
+- [x] Encart « Certifications visées (au choix) » (PSM I · PSPO ×2 · PMP) en tête du parcours
 - [x] Prochaine étape : Schéma Directeur (Agile, À valider, est sauté)
 - [x] Profil « Nouveau PODz » → « Suivre ce parcours » → « Bien démarrer chez POD » réactivé, sans doublon
 - [x] Catalogue → « Ajouter à mes formations » sur Power BI (panneau déplié) → « Mes formations » apparaît
@@ -65,6 +68,7 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 ## 4. Sarah Manager — consultante et manager (US7, US8, RG6, RG7, RG14, RG16, RG20)
 - [x] Accueil : entrée « Mon équipe » avec badge **3**
 - [x] Mon parcours : son propre cockpit (Bien démarrer chez POD, assigné par Alex)
+- [x] Carte « Certifications » : Change Management - Prosci (ADKAR) obtenue le 24/06/2026 ; médaille « Certifié » débloquée
 - [x] Mon équipe : KPIs 3 collaborateurs · 3 à valider · 1 parcours en retard
 - [x] File : Agile (Hugo), Modélisation (Camille), Data Literacy (Inès), avec « Depuis N j »
 - [x] Data Literacy d'Inès toujours présent malgré le retrait de son parcours
@@ -99,7 +103,7 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 - [x] Titre de l'onglet du navigateur propre à chaque vue
 - [x] Console : aucune erreur pendant toute la recette
 - [x] Après chaque action (démarrer, déclarer, valider, refuser, dispenser, assigner, suivre, ajouter, retirer, archiver), un message de confirmation vert s'affiche quelques secondes en bas de l'écran
-- [x] KPIs et parcours : heures affichées avec l'équivalent en jours (« 33,5 h » · « ≈ 5 j »)
+- [x] Heures : seulement par parcours (« 80,5 h (≈ 11,5 j) restantes sur 108,5 h »), plus de cumul dans le bandeau du cockpit
 
 ## Anomalies
 | # | Persona / étape | Constat | Suite donnée |
