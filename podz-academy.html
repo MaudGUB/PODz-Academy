@@ -430,6 +430,154 @@
 }
 </style>
 <style>
+/* Cockpit consultant "Mon parcours" (repris de maquettes/mon-parcours.html) ; aussi utilise pour le detail collaborateur de la vue manager */
+.podz-mp{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box}
+.podz-mp *,.podz-mp *::before,.podz-mp *::after{box-sizing:border-box}
+.podz-mp h1,.podz-mp h2,.podz-mp h3{color:var(--pod-fonce);margin:0}
+.podz-mp .pod-wrap{max-width:1240px;margin:0 auto;padding:4px 4px 32px}
+
+
+/* Fil d'Ariane */
+.podz-mp .pod-bc{font-size:13px;color:var(--pod-muted);margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+.podz-mp .pod-bc a{color:var(--pod-muted);text-decoration:none}
+.podz-mp .pod-bc .pod-bc-sep{color:var(--pod-violet);margin:0 4px;font-weight:700}
+.podz-mp .pod-bc .pod-bc-current{color:var(--pod-fonce);font-weight:600}
+
+/* Chips */
+.podz-mp .pod-chip{display:inline-block;padding:3px 10px;background:#F1F3F8;color:var(--pod-muted);font-size:11px;font-weight:600;border-radius:999px}
+.podz-mp .pod-chip.certif{background:var(--pod-orange);color:#FFFFFF;font-weight:700}
+
+/* Hero */
+.podz-mp .pod-hero{background:#FFFFFF;border-radius:20px;padding:22px;margin-bottom:18px;display:flex;gap:20px;align-items:center;border:1px solid rgba(0,32,96,0.06);border-left:6px solid var(--ac,var(--pod-violet));box-shadow:0 4px 20px -12px rgba(0,32,96,0.15);flex-wrap:wrap}
+.podz-mp .pod-hero-text{flex:1;min-width:240px}
+.podz-mp .pod-hero-tag{display:inline-block;padding:3px 10px;background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;margin-bottom:8px}
+.podz-mp .pod-hero-title{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-0.02em;line-height:1.15}
+.podz-mp .pod-hero-desc{font-size:13.5px;color:var(--pod-muted);margin:0;max-width:600px;line-height:1.55}
+.podz-mp .pod-mp-kpis{display:grid;grid-template-columns:repeat(4,minmax(96px,1fr));gap:10px}
+.podz-mp .pod-mp-kpi{background:#FAFAFD;border:1px solid rgba(0,32,96,0.06);border-radius:12px;padding:10px 14px;text-align:center}
+.podz-mp .pod-mp-kpi strong{display:block;font-size:22px;font-weight:800;line-height:1.1}
+.podz-mp .pod-mp-kpi span{font-size:10.5px;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+
+/* Grille haut : prochaine étape + niveaux */
+.podz-mp .pod-mp-top{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:22px}
+.podz-mp .pod-mp-card{background:#FFFFFF;border:1px solid rgba(0,32,96,0.06);border-radius:16px;padding:18px}
+.podz-mp .pod-mp-card-title{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px}
+.podz-mp .pod-mp-next{background:#F7F5FC;border-color:rgba(200,181,232,0.5)}
+.podz-mp .pod-mp-next-titre{font-size:18px;font-weight:800;margin:2px 0 4px}
+.podz-mp .pod-mp-next-meta{font-size:12px;color:var(--pod-muted);margin-bottom:12px}
+.podz-mp .pod-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:9px;border:1px solid var(--pod-fonce);background:var(--pod-fonce);color:#FFFFFF;cursor:pointer;text-decoration:none}
+.podz-mp .pod-btn.ghost{background:#FFFFFF;color:var(--pod-fonce);border-color:rgba(0,32,96,0.18)}
+.podz-mp .pod-mp-niv-tabs{display:flex;gap:6px;margin-bottom:10px}
+.podz-mp .pod-mp-niv-tab{font-size:11.5px;font-weight:700;padding:4px 12px;border-radius:999px;border:1.5px solid #D6D6E0;background:#FFFFFF;color:var(--pod-fonce)}
+.podz-mp .pod-mp-niv-tab.active{background:var(--pod-violet);border-color:var(--pod-violet)}
+.podz-mp .pod-mp-niv-row{display:grid;grid-template-columns:110px 1fr 104px;gap:10px;align-items:center;font-size:12.5px;margin-bottom:7px}
+.podz-mp .pod-mp-niv-row b{font-weight:700}
+.podz-mp .pod-mp-niv-scale{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.podz-mp .pod-mp-niv-scale i{height:8px;border-radius:4px;background:#EEF0F5}
+.podz-mp .pod-mp-niv-scale i.on{background:var(--pod-vert)}
+.podz-mp .pod-mp-niv-row em{font-style:normal;font-size:11.5px;color:var(--pod-muted);text-align:right}
+.podz-mp .pod-mp-note{font-size:11px;color:var(--pod-muted);font-style:italic;margin-top:8px}
+
+/* Bloc parcours */
+.podz-mp .pod-parcours{background:#FFFFFF;border-radius:18px;padding:22px;margin-bottom:14px;border:1px solid rgba(0,32,96,0.06);border-top:5px solid var(--ac,var(--pod-violet))}
+.podz-mp .pod-parcours-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.podz-mp .pod-parcours-head h2{font-size:18px;font-weight:700;margin:0 0 4px}
+.podz-mp .pod-parcours-head p{margin:0;font-size:12.5px;color:var(--pod-muted)}
+.podz-mp .pod-parcours-meta{text-align:right;font-size:11px;color:var(--pod-muted);white-space:nowrap}
+.podz-mp .pod-parcours-meta strong{font-size:17px;color:var(--pod-fonce);font-weight:700;display:block}
+.podz-mp .pod-parcours-meta .retard{color:#C0532E}
+.podz-mp .pod-mp-origine{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-bottom:6px;background:#F1F3F8;color:var(--pod-muted)}
+.podz-mp .pod-mp-origine.manager{background:#EAF0FF;color:var(--pod-fonce)}
+.podz-mp .pod-mp-progress{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.podz-mp .pod-mp-bar{flex:1;height:10px;border-radius:999px;background:#EEF0F5;overflow:hidden;display:flex}
+.podz-mp .pod-mp-bar span{display:block;height:100%}
+.podz-mp .pod-mp-bar .b-ok{background:var(--pod-vert)}
+.podz-mp .pod-mp-bar .b-val{background:var(--pod-jaune)}
+.podz-mp .pod-mp-bar .b-cours{background:var(--pod-bleu)}
+.podz-mp .pod-mp-pct{font-weight:800;font-size:15px;min-width:44px;text-align:right}
+.podz-mp .pod-mp-counts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #F0F0F0}
+
+/* Statuts */
+.podz-mp .pod-st{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;font-size:11px;font-weight:700;border-radius:999px;white-space:nowrap}
+.podz-mp .pod-st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.7}
+.podz-mp .pod-st--afaire{background:#F1F3F8;color:var(--pod-muted)}
+.podz-mp .pod-st--encours{background:#E6EDFF;color:#2D4FA3}
+.podz-mp .pod-st--avalider{background:#FBF1D2;color:#8A6A10}
+.podz-mp .pod-st--termine{background:#E3EEE9;color:#2F6B55}
+
+/* Accordéon étape */
+.podz-mp .pod-etape{background:#FFFFFF;border:1px solid rgba(0,32,96,0.08);border-left:4px solid var(--ac,var(--pod-violet));border-radius:0 10px 10px 0;margin-bottom:8px;overflow:hidden}
+.podz-mp .pod-etape.is-done{background:#FAFCFB}
+.podz-mp .pod-etape.is-done .pod-etape__titre{color:var(--pod-muted)}
+.podz-mp .pod-etape__main{padding:12px 15px;display:grid;grid-template-columns:auto 1fr auto auto auto;gap:14px;align-items:center;cursor:pointer}
+.podz-mp .pod-etape__main:hover{background:#FAFAFD}
+.podz-mp .pod-etape__num{background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-weight:800;font-size:11px;padding:5px 11px;border-radius:999px;min-width:24px;text-align:center}
+.podz-mp .pod-etape.is-done .pod-etape__num{background:var(--pod-vert)}
+.podz-mp .pod-etape__core{min-width:0}
+.podz-mp .pod-etape__titre{font-weight:700;font-size:14.5px;margin-bottom:3px}
+.podz-mp .pod-etape__tags{font-size:11px;color:var(--pod-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.podz-mp .pod-etape__duree{font-size:12px;color:var(--pod-muted);font-weight:600;white-space:nowrap;background:#F7F7F8;padding:3px 9px;border-radius:6px}
+.podz-mp .pod-etape__chev{color:#A0A0A0;font-size:11px;transition:transform .2s}
+.podz-mp .pod-etape.open .pod-etape__chev{transform:rotate(180deg);color:var(--pod-fonce)}
+.podz-mp .pod-etape__detail{display:none;padding:0 15px 15px;border-top:1px dashed rgba(0,32,96,0.1)}
+.podz-mp .pod-etape.open .pod-etape__detail{display:block}
+.podz-mp .pod-etape__detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.podz-mp .pod-etape__detail-item{background:#FAFAFA;padding:8px 10px;border-radius:6px}
+.podz-mp .pod-etape__detail-label{font-size:9px;font-weight:700;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.podz-mp .pod-etape__detail-value{font-size:12px;font-weight:600}
+.podz-mp .pod-etape__detail-notes{background:#FFF9DD;border-left:3px solid var(--pod-jaune);padding:9px 11px;border-radius:4px;font-size:12px;color:var(--pod-muted);margin-bottom:10px}
+.podz-mp .pod-etape__detail-notes.refus{background:#FFF1EC;border-left-color:var(--pod-orange)}
+.podz-mp .pod-etape__detail-notes-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.podz-mp .pod-etape__detail-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.podz-mp .pod-etape__detail-links a{color:var(--pod-fonce);font-size:11.5px;font-weight:500;text-decoration:none;padding:5px 11px;border:1px solid rgba(0,32,96,0.18);border-radius:7px;background:#FFFFFF}
+.podz-mp .pod-mp-hint{font-size:11px;color:var(--pod-muted);font-style:italic}
+.podz-mp .pod-mp-shared{font-size:10.5px;color:var(--pod-muted);font-weight:600}
+
+/* Ajouter un parcours */
+.podz-mp .pod-mp-add{margin-top:22px;padding:20px;background:#F7F9FC;border-radius:14px;border:1px solid rgba(0,32,96,0.06);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.podz-mp .pod-mp-add p{margin:0;flex:1;min-width:220px;font-size:13px;color:var(--pod-muted)}
+.podz-mp .pod-mp-add p b{color:var(--pod-fonce)}
+
+@media (max-width:860px){
+  .podz-mp .pod-mp-top{grid-template-columns:1fr}
+  .podz-mp .pod-mp-kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .podz-mp .pod-etape__main{grid-template-columns:auto 1fr auto;gap:10px}
+  .podz-mp .pod-etape__duree,.podz-mp .pod-etape__chev{display:none}
+  .podz-mp .pod-mp-niv-row{grid-template-columns:90px 1fr}
+  .podz-mp .pod-mp-niv-row em{display:none}
+}
+
+/* Complements a la maquette */
+.podz-mp a{cursor:pointer}
+.podz-mp .pod-loading{padding:14px 4px;font-size:12.5px;color:var(--pod-muted);font-style:italic}
+.podz-mp .pod-bc a:hover{color:var(--pod-fonce);text-decoration:underline}
+.podz-mp .pod-btn[disabled],.podz-mp .pod-btn.is-disabled{opacity:.45;cursor:not-allowed}
+.podz-mp .pod-btn.ghost:hover{border-color:var(--pod-fonce)}
+.podz-mp .pod-mp-niv-tab{cursor:pointer;font-family:inherit}
+.podz-mp .pod-mp-niv-panel[hidden]{display:none}
+.podz-mp .pod-mp-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.podz-mp .pod-mp-vide{font-size:12.5px;color:var(--pod-muted);margin:0}
+.podz-mp .pod-st--retard{background:#FDE6DD;color:#9A3412}
+.podz-mp .pod-etape__detail-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.podz-mp .pod-etape__detail-tag{padding:2px 9px;background:#F0F4F7;color:var(--pod-fonce);font-size:10.5px;font-weight:500;border-radius:999px}
+.podz-mp .pod-etape__detail-notes{white-space:pre-line}
+.podz-mp .pod-etape__detail-links{display:inline-flex;flex-wrap:wrap;gap:6px}
+.podz-mp .pod-etape__detail-links a:hover{background:var(--pod-fonce);color:#FFFFFF;border-color:var(--pod-fonce)}
+.podz-mp .pod-mp-choix{margin-top:10px;padding:12px 14px;background:#FFF6EC;border:1px solid rgba(245,146,106,0.3);border-radius:11px;font-size:12.5px;color:var(--pod-fonce)}
+.podz-mp .pod-mp-choix strong{display:block;color:var(--pod-orange);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.podz-mp .pod-mp-choix a{color:var(--pod-fonce);font-weight:700}
+.podz-mp .pod-mp-alerte{font-size:12px;color:#9A3412;font-weight:600;margin:0 0 10px}
+.podz-mp .pod-mp-empty{background:#F7F9FC;border:1px solid rgba(0,32,96,0.06);border-radius:16px;padding:22px}
+.podz-mp .pod-mp-empty h3{font-size:16px;margin:0 0 6px}
+.podz-mp .pod-mp-empty p{margin:0 0 14px;color:var(--pod-muted);font-size:13px}
+.podz-mp .pod-mp-empty ul{margin:0 0 16px;padding-left:18px;font-size:13px}
+.podz-mp .pod-mp-empty li{margin-bottom:4px}
+.podz-mp .pod-mp-empty li a{color:var(--pod-fonce);font-weight:600}
+.podz-mp .pod-mp-actions{display:flex;flex-wrap:wrap;gap:8px}
+</style>
+<style>
 /* Navigation entre les vues du fichier autonome */
 .pod-view[hidden]{display:none}
 </style>
@@ -446,7 +594,8 @@
       <h1 class="pod-home-title">Quel <em>PODz</em> es-tu&nbsp;?</h1>
       <p class="pod-home-sub">Choisis ton avatar métier pour découvrir le parcours de formation pensé pour toi.</p>
     </div>
-    <div class="pod-home-quick">
+    <div class="pod-home-quick" id="podz-home-quick">
+      <a href="#mon-parcours"><span>⬡</span>Mon parcours</a>
       <a href="#catalogue"><span>⊞</span>Explorer tout le catalogue</a>
     </div>
     <div class="pod-home-divider">ou choisis ton profil</div>
@@ -496,6 +645,15 @@
       </div>
       <div class="pod-socle-grid" id="podz-profile-socle"><div class="pod-loading">Chargement…</div></div>
     </div>
+</div>
+</div>
+</div>
+
+<div class="pod-view" id="view-mon-parcours" hidden>
+<div id="podz-mp-root" class="podz-mp">
+<div class="pod-wrap">
+<div class="pod-bc" id="podz-mp-bc"><span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">Mon parcours</span></div>
+<div id="podz-mp-cockpit"><div class="pod-loading">Chargement de ton parcours…</div></div>
 </div>
 </div>
 </div>
@@ -1671,6 +1829,331 @@
   };
 })();
 </script>
+<script>
+// Cockpit "Mon parcours" : PODZ.renderCockpit(el, consultantId, {mode: "consultant"|"manager"}).
+// el doit etre dans une racine .podz-mp. Toutes les donnees passent par window.PODZ.*.
+(function(){
+  window.PODZ = window.PODZ || {};
+  var calc = window.PODZ.calc;
+  var OFFRE_COLORS = {
+    "Offre 1 - Data Products & Analytics": "#A8C4B8",
+    "Offre 2 - Automation & AI": "#F2A8BC",
+    "Offre 3 - Data Strategy & Projects": "#C8B5E8",
+    "Offre 4 - Data Culture & Governance": "#F5926A",
+    "Transverse": "#E8C96A"
+  };
+  var LIB_STATUT = {
+    "a-faire": "À faire", "en-cours": "En cours", "refuse": "En cours · refusé",
+    "a-valider": "À valider", "termine": "Terminé", "dispense": "Terminé · dispensé"
+  };
+  var CLASSE_STATUT = {
+    "a-faire": "afaire", "en-cours": "encours", "refuse": "encours",
+    "a-valider": "avalider", "termine": "termine", "dispense": "termine"
+  };
+
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function offreLabel(o){return String(o||"").replace(/^Offre \d+ - /, "");}
+  function fmtH(h){ h = Math.round((Number(h) || 0) * 10) / 10; return String(h).replace(".", ",") + " h"; }
+  function jjmm(iso){ return calc.formatDate(iso).substr(0, 5); }
+  function prenom(nom){ return String(nom || "").split(" ")[0]; }
+  function pluriel(n, s, p){ return n + " " + (n > 1 ? (p || s + "s") : s); }
+
+  function libelleStatut(st){
+    var p = st.prog;
+    switch(st.code){
+      case "termine": return "Terminé le " + calc.formatDate(p.dateValidation);
+      case "dispense": return "Terminé · dispensé";
+      case "a-valider": return "À valider" + (p.dateFin ? " · fini le " + jjmm(p.dateFin) : "");
+      case "en-cours": return "En cours" + (p.dateDebut ? " depuis le " + jjmm(p.dateDebut) : "");
+      default: return LIB_STATUT[st.code];
+    }
+  }
+  function chipStatut(st){
+    return '<span class="pod-st pod-st--' + CLASSE_STATUT[st.code] + '">' + esc(libelleStatut(st)) + '</span>';
+  }
+
+  function accentParcours(a, catalogue){
+    if(a.estMesFormations) return "#E8C96A";
+    if(!a.parcoursType) return "#BDD1FF";
+    var m = catalogue.filter(function(f){ return (f.parcours || []).indexOf(a.parcoursType) !== -1; })[0];
+    return (m && OFFRE_COLORS[m.offre]) || "#C8B5E8";
+  }
+
+  // Liens d'un module : data-formation sert au demarrage automatique (L7).
+  function liensModule(f, libelleUnique){
+    var liens = f.liens || [];
+    if(!liens.length) return '<em class="pod-mp-hint">Aucun lien disponible</em>';
+    return '<span class="pod-etape__detail-links">' + liens.map(function(l, i){
+      var lib = liens.length === 1 ? (libelleUnique || "Accéder à la formation ↗") : ("Lien " + (i + 1) + " ↗");
+      return '<a href="' + esc(l) + '" target="_blank" rel="noopener" data-formation="' + esc(f.id) + '">' + lib + '</a>';
+    }).join("") + '</span>';
+  }
+
+  // Boutons d'action du consultant (branches en L7 ; desactives jusque-la).
+  function actionsConsultant(f, st, ctx){
+    if(ctx.mode !== "consultant") return "";
+    var b = "";
+    if(st.code === "a-faire"){
+      b = '<button type="button" class="pod-btn ghost" data-action="demarrer" data-formation="' + esc(f.id) + '" disabled>Je commence</button>' +
+        '<span class="pod-mp-hint">Le premier clic sur un lien passe aussi le module « En cours »</span>';
+    } else if(st.code === "en-cours" || st.code === "refuse"){
+      b = '<button type="button" class="pod-btn" data-action="declarer" data-formation="' + esc(f.id) + '" disabled>J\'ai terminé…</button>' +
+        '<span class="pod-mp-hint">→ passe « À valider » : ' + esc(ctx.managerNom || "ton manager") + ' le verra dans sa file de validation</span>';
+    } else if(st.code === "a-valider"){
+      b = '<span class="pod-mp-hint">En attente de validation par ' + esc(ctx.managerNom || "ton manager") + '</span>';
+    }
+    return b;
+  }
+
+  function renderModule(f, idx, st, a, ctx){
+    var fait = st.code === "termine" || st.code === "dispense";
+    var p = st.prog;
+    var autres = ctx.actives.filter(function(x){ return x.id !== a.id && x.modules.indexOf(f.id) !== -1; })
+      .map(function(x){ return "« " + x.titre + " »"; });
+    var partage = autres.length ? ' <span class="pod-mp-shared">· aussi dans ' + esc(autres.join(", ")) + '</span>' : "";
+    var certif = f.type === "Certification" ? ' <span class="pod-chip certif">Certification</span>' : "";
+    var items = [
+      ["Durée", f.dureeHeures != null ? f.duree + " (" + fmtH(f.dureeHeures) + ")" : (f.duree || "—")],
+      ["Niveau", f.niveau], ["Offre", offreLabel(f.offre)], ["Plateforme", (f.plateformes || []).join(" · ") || "—"]
+    ];
+    if(p && p.dateDebut) items.push(["Démarré le", calc.formatDate(p.dateDebut)]);
+    if(p && p.dateFin && !fait) items.push(["Fini le (déclaré)", calc.formatDate(p.dateFin)]);
+    if(fait && p.dateValidation) items.push([st.code === "dispense" ? "Dispensé le" : "Validé le", calc.formatDate(p.dateValidation) + (p.validePar ? " par " + p.validePar.nom : "")]);
+    var grille = '<div class="pod-etape__detail-grid">' + items.map(function(it){
+      return '<div class="pod-etape__detail-item"><div class="pod-etape__detail-label">' + esc(it[0]) + '</div><div class="pod-etape__detail-value">' + esc(it[1]) + '</div></div>';
+    }).join("") + '</div>';
+    // Motif du refus : affiche tant que le module n'est pas Termine.
+    var refus = (p && p.commentaire && !fait)
+      ? '<div class="pod-etape__detail-notes refus"><div class="pod-etape__detail-notes-label">Refusé' +
+        (p.validePar ? " par " + esc(p.validePar.nom) : "") + (p.dateValidation ? " le " + esc(jjmm(p.dateValidation)) : "") +
+        '</div>' + esc(p.commentaire) + '</div>'
+      : "";
+    var notes = f.notes ? '<div class="pod-etape__detail-notes"><div class="pod-etape__detail-notes-label">Infos clés</div>' + esc(f.notes) + '</div>' : "";
+    var tags = (f.tags || []).length ? '<div class="pod-etape__detail-tags">' + f.tags.map(function(t){ return '<span class="pod-etape__detail-tag">' + esc(t) + '</span>'; }).join("") + '</div>' : "";
+    return '<div class="pod-etape' + (fait ? " is-done" : "") + '" data-formation-id="' + esc(f.id) + '">' +
+      '<div class="pod-etape__main">' +
+        '<span class="pod-etape__num">' + (fait ? "✓" : idx) + '</span>' +
+        '<div class="pod-etape__core"><div class="pod-etape__titre">' + esc(f.titre) + certif + '</div>' +
+          '<div class="pod-etape__tags">' + esc(f.bucket) + ' · ' + esc(f.niveau) + partage + '</div></div>' +
+        chipStatut(st) +
+        '<span class="pod-etape__duree">' + esc(f.duree || "—") + '</span>' +
+        '<span class="pod-etape__chev">▼</span>' +
+      '</div>' +
+      '<div class="pod-etape__detail">' + grille + tags + refus + notes +
+        '<div class="pod-etape__detail-actions">' + liensModule(f) + actionsConsultant(f, st, ctx) + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderParcours(a, ctx){
+    var s = calc.syntheseParcours(a, ctx.catIdx, ctx.progIdx, ctx.today);
+    var origine = a.source === "Manager"
+      ? '<span class="pod-mp-origine manager">Assigné par ' + esc(a.assignePar ? a.assignePar.nom : "le manager") + (a.parcoursType ? "" : " · personnalisé") + '</span>'
+      : '<span class="pod-mp-origine">' + (a.estMesFormations ? "Mes formations · en autonomie" : "Choisi en autonomie") + '</span>';
+    var desc = a.estMesFormations ? "Les modules que tu as ajoutés depuis le catalogue."
+      : (ctx.descParcours[a.parcoursType] || (a.parcoursType ? "" : "Parcours construit sur mesure."));
+    var meta = a.dateCible
+      ? '<strong' + (s.enRetard ? ' class="retard"' : "") + '>' + esc(calc.formatDate(a.dateCible)) + (s.enRetard ? " · en retard" : "") + '</strong>Date cible · '
+      : '<strong>Pas d\'échéance</strong>';
+    meta += pluriel(s.nb, "module") + " · " + fmtH(s.heuresRestantes) + " restantes sur " + fmtH(s.heuresTotal);
+    function largeur(n){ return s.nb ? (n * 100 / s.nb).toFixed(1) : 0; }
+    var ps = s.parStatut;
+    var nbCours = ps["en-cours"] + ps.refuse;
+    var barre = '<div class="pod-mp-progress"><div class="pod-mp-bar">' +
+      '<span class="b-ok" style="width:' + largeur(s.nbTermines) + '%"></span>' +
+      '<span class="b-val" style="width:' + largeur(ps["a-valider"]) + '%"></span>' +
+      '<span class="b-cours" style="width:' + largeur(nbCours) + '%"></span>' +
+      '</div><div class="pod-mp-pct">' + s.pct + ' %</div></div>';
+    var compte = [];
+    if(s.nbTermines) compte.push('<span class="pod-st pod-st--termine">' + pluriel(s.nbTermines, "terminé") + '</span>');
+    if(ps["a-valider"]) compte.push('<span class="pod-st pod-st--avalider">' + ps["a-valider"] + ' à valider</span>');
+    if(nbCours) compte.push('<span class="pod-st pod-st--encours">' + nbCours + ' en cours</span>');
+    if(ps["a-faire"]) compte.push('<span class="pod-st pod-st--afaire">' + ps["a-faire"] + ' à faire</span>');
+    var alerte = s.enRetard ? '<p class="pod-mp-alerte">⚠ Date cible dépassée : ' + pluriel(s.nb - s.nbTermines, "module") + ' encore à terminer.</p>' : "";
+    var etapes = s.lignes.map(function(l, i){ return renderModule(l.formation, i + 1, l.statut, a, ctx); }).join("") +
+      s.introuvables.map(function(id){ return window.PODZ.missingCard(id); }).join("");
+    if(!s.lignes.length && !s.introuvables.length) etapes = '<p class="pod-mp-vide">Aucun module dans ce parcours pour le moment.</p>';
+    // Certification au choix (D-P7) : plusieurs certifs dans le parcours type, aucune copiee.
+    var choix = "";
+    if(a.parcoursType){
+      var certifs = calc.certifsAuChoix(a.parcoursType, ctx.catalogue);
+      var dejaUne = certifs.some(function(c){ return a.modules.indexOf(c.id) !== -1; });
+      if(certifs.length && !dejaUne){
+        choix = '<div class="pod-mp-choix"><strong>Certification au choix</strong>' +
+          esc(certifs.map(function(c){ return c.titre; }).join(" · ")) + ' — ' +
+          (ctx.mode === "consultant"
+            ? 'ajoute celle que tu vises via « Ajouter à mes formations » dans le <a href="#catalogue">catalogue</a>.'
+            : 'à ajouter au parcours depuis le formulaire de modification.') + '</div>';
+      }
+    }
+    return '<section class="pod-parcours" style="--ac:' + accentParcours(a, ctx.catalogue) + '" data-assignation-id="' + esc(a.id) + '">' +
+      '<div class="pod-parcours-head"><div>' + origine + '<h2>' + esc(a.titre) + '</h2>' + (desc ? '<p>' + esc(desc) + '</p>' : "") + '</div>' +
+      '<div class="pod-parcours-meta">' + meta + '</div></div>' +
+      alerte + barre + '<div class="pod-mp-counts">' + compte.join("") + '</div>' +
+      etapes + choix +
+    '</section>';
+  }
+
+  function renderNiveaux(n){
+    function lignes(liste){
+      return liste.map(function(x){
+        var r = calc.ECHELLE.indexOf(x.niveau);
+        return '<div class="pod-mp-niv-row"><b>' + esc(x.nom) + '</b><div class="pod-mp-niv-scale">' +
+          [0, 1, 2].map(function(i){ return '<i' + (i <= r ? ' class="on"' : "") + '></i>'; }).join("") +
+          '</div><em>' + esc(x.niveau || "—") + '</em></div>';
+      }).join("");
+    }
+    var techno = n.technoRenseignee
+      ? lignes(n.parTechno)
+      : '<p class="pod-mp-vide">La colonne <code>Techno</code> du catalogue n\'est pas encore renseignée : le niveau par techno s\'affichera dès qu\'elle le sera.</p>';
+    var badges = n.badges.length
+      ? '<div class="pod-mp-badges">' + n.badges.map(function(b){ return '<span class="pod-chip certif">★ Certifié ' + esc(b) + '</span>'; }).join("") + '</div>'
+      : "";
+    return '<div class="pod-mp-card"><h3 class="pod-mp-card-title">Niveau</h3>' +
+      '<div class="pod-mp-niv-tabs"><button type="button" class="pod-mp-niv-tab active" data-niv="competence">Par compétence</button>' +
+      '<button type="button" class="pod-mp-niv-tab" data-niv="techno">Par techno</button></div>' +
+      '<div class="pod-mp-niv-panel" data-niv-panel="competence">' + lignes(n.parCompetence) + '</div>' +
+      '<div class="pod-mp-niv-panel" data-niv-panel="techno" hidden>' + techno + '</div>' +
+      badges +
+      '<div class="pod-mp-note">Échelle Fondamentaux · Intermédiaire · Avancé : niveau le plus élevé parmi les modules terminés (dispenses comprises). Par compétence sans les certifications ; par techno avec.</div>' +
+    '</div>';
+  }
+
+  function renderProchaine(pe, ctx){
+    var t = '<div class="pod-mp-card pod-mp-next"><h3 class="pod-mp-card-title">Prochaine étape</h3>';
+    if(!pe){
+      return t + '<p class="pod-mp-vide">Rien à faire pour le moment : tous les modules sont terminés ou en attente de validation.</p></div>';
+    }
+    var f = pe.formation, a = pe.assignation;
+    var s = calc.syntheseParcours(a, ctx.catIdx, ctx.progIdx, ctx.today);
+    var echeance = a.dateCible
+      ? (s.enRetard ? "date cible dépassée (" + calc.formatDate(a.dateCible) + ")" : "date cible " + calc.formatDate(a.dateCible))
+      : "pas d'échéance";
+    var lien = (f.liens || []).length
+      ? '<a class="pod-btn" href="' + esc(f.liens[0]) + '" target="_blank" rel="noopener" data-formation="' + esc(f.id) + '">' +
+        (pe.statut.code === "a-faire" ? "Accéder à la formation ↗" : "Reprendre la formation ↗") + '</a>'
+      : "";
+    var action = "";
+    if(ctx.mode === "consultant"){
+      action = pe.statut.code === "a-faire"
+        ? '<button type="button" class="pod-btn ghost" data-action="demarrer" data-formation="' + esc(f.id) + '" disabled>Je commence</button>'
+        : '<button type="button" class="pod-btn ghost" data-action="declarer" data-formation="' + esc(f.id) + '" disabled>J\'ai terminé…</button>';
+    }
+    return t + chipStatut(pe.statut) +
+      '<div class="pod-mp-next-titre">' + esc(f.titre) + '</div>' +
+      '<div class="pod-mp-next-meta">Parcours « ' + esc(a.titre) + ' » · ' + esc(f.duree || "—") + ' · ' + esc(echeance) + '</div>' +
+      '<div class="pod-mp-actions">' + lien + action + '</div>' +
+    '</div>';
+  }
+
+  function phraseSynthese(actives, g, retards, ctx){
+    var p = [pluriel(actives.length, "parcours", "parcours") + " en cours."];
+    if(g.nbAValider){
+      p.push((g.nbAValider > 1 ? g.nbAValider + " modules attendent" : "Un module attend") +
+        " la validation de " + (ctx.managerNom || "ton manager") + ".");
+    }
+    if(retards.length === 1) p.push("Le parcours « " + retards[0].titre + " » a dépassé sa date cible.");
+    else if(retards.length > 1) p.push(retards.length + " parcours ont dépassé leur date cible.");
+    return p.join(" ");
+  }
+
+  function renderVide(ctx, parcoursTypes){
+    if(ctx.mode !== "consultant"){
+      return '<div class="pod-mp-empty"><h3>Aucun parcours actif</h3><p>' + esc(ctx.consultant.nom) + ' ne suit aucun parcours pour le moment.</p></div>';
+    }
+    return '<div class="pod-mp-empty"><h3>Tu n\'as encore aucun parcours</h3>' +
+      '<p>Choisis un parcours type pour commencer (il s\'ajoutera ici, sans échéance), ou pioche des modules dans le catalogue.</p>' +
+      '<ul>' + parcoursTypes.map(function(pt){
+        return '<li><a href="#profil=' + esc(pt.slug) + '">' + esc(pt.titre) + '</a> — ' + esc(pt.description) + '</li>';
+      }).join("") + '</ul>' +
+      '<div class="pod-mp-actions"><a class="pod-btn ghost" href="#catalogue">Parcourir le catalogue</a></div></div>';
+  }
+
+  function brancher(el){
+    if(el.getAttribute("data-podz-cockpit")) return;
+    el.setAttribute("data-podz-cockpit", "1");
+    el.addEventListener("click", function(e){
+      var tab = e.target.closest(".pod-mp-niv-tab");
+      if(tab){
+        var card = tab.closest(".pod-mp-card");
+        Array.prototype.forEach.call(card.querySelectorAll(".pod-mp-niv-tab"), function(t){ t.classList.toggle("active", t === tab); });
+        Array.prototype.forEach.call(card.querySelectorAll("[data-niv-panel]"), function(pn){ pn.hidden = pn.getAttribute("data-niv-panel") !== tab.getAttribute("data-niv"); });
+        return;
+      }
+      if(e.target.closest("a,button")) return;
+      var main = e.target.closest(".pod-etape__main");
+      if(main) main.parentNode.classList.toggle("open");
+    });
+  }
+
+  window.PODZ.renderCockpit = function(el, consultantId, opts){
+    opts = opts || {};
+    var mode = opts.mode === "manager" ? "manager" : "consultant";
+    brancher(el);
+    return Promise.all([
+      window.PODZ.fetchCatalogue(), window.PODZ.fetchUtilisateurs(),
+      window.PODZ.fetchAssignations([consultantId]), window.PODZ.fetchProgression([consultantId]),
+      window.PODZ.fetchParcours(), window.PODZ.fetchProfils()
+    ]).then(function(r){
+      var catalogue = r[0], users = r[1], assignations = r[2], progression = r[3], parcoursList = r[4], profils = r[5];
+      var consultant = users.filter(function(u){ return u.id === Number(consultantId); })[0];
+      if(!consultant) throw new Error("Utilisateur " + consultantId + " introuvable");
+      var manager = users.filter(function(u){ return u.id === consultant.managerId; })[0];
+      var actives = assignations.filter(function(a){ return a.etat === "Actif"; });
+      var descParcours = {};
+      parcoursList.forEach(function(p){ descParcours[p.title] = p.description; });
+      var ctx = {
+        mode: mode, consultant: consultant, managerNom: manager ? manager.nom : "",
+        catalogue: catalogue, catIdx: calc.indexer(catalogue, "id"),
+        progIdx: calc.indexer(progression, "formationId"),
+        actives: actives, today: window.PODZ.aujourdhui(), descParcours: descParcours
+      };
+      var g = calc.syntheseGlobale(actives, ctx.catIdx, ctx.progIdx);
+      var retards = actives.filter(function(a){ return calc.syntheseParcours(a, ctx.catIdx, ctx.progIdx, ctx.today).enRetard; });
+      var titre = mode === "consultant" ? "Bonjour " + prenom(consultant.nom) : "Cockpit de " + consultant.nom;
+      var hero = '<section class="pod-hero" style="--ac:var(--pod-violet)"><div class="pod-hero-text">' +
+        '<span class="pod-hero-tag">' + (mode === "consultant" ? "Mon cockpit de formation" : "Cockpit de formation") + '</span>' +
+        '<h1 class="pod-hero-title">' + esc(titre) + '</h1>' +
+        '<p class="pod-hero-desc">' + esc(actives.length ? phraseSynthese(actives, g, retards, ctx) : "Aucun parcours en cours.") + '</p></div>' +
+        (actives.length ? '<div class="pod-mp-kpis">' +
+          '<div class="pod-mp-kpi"><strong>' + g.nbTermines + ' / ' + g.nbModules + '</strong><span>Modules terminés</span></div>' +
+          '<div class="pod-mp-kpi"><strong>' + fmtH(g.heuresRealisees) + '</strong><span>Réalisées</span></div>' +
+          '<div class="pod-mp-kpi"><strong>' + fmtH(g.heuresRestantes) + '</strong><span>Restantes</span></div>' +
+          '<div class="pod-mp-kpi"><strong>' + g.nbAValider + '</strong><span>À valider</span></div>' +
+        '</div>' : "") +
+      '</section>';
+      if(!actives.length){
+        var types = parcoursList.map(function(p){
+          var prof = profils.filter(function(pf){ return p.profils.indexOf(pf.slug) !== -1; })[0];
+          return {titre: p.title, description: p.description, slug: prof ? prof.slug : ""};
+        });
+        el.innerHTML = hero + renderVide(ctx, types);
+        return;
+      }
+      var pe = calc.prochaineEtape(actives, ctx.catIdx, ctx.progIdx, ctx.today);
+      var top = '<div class="pod-mp-top">' + renderProchaine(pe, ctx) + renderNiveaux(calc.niveaux(ctx.progIdx, ctx.catIdx)) + '</div>';
+      var blocs = actives.map(function(a){ return renderParcours(a, ctx); }).join("");
+      var plus = mode === "consultant"
+        ? '<div class="pod-mp-add"><p><b>Envie d\'aller plus loin ?</b> Ajoute un parcours type en autonomie, ou un module isolé du catalogue (« Ajouter à mes formations ») : il rejoindra ton parcours libre « Mes formations ».</p>' +
+          '<a class="pod-btn ghost" href="#accueil">Voir les parcours types</a><a class="pod-btn ghost" href="#catalogue">Parcourir le catalogue</a></div>'
+        : "";
+      el.innerHTML = hero + top + blocs + plus;
+    }).catch(function(err){
+      el.innerHTML = '<div class="pod-loading">Erreur de chargement du parcours (' + esc(err && err.message ? err.message : err) + ').</div>';
+    });
+  };
+
+  // Vue #mon-parcours : cockpit de l'utilisateur connecte.
+  window.PODZ.renderMonParcours = function(){
+    var el = document.getElementById("podz-mp-cockpit");
+    return window.PODZ.fetchUtilisateur().then(function(u){
+      return window.PODZ.renderCockpit(el, u.id, {mode: "consultant"});
+    }).catch(function(err){
+      el.innerHTML = '<div class="pod-loading">Erreur : ' + esc(err && err.message ? err.message : err) + '</div>';
+    });
+  };
+})();
+</script>
 <style>
 /* Bandeau dev "Se connecter en tant que..." : injecte seulement en dev (absent en prod) */
 .podz-dev{--pod-jaune:#E8C96A;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;font-size:12px;line-height:1.5;color:var(--pod-muted);box-sizing:border-box;max-width:1240px;margin:0 auto 18px;padding:0 4px}
@@ -1715,14 +2198,26 @@
 })();
 </script>
 <script>
-// Navigation entre les vues (#accueil / #catalogue / #profil=<slug>).
+// Navigation entre les vues : table {hash -> vue, rendu} (PLAN.md § 1.2).
+// exact = le hash doit etre identique ; sinon c'est un prefixe (la suite est passee au rendu).
 (function(){
+  var ROUTES = [
+    {hash: "#catalogue", exact: true, vue: "catalogue", titre: "Catalogue d'exploration"},
+    {hash: "#profil=", vue: "profil", rendu: function(suite){ window.PODZ.renderProfile(decodeURIComponent(suite)); }},
+    {hash: "#mon-parcours", exact: true, vue: "mon-parcours", titre: "Mon parcours", rendu: function(){ window.PODZ.renderMonParcours(); }}
+  ];
+  var VUES = ["accueil"];
+  ROUTES.forEach(function(r){ if(VUES.indexOf(r.vue) === -1) VUES.push(r.vue); });
+  window.PODZ.routes = ROUTES;
+
   function show(){
     var h = location.hash;
-    var view = h === "#catalogue" ? "catalogue" : (h.indexOf("#profil=") === 0 ? "profil" : "accueil");
-    ["accueil","catalogue","profil"].forEach(function(v){ document.getElementById("view-" + v).hidden = v !== view; });
-    if(view === "profil") window.PODZ.renderProfile(decodeURIComponent(h.slice(8)));
-    else document.title = view === "catalogue" ? "PODz Academy — Catalogue d'exploration" : "PODz Academy";
+    var route = ROUTES.filter(function(r){ return r.exact ? h === r.hash : h.indexOf(r.hash) === 0; })[0];
+    var vue = route ? route.vue : "accueil";
+    VUES.forEach(function(v){ document.getElementById("view-" + v).hidden = v !== vue; });
+    if(route && route.titre) document.title = "PODz Academy — " + route.titre;
+    else if(!route) document.title = "PODz Academy";
+    if(route && route.rendu) route.rendu(h.slice(route.hash.length));
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", show);
