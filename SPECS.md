@@ -46,6 +46,8 @@ dans tous les parcours qui le contiennent.
 | Catalogue filtrable (existant, US1/US3) | ✅ conservé | |
 | Cockpit consultant « Mon parcours » | ✅ | |
 | Auto-assignation d'un parcours type par le consultant | ✅ | |
+| Modules hors parcours (« Mes formations », depuis le catalogue) | ✅ | |
+| Colonne `Techno` du catalogue (niveau par techno, certifications) | ✅ | |
 | Assignation par le manager (parcours type, adapté ou construit module par module) + date cible | ✅ | |
 | Cycle de statuts avec validation manager + dispense | ✅ | |
 | Vue manager (équipe, file « À valider », détail d'un consultant) | ✅ | |
@@ -103,12 +105,25 @@ En tant que consultant connecté, je vois **mes** parcours.
   « Suivre ce parcours » me l'ajoute, sans date cible.
 - CA4b.2 — Si je suis déjà ce parcours, le bouton est remplacé par « Déjà dans mes
   parcours ».
+- CA4b.3 — Sur un parcours pris en autonomie, « Retirer de mes parcours » l'archive
+  (après confirmation). La progression de ses modules est conservée. Un parcours
+  assigné ne peut pas être retiré par le consultant.
+
+### US4c — Suivre un module hors parcours
+- CA4c.1 — Chaque fiche du catalogue propose « Ajouter à mes formations ».
+- CA4c.2 — Le module rejoint un parcours libre **« Mes formations »** (un seul par
+  consultant, créé au premier ajout, sans échéance), qui suit le même cycle de statuts
+  et de validation.
+- CA4c.3 — Si le module est déjà dans un de mes parcours, le bouton indique « Déjà
+  dans mes parcours ».
 
 ### US5 — Faire avancer un module
 - CA5.1 — Statut initial : **À faire**.
 - CA5.2 — Au **premier clic sur un lien** du module (support de formation), le statut
-  passe automatiquement à **En cours** avec la date de début. *(interprétation à
-  confirmer, cf. § 12)*
+  passe automatiquement à **En cours** avec la date de début. Déplier la fiche dans
+  l'outil ne change rien.
+- CA5.2b — Un bouton **« Je commence »** permet aussi de passer En cours (formation en
+  présentiel ou sans lien).
 - CA5.3 — Bouton « J'ai terminé » sur un module En cours : saisie de la **date de fin**
   (par défaut aujourd'hui) → statut **À valider**.
 - CA5.4 — Le consultant ne peut **jamais** passer lui-même un module à Terminé.
@@ -124,6 +139,11 @@ En tant que consultant connecté, je vois **mes** parcours.
 - CA6.3 — **Niveau par compétence** et **par techno** : niveau le plus élevé parmi les
   modules Terminés (y compris dispensés) de cette compétence / techno, sur l'échelle
   Fondamentaux < Intermédiaire < Avancé ; « — » si aucun.
+  - Par compétence : les certifications (compétence « Certifs ») sont exclues.
+  - Par techno : basé sur la colonne `Techno` (annexe A) ; les certifications comptent
+    (ex. PL-300 terminée → Power BI : Avancé).
+- CA6.3b — Les certifications terminées s'affichent aussi en **badges** (« Certifié
+  PL-300 »).
 - CA6.4 — Section « Prochaine étape » : le premier module non terminé du parcours le plus
   urgent (date cible la plus proche, sinon le premier parcours).
 
@@ -138,6 +158,9 @@ En tant que manager, j'assigne un parcours à un collaborateur de mon équipe.
 - CA7.5 — Les modules déjà Terminés par le collaborateur sont signalés dès la
   construction (« déjà réalisé le … »).
 - CA7.6 — À l'enregistrement, le parcours apparaît dans le cockpit du consultant.
+- CA7.7 — Sur un parcours **déjà assigné**, le manager peut ajouter, retirer,
+  réordonner des modules et changer la date cible ; retirer un module n'efface pas sa
+  progression. Il peut aussi **archiver** le parcours.
 
 ### US8 — Suivre et valider mon équipe
 - CA8.1 — Vue « Mon équipe » : une ligne par collaborateur avec ses parcours actifs, %
@@ -181,7 +204,7 @@ Accueil (existant)  ─┬─ [Mon parcours]  ───────────�
 | RG1 | La progression est portée par le couple **consultant × module**, jamais par le parcours. |
 | RG2 | Statuts : **À faire → En cours → À valider → Terminé**. Retour possible À valider → En cours (refus). |
 | RG3 | « À faire » n'est pas stocké : c'est l'état d'un module d'un parcours actif sans ligne de progression. |
-| RG4 | Passage à **En cours** automatique au premier clic sur un lien du module, par le consultant lui-même (pas quand un manager consulte). |
+| RG4 | Passage à **En cours** automatique au premier clic sur un lien du module, ou via le bouton « Je commence », par le consultant lui-même (pas quand un manager consulte). Déplier la fiche ne change rien. |
 | RG5 | Seul le consultant passe un module à **À valider**, avec une date de fin ≤ aujourd'hui. |
 | RG6 | Seul le **manager du consultant** (ou un administrateur) passe un module à **Terminé** : par validation d'un « À valider », ou directement par **dispense** depuis n'importe quel statut non terminé. |
 | RG7 | Un refus exige un commentaire ; le module repasse En cours. |
@@ -193,6 +216,11 @@ Accueil (existant)  ─┬─ [Mon parcours]  ───────────�
 | RG13 | Niveau par compétence / techno = niveau max des modules Terminés (dispenses incluses). |
 | RG14 | Confidentialité : le consultant ne voit que sa progression ; le manager que celle de ses collaborateurs ; l'administrateur tout. (Limite technique en prod : § 8.4.) |
 | RG15 | Notification au MVP : uniquement dans l'outil (compteur + file « À valider »). |
+| RG16 | Une **dispense** compte comme un Terminé partout (avancement, heures réalisées, niveau) ; elle s'affiche « Terminé · dispensé » au lieu de « Terminé le JJ/MM ». |
+| RG17 | Niveau par compétence : certifications exclues. Niveau par techno : colonne `Techno`, certifications incluses. Modules sans techno : ignorés pour le niveau par techno. |
+| RG18 | Archivage : le consultant archive ses parcours **en autonomie** ; seul le manager archive un parcours **assigné**. L'archivage ne touche jamais à la progression. |
+| RG19 | Modules hors parcours : regroupés dans un parcours libre unique « Mes formations » (Source = Autonomie, sans date cible). |
+| RG20 | Un parcours assigné n'est modifiable que par le manager (modules, ordre, date cible). |
 
 ## 8. Modèle de données (prod) — dépendances propriétaire de site
 
@@ -205,7 +233,11 @@ Accueil (existant)  ─┬─ [Mon parcours]  ───────────�
   Bien démarrer chez POD, Analyste Power BI, Automatisation des processus, Pilotage de
   projet Data, Acculturation Data. Composition d'un parcours type = formations dont
   `Parcours` contient son titre, triées par `Ordre`.
-- Évolution possible (point ouvert § 12) : colonne **`Techno`** sur Formations.
+- **Nouvelle colonne `Techno`** (techno ou méthode) sur Formations : dans l'Excel
+  (remplie par le métier, valeurs proposées en annexe A), reprise par
+  `tools/excel-vers-catalogue.ps1`, puis ajoutée à la liste Formations en prod
+  (Ligne de texte ou Choix, à créer par un propriétaire du site). Vide = module
+  transverse.
 
 ### 8.2 Nouvelles listes à créer par un propriétaire du site
 
@@ -254,13 +286,16 @@ Unicité attendue (gérée par le code) : un seul item par (`Consultant`, `Title
   équipe). Pas de suppression.
 - Équipes : lecture pour tous, modification réservée au référent formation.
 
-### 8.4 Limite de confidentialité (à arbitrer avec le propriétaire du site)
+### 8.4 Limite de confidentialité (décision : acceptée au MVP)
 Sans admin, les permissions SharePoint ne savent pas dire « le manager peut modifier les
 lignes de *ses* collaborateurs seulement ». Avec les permissions du § 8.3, la règle RG14
 est appliquée **par l'interface** : la page n'affiche à chacun que ce qu'il a le droit de
-voir, mais un utilisateur averti pourrait lire les listes directement. Options :
-(a) accepter cette limite (données peu sensibles) ; (b) permissions par élément posées
-par un flux Power Automate (complexe, à étudier avec un propriétaire du site).
+voir, mais un utilisateur averti pourrait lire les listes Assignations / Progression
+directement (statuts, dates, commentaires de refus).
+
+**Décision** : limite acceptée au MVP (pas de données sensibles). Consigne aux
+managers : commentaires de refus factuels. L'alternative (permissions par élément via
+Power Automate) sera rediscutée avec le propriétaire du site au passage en prod.
 
 ## 9. Couche d'accès aux données (`window.PODZ`)
 
@@ -272,7 +307,7 @@ par un flux Power Automate (complexe, à étudier avec un propriétaire du site)
 | `fetchEquipe(manager)` | collaborateurs d'un manager (tous si admin) | `data/dev-utilisateurs.js` | GET Équipes filtrée |
 | `fetchAssignations(userIds)` | parcours d'un ou plusieurs consultants | `data/dev-assignations.js` + `localStorage` | GET Assignations filtrée |
 | `fetchProgression(userIds)` | lignes de progression | `data/dev-progression.js` + `localStorage` | GET Progression filtrée |
-| `saveAssignation(assignation)` | créer un parcours (autonomie ou manager) | `localStorage` | POST Assignations |
+| `saveAssignation(assignation)` | créer, modifier (modules, ordre, date cible) ou archiver un parcours ; ajout à « Mes formations » | `localStorage` | POST/MERGE Assignations |
 | `saveStatut(user, formationId, changement)` | démarrer, déclarer terminé, valider, refuser, dispenser | `localStorage` | POST/MERGE Progression (`X-RequestDigest`) |
 
 Les objets échangés gardent le **format des items REST SharePoint** (personnes sous la
@@ -303,7 +338,11 @@ Tout est **fictif** (dépôt potentiellement public) : aucun vrai nom, aucun exp
    "Modules": "F025;F003;F002;F004;F026;F012;C005", "DateCible": "2026-12-31T00:00:00Z", "Etat": "Actif"}
   ```
   Couvrir : un parcours type assigné, un parcours personnalisé, un parcours en
-  autonomie sans date, un parcours en retard, un module partagé entre deux parcours.
+  autonomie sans date, un parcours en retard, un module partagé entre deux parcours,
+  un parcours libre « Mes formations », un parcours archivé.
+- `data/catalogue.js` : après ajout de la colonne `Techno` dans l'Excel, régénéré par
+  le script (champ `Techno` au format liste). Tant que l'Excel n'est pas complété, le
+  niveau par techno affiche « — ».
 - `data/dev-progression.js` — `window.PODZ_DEV_PROGRESSION`, état initial couvrant tous
   les statuts (En cours, À valider, Terminé, Terminé par dispense, refus avec
   commentaire).
@@ -325,16 +364,72 @@ Tout est **fictif** (dépôt potentiellement public) : aucun vrai nom, aucun exp
 
 ## 12. Points ouverts
 
-| # | Point | Proposition par défaut | Qui tranche |
+### 12.1 Tranchés avec le métier (session 2)
+
+| # | Point | Décision | Réf. |
 |---|---|---|---|
-| PO1 | « Ouvrir la formation » = clic sur un lien du module (compris ainsi) ? | Clic sur un lien ; déplier la fiche ne change rien | Métier |
-| PO2 | Distinguer visuellement « Terminé » et « Terminé (dispense) » ? | Oui, mention discrète « dispensé » | Métier |
-| PO3 | **Techno** : aucune colonne dédiée dans l'Excel. Ajouter une colonne `Techno` (Excel + liste) ou la déduire des tags ? | Ajouter une colonne `Techno` dans l'Excel | Métier + propriétaire |
-| PO4 | Certifications : compétence = « Certifs ». Pour le niveau, les rattacher à la compétence de leur offre ? | Les rattacher via la future colonne `Techno` | Métier |
-| PO5 | Le consultant peut-il **abandonner / archiver** un parcours pris en autonomie ? Et un parcours assigné ? | Autonomie : oui ; assigné : non (manager seulement) | Métier |
-| PO6 | Le consultant peut-il suivre un **module hors parcours** (depuis le catalogue) ? | Non au MVP | Métier |
-| PO7 | Le manager peut-il modifier un parcours **déjà assigné** (ajout / retrait de modules, date cible) ? | Oui | Métier |
-| PO8 | Limite de confidentialité en prod (§ 8.4) | Option (a) | Métier + propriétaire |
-| PO9 | Qui crée les listes Assignations / Progression / Équipes en prod, et leurs URL exactes ? | — | Propriétaire du site |
-| PO10 | Notification e-mail / Teams via Power Automate | Plus tard | Métier + propriétaire |
-| PO11 | Dans l'Excel, `Ordre` est global et chaque formation n'appartient qu'à un parcours type : un module partagé entre deux parcours types demandera un ordre par parcours (V2 admin). | OK au MVP | Session Plan |
+| PO1 | Ce qui déclenche « En cours » | Premier clic sur un lien du module, ou bouton « Je commence » ; déplier la fiche ne change rien | CA5.2, CA5.2b, RG4 |
+| PO2 | Affichage et poids d'une dispense | « Terminé · dispensé » ; compte partout, y compris dans les heures réalisées | RG16 |
+| PO3 | Niveau par techno | Nouvelle colonne `Techno` (techno ou méthode) dans l'Excel, remplie par le métier ; proposition en annexe A | § 8.1, RG17 |
+| PO4 | Certifications et niveau | Comptent pour leur techno, exclues du niveau par compétence, affichées en badges | CA6.3, CA6.3b, RG17 |
+| PO5 | Abandon d'un parcours | Autonomie : le consultant archive ; assigné : le manager seulement ; progression conservée | CA4b.3, RG18 |
+| PO6 | Module hors parcours | Oui au MVP : « Ajouter à mes formations » → parcours libre « Mes formations » | US4c, RG19 |
+| PO7 | Modifier un parcours assigné | Oui, par le manager (modules, ordre, date cible, archivage) | CA7.7, RG20 |
+| PO8 | Confidentialité en prod | Limite acceptée au MVP, à rediscuter avec le propriétaire du site | § 8.4 |
+| PO10 | Notification e-mail / Teams | Plus tard (option Power Automate) | § 3 |
+
+### 12.2 Restant ouverts
+
+| # | Point | Qui tranche |
+|---|---|---|
+| PO9 | Qui crée les listes Assignations / Progression / Équipes et la colonne `Techno` en prod, et leurs URL exactes ? | Propriétaire du site |
+| PO11 | Dans l'Excel, `Ordre` est global et chaque formation n'appartient qu'à un parcours type : un module partagé entre deux parcours types demandera un ordre par parcours (V2 admin). OK au MVP. | Session Plan |
+| PO12 | Remplir la colonne `Techno` dans l'Excel (à partir de l'annexe A). | Métier |
+
+## Annexe A — Valeurs proposées pour la colonne `Techno`
+
+Validées en session 2 comme point de départ ; le métier les reporte dans l'Excel et
+peut les ajuster. « — » = vide (module transverse).
+
+| ID | Module | Techno |
+|---|---|---|
+| F001 | Intégration POD | — |
+| F002 | Power BI | Power BI |
+| F003 | Data management | — |
+| F004 | Modélisation | — |
+| F005 | Data Catalog - DataGalaxy | DataGalaxy |
+| F006 | Comprendre le Data Cataloging | — |
+| F007 | SharePoint | SharePoint |
+| F008 | Adoption / ADKAR | ADKAR |
+| F009 | Vidéo / Vyond | Vyond |
+| F010 | PowerPoint avancé | PowerPoint |
+| F011 | Maquettage / méthode UX | UX |
+| F012 | Design / DataViz | DataViz |
+| F013 | Gestion des stakeholders | — |
+| F014 | Business analyst | — |
+| F015 | Suivi de projet | Gestion de projet |
+| F016 | Recette (UAT) | — |
+| F017 | Agile (SCRUM) | Agile |
+| F018 | Schéma Directeur | — |
+| F019 | Ways of working / BPM | BPM |
+| F020 | Gouvernance | — |
+| F021 | Cycle en V | Gestion de projet |
+| F022 | Cadrage et gestion de projet | Gestion de projet |
+| F023 | Automatisation / Power Automate | Power Platform |
+| F024 | Power Apps (formation) | Power Platform |
+| F025 | SQL / Requêtage | SQL |
+| F026 | Data Quality | — |
+| F027 | Copilot / Copilot Studio | Copilot |
+| F028 | Agents IA & GenAI | IA générative |
+| F029 | Data Literacy | — |
+| F030 | IA Générative & Claude — Bases | Claude |
+| F031 | Travailler efficacement avec l'IA | IA générative |
+| F032 | Claude CoWork — Prise en main | Claude |
+| F033 | Agents & Skills IA avec Claude | Claude |
+| C001 | Agile - PSM I | Agile |
+| C002 | Agile - PSPO I (Complet) | Agile |
+| C003 | Agile - PSPO I (Express) | Agile |
+| C004 | Change Management - Prosci (ADKAR) | ADKAR |
+| C005 | Power BI - PL-300 | Power BI |
+| C006 | Power Apps - PL-200 | Power Platform |
+| C007 | Gestion de projet - PMP | Gestion de projet |

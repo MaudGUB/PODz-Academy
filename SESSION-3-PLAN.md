@@ -40,8 +40,15 @@ Pas de développement dans `podz-academy.html` pendant cette session.
 - **Progression portée par consultant × module** ; un parcours n'est qu'une liste
   ordonnée d'IDs de modules (copie à l'assignation).
 - **Date cible par parcours**, fixée par le manager ; aucune en autonomie.
-- **Niveau** = niveau max des modules Terminés, par compétence et par techno.
+- **Niveau** = niveau max des modules Terminés, par compétence (sans les
+  certifications) et par techno (nouvelle colonne `Techno` de l'Excel, certifications
+  incluses) ; certifications terminées affichées en badges.
 - **Rôles** consultant / manager / admin, cumulables.
+- **Points ouverts PO1 à PO8 et PO10 tranchés** (`SPECS.md` § 12.1) : bouton « Je
+  commence », dispense comptée partout, archivage d'un parcours (autonomie : consultant ;
+  assigné : manager), parcours libre « Mes formations » pour les modules hors parcours,
+  modification d'un parcours assigné par le manager, limite de confidentialité acceptée
+  au MVP.
 - **V2 / plus tard** : parcours par mots-clés, création de parcours types dans l'outil,
   e-mails/Teams (Power Automate), reprise Planner, vraie liste des équipes.
 
@@ -64,10 +71,12 @@ Pas de développement dans `podz-academy.html` pendant cette session.
 - **Ordre de réalisation suggéré** : données de dev + couche d'accès → cockpit en
   lecture → transitions de statut consultant → vue manager (validation, dispense) →
   assignation (autonomie puis manager) → finitions et recette.
-- **Points ouverts de `SPECS.md` § 12** : les reprendre avec l'utilisateur en début de
-  session (en particulier PO1 clic sur lien, PO2 affichage dispense, PO3 colonne
-  `Techno`, PO5 abandon d'un parcours, PO6 module hors parcours, PO7 modification d'un
-  parcours assigné) et consigner les réponses dans `SPECS.md`.
+- **Colonne `Techno`** : prévoir sa prise en compte par
+  `tools/excel-vers-catalogue.ps1` et `mapItem` (champ vide toléré tant que le métier
+  n'a pas complété l'Excel, cf. annexe A de `SPECS.md` et PO12).
+- **Points restant ouverts** (`SPECS.md` § 12.2) : PO11 (ordre d'un module par
+  parcours type) est à traiter dans le plan ; PO9 et PO12 sont des dépendances
+  externes à lister.
 - **Dépendances prod** à lister à part (propriétaire du site) : création des listes
   Assignations, Progression, Équipes (§ 8.2), permissions (§ 8.3), arbitrage
   confidentialité (§ 8.4).
