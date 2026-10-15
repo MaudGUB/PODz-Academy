@@ -430,6 +430,134 @@
 }
 </style>
 <style>
+/* Vue manager "Mon equipe" (reprise de maquettes/vue-manager.html, racine .podz-mgr). Bloc place AVANT .podz-mp :
+   le cockpit imbrique dans le detail collaborateur garde ses propres styles. */
+.podz-mgr{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box}
+.podz-mgr *,.podz-mgr *::before,.podz-mgr *::after{box-sizing:border-box}
+.podz-mgr h1,.podz-mgr h2,.podz-mgr h3{color:var(--pod-fonce);margin:0}
+.podz-mgr .pod-wrap{max-width:1240px;margin:0 auto;padding:4px 4px 32px}
+
+
+.podz-mgr .pod-bc{font-size:13px;color:var(--pod-muted);margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+.podz-mgr .pod-bc a{color:var(--pod-muted);text-decoration:none}
+.podz-mgr .pod-bc .pod-bc-sep{color:var(--pod-violet);margin:0 4px;font-weight:700}
+.podz-mgr .pod-bc .pod-bc-current{color:var(--pod-fonce);font-weight:600}
+
+.podz-mgr .pod-chip{display:inline-block;padding:3px 10px;background:#F1F3F8;color:var(--pod-muted);font-size:11px;font-weight:600;border-radius:999px}
+.podz-mgr .pod-chip.certif{background:var(--pod-orange);color:#FFFFFF;font-weight:700}
+
+.podz-mgr .pod-hero{background:#FFFFFF;border-radius:20px;padding:22px;margin-bottom:18px;display:flex;gap:20px;align-items:center;border:1px solid rgba(0,32,96,0.06);border-left:6px solid var(--ac,var(--pod-violet));box-shadow:0 4px 20px -12px rgba(0,32,96,0.15);flex-wrap:wrap}
+.podz-mgr .pod-hero-text{flex:1;min-width:240px}
+.podz-mgr .pod-hero-tag{display:inline-block;padding:3px 10px;background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;margin-bottom:8px}
+.podz-mgr .pod-hero-title{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-0.02em;line-height:1.15}
+.podz-mgr .pod-hero-desc{font-size:13.5px;color:var(--pod-muted);margin:0;max-width:600px;line-height:1.55}
+.podz-mgr .pod-kpis{display:grid;grid-template-columns:repeat(3,minmax(110px,1fr));gap:10px}
+.podz-mgr .pod-kpi{background:#FAFAFD;border:1px solid rgba(0,32,96,0.06);border-radius:12px;padding:10px 14px;text-align:center}
+.podz-mgr .pod-kpi strong{display:block;font-size:22px;font-weight:800;line-height:1.1}
+.podz-mgr .pod-kpi span{font-size:10.5px;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.podz-mgr .pod-kpi.alert{background:#FBF1D2;border-color:rgba(232,201,106,.6)}
+
+/* Onglets de la vue manager */
+.podz-mgr .pod-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.podz-mgr .pod-tag{border:1.5px solid #D6D6E0;background:#FFFFFF;color:var(--pod-fonce);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.podz-mgr .pod-tag.active{background:var(--pod-violet);border-color:var(--pod-violet)}
+.podz-mgr .pod-tag .pod-count{display:inline-block;margin-left:6px;background:var(--pod-orange);color:#FFFFFF;font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 7px}
+
+.podz-mgr .pod-section{background:#FFFFFF;border-radius:18px;padding:22px;margin-bottom:18px;border:1px solid rgba(0,32,96,0.06)}
+.podz-mgr .pod-section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #F0F0F0;flex-wrap:wrap}
+.podz-mgr .pod-section-head h2{font-size:18px;font-weight:700;margin:0 0 4px}
+.podz-mgr .pod-section-head p{margin:0;font-size:12.5px;color:var(--pod-muted)}
+.podz-mgr .pod-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--pod-muted);margin:0 0 8px}
+
+.podz-mgr .pod-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:9px;border:1px solid var(--pod-fonce);background:var(--pod-fonce);color:#FFFFFF;cursor:pointer;text-decoration:none;white-space:nowrap}
+.podz-mgr .pod-btn.ghost{background:#FFFFFF;color:var(--pod-fonce);border-color:rgba(0,32,96,0.18)}
+.podz-mgr .pod-btn.ok{background:#2F6B55;border-color:#2F6B55}
+.podz-mgr .pod-btn.sm{font-size:11.5px;padding:5px 10px}
+
+/* Statuts (identiques au cockpit) */
+.podz-mgr .pod-st{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;font-size:11px;font-weight:700;border-radius:999px;white-space:nowrap}
+.podz-mgr .pod-st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.7}
+.podz-mgr .pod-st--afaire{background:#F1F3F8;color:var(--pod-muted)}
+.podz-mgr .pod-st--encours{background:#E6EDFF;color:#2D4FA3}
+.podz-mgr .pod-st--avalider{background:#FBF1D2;color:#8A6A10}
+.podz-mgr .pod-st--termine{background:#E3EEE9;color:#2F6B55}
+.podz-mgr .pod-st--retard{background:#FFE6DC;color:#B4471F}
+
+/* File « À valider » */
+.podz-mgr .pod-val{display:grid;grid-template-columns:150px 1fr auto auto;gap:14px;align-items:center;padding:12px 14px;border:1px solid rgba(0,32,96,0.08);border-left:4px solid var(--pod-jaune);border-radius:0 10px 10px 0;margin-bottom:8px}
+.podz-mgr .pod-val__who{font-weight:700;font-size:13.5px}
+.podz-mgr .pod-val__who small{display:block;font-weight:500;font-size:11px;color:var(--pod-muted)}
+.podz-mgr .pod-val__mod{font-weight:700;font-size:14px}
+.podz-mgr .pod-val__mod small{display:block;font-weight:500;font-size:11.5px;color:var(--pod-muted)}
+.podz-mgr .pod-val__actions{display:flex;gap:6px}
+.podz-mgr .pod-val__refus{grid-column:1/-1;display:flex;gap:8px;align-items:center;background:#FFF1EC;border-radius:8px;padding:8px 10px}
+.podz-mgr .pod-val__refus input{flex:1;font-family:inherit;font-size:12.5px;padding:7px 10px;border:1px solid rgba(0,32,96,0.18);border-radius:7px}
+
+/* Tableau équipe */
+.podz-mgr .pod-team{width:100%;border-collapse:collapse;font-size:13px}
+.podz-mgr .pod-team th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--pod-muted);padding:0 10px 8px;border-bottom:1px solid #F0F0F0}
+.podz-mgr .pod-team td{padding:12px 10px;border-bottom:1px solid #F4F4F6;vertical-align:middle}
+.podz-mgr .pod-team tr.sel td{background:#F7F5FC}
+.podz-mgr .pod-team .who{font-weight:700}
+.podz-mgr .pod-team .who small{display:block;font-weight:500;font-size:11px;color:var(--pod-muted)}
+.podz-mgr .pod-catpick .pod-minibar{display:flex;align-items:center;gap:8px;min-width:150px}
+.podz-mgr .pod-catpick .pod-minibar div{flex:1;height:8px;border-radius:999px;background:#EEF0F5;overflow:hidden}
+.podz-mgr .pod-catpick .pod-minibar span{display:block;height:100%;background:var(--pod-vert)}
+.podz-mgr .pod-catpick .pod-minibar b{font-size:12.5px;min-width:36px;text-align:right}
+
+/* Détail collaborateur */
+.podz-mgr .pod-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
+.podz-mgr .pod-pcard{border:1px solid rgba(0,32,96,0.08);border-top:4px solid var(--ac,var(--pod-violet));border-radius:12px;padding:14px}
+.podz-mgr .pod-pcard h3{font-size:14.5px;font-weight:700;margin:0 0 2px}
+.podz-mgr .pod-pcard p{margin:0 0 10px;font-size:11.5px;color:var(--pod-muted)}
+.podz-mgr .pod-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px 0;border-top:1px dashed rgba(0,32,96,0.1);font-size:13px}
+.podz-mgr .pod-row b{font-weight:600}
+.podz-mgr .pod-row .muted{color:var(--pod-muted)}
+.podz-mgr .pod-row a{font-size:11px;font-weight:700;color:var(--pod-fonce);text-decoration:underline;cursor:pointer;white-space:nowrap}
+
+/* Assignation */
+.podz-mgr .pod-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.podz-mgr .pod-field label{display:block;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--pod-muted);margin-bottom:5px}
+.podz-mgr .pod-field input,.podz-mgr .pod-field select{width:100%;font-family:inherit;font-size:13.5px;padding:9px 12px;border:1px solid rgba(0,32,96,0.14);border-radius:10px;color:var(--pod-fonce);background:#FFFFFF}
+.podz-mgr .pod-build{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+.podz-mgr .pod-build .pod-etape{background:#FFFFFF;border:1px solid rgba(0,32,96,0.08);border-left:4px solid var(--ac,var(--pod-violet));border-radius:0 10px 10px 0;margin-bottom:6px;padding:9px 12px;display:grid;grid-template-columns:auto auto 1fr auto auto;gap:10px;align-items:center}
+.podz-mgr .pod-build .pod-etape.is-done{background:#FAFCFB;border-left-color:var(--pod-vert)}
+.podz-mgr .pod-build .pod-etape__grip{color:#B0B4C4;cursor:grab;font-size:13px;letter-spacing:-2px}
+.podz-mgr .pod-build .pod-etape__num{background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-weight:800;font-size:11px;padding:4px 10px;border-radius:999px;min-width:24px;text-align:center}
+.podz-mgr .pod-build .pod-etape__titre{font-weight:700;font-size:13.5px}
+.podz-mgr .pod-build .pod-etape__titre small{display:block;font-weight:500;font-size:11px;color:var(--pod-muted)}
+.podz-mgr .pod-build .pod-etape__duree{font-size:12px;color:var(--pod-muted);font-weight:600;background:#F7F7F8;padding:3px 9px;border-radius:6px;white-space:nowrap}
+.podz-mgr .pod-build .pod-etape__x{color:#B0B4C4;font-weight:700;cursor:pointer}
+.podz-mgr .pod-catpick{background:#F7F9FC;border-radius:12px;padding:12px;border:1px solid rgba(0,32,96,0.06)}
+.podz-mgr .pod-catpick input{width:100%;font-family:inherit;font-size:13px;padding:9px 12px;border:1px solid rgba(0,32,96,0.14);border-radius:10px;margin-bottom:10px}
+.podz-mgr .pod-catpick .pod-mini{background:#FFFFFF;border:1px solid rgba(0,32,96,0.05);border-left:5px solid var(--ac,var(--pod-violet));border-radius:0 10px 10px 0;padding:9px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.podz-mgr .pod-catpick .pod-mini__title{font-weight:700;font-size:13px}
+.podz-mgr .pod-catpick .pod-mini__title small{display:block;font-weight:500;font-size:10.5px;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em}
+.podz-mgr .pod-sum{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #F0F0F0;font-size:12.5px;color:var(--pod-muted)}
+.podz-mgr .pod-sum b{color:var(--pod-fonce)}
+.podz-mgr .pod-hint{font-size:11px;color:var(--pod-muted);font-style:italic}
+
+@media (max-width:860px){
+  .podz-mgr .pod-build{grid-template-columns:1fr}
+  .podz-mgr .pod-val{grid-template-columns:1fr auto}
+  .podz-mgr .pod-val__actions{grid-column:1/-1}
+  .podz-mgr .pod-team .hide-m{display:none}
+}
+
+/* Complements a la maquette */
+.podz-mgr a{cursor:pointer}
+.podz-mgr .pod-loading{padding:14px 4px;font-size:12.5px;color:var(--pod-muted);font-style:italic}
+.podz-mgr .pod-bc a:hover{color:var(--pod-fonce);text-decoration:underline}
+.podz-mgr .pod-tabs .pod-tag{cursor:pointer;font-family:inherit;text-decoration:none}
+.podz-mgr .pod-tabs .pod-tag:hover{border-color:var(--pod-violet)}
+.podz-mgr .pod-btn[disabled],.podz-mgr .pod-btn.is-disabled{opacity:.45;cursor:not-allowed}
+.podz-mgr .pod-team tbody tr{cursor:pointer}
+.podz-mgr .pod-team tbody tr:hover td{background:#F7F5FC}
+.podz-mgr .pod-vide{font-size:13px;color:var(--pod-muted);margin:0}
+.podz-home .pod-home-badge{display:inline-block;margin-left:6px;background:var(--pod-orange);color:#FFFFFF;font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 7px}
+.podz-mgr .pod-detail-cockpit{margin-top:4px}
+</style>
+<style>
 /* Cockpit consultant "Mon parcours" (repris de maquettes/mon-parcours.html) ; aussi utilise pour le detail collaborateur de la vue manager */
 .podz-mp{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box}
 .podz-mp *,.podz-mp *::before,.podz-mp *::after{box-sizing:border-box}
@@ -657,6 +785,15 @@
 <div class="pod-wrap">
 <div class="pod-bc" id="podz-mp-bc"><span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">Mon parcours</span></div>
 <div id="podz-mp-cockpit"><div class="pod-loading">Chargement de ton parcours…</div></div>
+</div>
+</div>
+</div>
+
+<div class="pod-view" id="view-mon-equipe" hidden>
+<div id="podz-mgr-root" class="podz-mgr">
+<div class="pod-wrap">
+<div class="pod-bc" id="podz-mgr-bc"></div>
+<div id="podz-mgr-contenu"><div class="pod-loading">Chargement de l'équipe…</div></div>
 </div>
 </div>
 </div>
@@ -2224,6 +2361,194 @@
 })();
 </script>
 <script>
+// Vue manager "Mon equipe" (#mon-equipe, #mon-equipe/c=<id>) + entree "Mon equipe (N)"
+// sur l'accueil. Un manager ne voit que ses collaborateurs ; un admin, tout le monde (CA8.5).
+(function(){
+  window.PODZ = window.PODZ || {};
+  var P = window.PODZ, calc = P.calc;
+  var contenu = document.getElementById("podz-mgr-contenu");
+  var bcEl = document.getElementById("podz-mgr-bc");
+  var onglet = "file";
+
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function pluriel(n, s, p){ return n + " " + (n > 1 ? (p || s + "s") : s); }
+  function jours(de, a){
+    if(!de || !a) return 0;
+    function t(s){ var m = s.split("-"); return Date.UTC(+m[0], +m[1] - 1, +m[2]); }
+    return Math.round((t(a) - t(de)) / 86400000);
+  }
+  function estResponsable(u){ return !!(u && (u.estManager || u.estAdmin)); }
+
+  // Equipe de l'utilisateur courant + leurs parcours, progression et file "A valider".
+  P.donneesEquipe = function(){
+    return P.fetchUtilisateur().then(function(moi){
+      if(!estResponsable(moi)) return {moi: moi, equipe: [], file: [], lignes: []};
+      return P.fetchEquipe(moi.id).then(function(equipe){
+        var ids = equipe.map(function(u){ return u.id; });
+        return Promise.all([P.fetchCatalogue(), P.fetchAssignations(ids), P.fetchProgression(ids)]).then(function(r){
+          var catalogue = r[0], assignations = r[1], progression = r[2];
+          var catIdx = calc.indexer(catalogue, "id"), today = P.aujourdhui();
+          var file = [];
+          var lignes = equipe.map(function(u){
+            var siens = assignations.filter(function(a){ return a.consultant.id === u.id; });
+            var actives = siens.filter(function(a){ return a.etat === "Actif"; });
+            var prog = progression.filter(function(p){ return p.consultantId === u.id; });
+            var progIdx = calc.indexer(prog, "formationId");
+            var g = calc.syntheseGlobale(actives, catIdx, progIdx);
+            var syntheses = actives.map(function(a){ return {a: a, s: calc.syntheseParcours(a, catIdx, progIdx, today)}; });
+            var echeances = syntheses.filter(function(x){ return x.a.dateCible && x.s.nbTermines < x.s.nb; })
+              .sort(function(x, y){ return x.a.dateCible < y.a.dateCible ? -1 : 1; });
+            // File : toute ligne "A valider", meme si le parcours a ete retire depuis.
+            prog.filter(function(p){ return p.statut === "a-valider"; }).forEach(function(p){
+              var dans = actives.filter(function(a){ return a.modules.indexOf(p.formationId) !== -1; })[0] ||
+                siens.filter(function(a){ return a.modules.indexOf(p.formationId) !== -1; })[0];
+              file.push({consultant: u, prog: p, formation: catIdx[p.formationId], parcours: dans || null,
+                depuis: jours(p.dateFin, today)});
+            });
+            return {
+              u: u, actives: actives,
+              nbAssignes: actives.filter(function(a){ return a.source === "Manager"; }).length,
+              nbAutonomie: actives.filter(function(a){ return a.source !== "Manager"; }).length,
+              pct: g.nbModules ? Math.round(g.nbTermines * 100 / g.nbModules) : 0,
+              echeance: echeances[0] || null,
+              nbRetard: syntheses.filter(function(x){ return x.s.enRetard; }).length,
+              nbAValider: prog.filter(function(p){ return p.statut === "a-valider"; }).length
+            };
+          });
+          file.sort(function(x, y){ return (x.prog.dateFin || "") < (y.prog.dateFin || "") ? -1 : 1; });
+          return {moi: moi, equipe: equipe, lignes: lignes, file: file, catIdx: catIdx};
+        });
+      });
+    });
+  };
+
+  // Accueil : entree "Mon equipe" + badge du nombre de validations en attente (CA8.2).
+  P.majAccueilManager = function(){
+    var quick = document.getElementById("podz-home-quick");
+    if(!quick) return Promise.resolve();
+    return P.donneesEquipe().then(function(d){
+      var lien = document.getElementById("podz-home-equipe");
+      if(!estResponsable(d.moi)){ if(lien) lien.parentNode.removeChild(lien); return; }
+      if(!lien){
+        lien = document.createElement("a");
+        lien.id = "podz-home-equipe";
+        lien.href = "#mon-equipe";
+        quick.insertBefore(lien, quick.children[1] || null);
+      }
+      lien.innerHTML = '<span>◎</span>Mon équipe' + (d.file.length ? '<span class="pod-home-badge" title="Validations en attente">' + d.file.length + '</span>' : "");
+    }).catch(function(){});
+  };
+
+  function drawBc(nom){
+    bcEl.innerHTML = '<span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> ' +
+      (nom ? '<a href="#mon-equipe">Mon équipe</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">' + esc(nom) + '</span>'
+           : '<span class="pod-bc-current">Mon équipe</span>');
+  }
+
+  function renderFile(d){
+    if(!d.file.length) return '<p class="pod-vide">Aucune validation en attente.</p>';
+    return d.file.map(function(x){
+      var f = x.formation;
+      var parcours = x.parcours ? x.parcours.titre + (x.parcours.source === "Manager" ? "" : " · autonomie") : "Hors parcours actif";
+      var mod = f ? esc(f.titre) + '<small>' + esc(f.bucket + " · " + f.niveau + " · " + (f.duree || "—")) + ' · terminé le ' + esc(calc.formatDate(x.prog.dateFin)) + '</small>'
+                  : esc(x.prog.formationId) + '<small>Formation introuvable dans le catalogue</small>';
+      return '<div class="pod-val" data-consultant="' + x.consultant.id + '" data-formation="' + esc(x.prog.formationId) + '">' +
+        '<div class="pod-val__who">' + esc(x.consultant.nom) + '<small>' + esc(parcours) + '</small></div>' +
+        '<div class="pod-val__mod">' + mod + '</div>' +
+        '<span class="pod-st pod-st--avalider">' + (x.depuis > 0 ? "Depuis " + pluriel(x.depuis, "j", "j") : "Aujourd'hui") + '</span>' +
+        '<div class="pod-val__actions"><button type="button" class="pod-btn ok sm" data-mgr="valider" disabled>✓ Valider</button>' +
+        '<button type="button" class="pod-btn ghost sm" data-mgr="refuser" disabled>Refuser</button></div>' +
+      '</div>';
+    }).join("");
+  }
+
+  function renderEquipe(d){
+    if(!d.lignes.length) return '<p class="pod-vide">Aucun collaborateur rattaché.</p>';
+    return '<table class="pod-team"><thead><tr><th>Collaborateur</th><th>Parcours actifs</th><th>Avancement global</th>' +
+      '<th class="hide-m">Prochaine échéance</th><th class="hide-m">À valider</th></tr></thead><tbody>' +
+      d.lignes.map(function(l){
+        var detail = [];
+        if(l.nbAssignes) detail.push(pluriel(l.nbAssignes, "assigné"));
+        if(l.nbAutonomie) detail.push(l.nbAutonomie + " autonomie");
+        var ech = "—";
+        if(l.echeance){
+          ech = l.echeance.s.enRetard
+            ? '<span class="pod-st pod-st--retard">' + esc(calc.formatDate(l.echeance.a.dateCible).substr(0, 5)) + ' · en retard</span>'
+            : esc(calc.formatDate(l.echeance.a.dateCible));
+        }
+        return '<tr data-consultant="' + l.u.id + '">' +
+          '<td class="who">' + esc(l.u.nom) + '<small>' + esc(l.u.email) + '</small></td>' +
+          '<td>' + l.actives.length + (detail.length ? ' <span class="pod-chip">' + esc(detail.join(" · ")) + '</span>' : "") + '</td>' +
+          '<td><div class="pod-minibar"><div><span style="width:' + l.pct + '%"></span></div><b>' + l.pct + ' %</b></div></td>' +
+          '<td class="hide-m">' + ech + '</td>' +
+          '<td class="hide-m">' + (l.nbAValider ? '<span class="pod-st pod-st--avalider">' + l.nbAValider + '</span>' : "—") + '</td>' +
+        '</tr>';
+      }).join("") + '</tbody></table>';
+  }
+
+  function renderVue(d){
+    var nbRetard = d.lignes.reduce(function(s, l){ return s + l.nbRetard; }, 0);
+    var hero = '<section class="pod-hero" style="--ac:var(--pod-bleu)"><div class="pod-hero-text">' +
+      '<span class="pod-hero-tag">Espace ' + (d.moi.estAdmin ? "administrateur" : "manager") + '</span>' +
+      '<h1 class="pod-hero-title">Mon équipe</h1>' +
+      '<p class="pod-hero-desc">Suis l\'avancement de tes collaborateurs, valide les modules terminés et assigne de nouveaux parcours. Ton propre parcours reste accessible depuis « <a href="#mon-parcours">Mon parcours</a> ».</p></div>' +
+      '<div class="pod-kpis">' +
+        '<div class="pod-kpi"><strong>' + d.equipe.length + '</strong><span>Collaborateurs</span></div>' +
+        '<div class="pod-kpi' + (d.file.length ? " alert" : "") + '"><strong>' + d.file.length + '</strong><span>À valider</span></div>' +
+        '<div class="pod-kpi"><strong>' + nbRetard + '</strong><span>Parcours en retard</span></div>' +
+      '</div></section>';
+    var tabs = '<div class="pod-tabs">' +
+      '<button type="button" class="pod-tag' + (onglet === "file" ? " active" : "") + '" data-onglet="file">À valider' + (d.file.length ? ' <span class="pod-count">' + d.file.length + '</span>' : "") + '</button>' +
+      '<button type="button" class="pod-tag' + (onglet === "equipe" ? " active" : "") + '" data-onglet="equipe">Équipe</button>' +
+      // Assignation : lot L11.
+      '<span class="pod-tag is-disabled" title="Disponible prochainement" style="opacity:.5;cursor:not-allowed">Assigner un parcours</span>' +
+    '</div>';
+    var corps = onglet === "equipe"
+      ? '<section class="pod-section"><div class="pod-section-head"><div><h2>Équipe</h2><p>Une ligne par collaborateur. Clique sur une ligne pour voir son détail.</p></div></div>' + renderEquipe(d) + '</section>'
+      : '<section class="pod-section"><div class="pod-section-head"><div><h2>Validations en attente</h2><p>Modules déclarés terminés par tes collaborateurs. Valider passe le module en « Terminé » dans tous leurs parcours.</p></div></div>' + renderFile(d) + '</section>';
+    contenu.innerHTML = hero + tabs + corps;
+  }
+
+  function renderDetail(d, id){
+    var u = d.equipe.filter(function(x){ return x.id === id; })[0];
+    if(!u){ location.hash = "#mon-equipe"; return; }
+    drawBc(u.nom);
+    document.title = "PODz Academy — " + u.nom;
+    contenu.innerHTML = '<section class="pod-section"><div class="pod-section-head">' +
+      '<div><h2>' + esc(u.nom) + '</h2><p>' + esc(u.email) + ' · lecture de son cockpit</p></div>' +
+      '<span><a class="pod-btn ghost" href="#mon-equipe">← Équipe</a> ' +
+      // Assignation : lot L11.
+      '<button type="button" class="pod-btn" disabled title="Disponible prochainement">+ Assigner un parcours à ' + esc(u.nom.split(" ")[0]) + '</button></span>' +
+      '</div></section>' +
+      '<div class="podz-mp pod-detail-cockpit" id="podz-mgr-cockpit"><div class="pod-loading">Chargement du cockpit…</div></div>';
+    return P.renderCockpit(document.getElementById("podz-mgr-cockpit"), u.id, {mode: "manager"});
+  }
+
+  // suite = "" (vue d'ensemble) ou "/c=<id>" (detail collaborateur).
+  P.renderMonEquipe = function(suite, garderOnglet){
+    if(!garderOnglet) onglet = "file";
+    contenu.innerHTML = '<div class="pod-loading">Chargement de l\'équipe…</div>';
+    return P.donneesEquipe().then(function(d){
+      // Route manager ouverte par un non-manager : retour a l'accueil.
+      if(!estResponsable(d.moi)){ location.hash = "#accueil"; return; }
+      var m = /^\/c=(\d+)$/.exec(suite || "");
+      if(m) return renderDetail(d, Number(m[1]));
+      drawBc("");
+      renderVue(d);
+    }).catch(function(err){
+      contenu.innerHTML = '<div class="pod-loading">Erreur de chargement de l\'équipe (' + esc(err && err.message ? err.message : err) + ').</div>';
+    });
+  };
+
+  document.getElementById("podz-mgr-root").addEventListener("click", function(e){
+    var t = e.target.closest("[data-onglet]");
+    if(t){ onglet = t.getAttribute("data-onglet"); P.renderMonEquipe("", true); return; }
+    var tr = e.target.closest(".pod-team tbody tr[data-consultant]");
+    if(tr) location.hash = "#mon-equipe/c=" + tr.getAttribute("data-consultant");
+  });
+})();
+</script>
+<script>
 // Suivi des clics (D-P8, RG4) : un clic du consultant connecte sur un lien d'un
 // module de SES parcours actifs le passe "En cours", quel que soit l'ecran
 // (cockpit, catalogue, profil). Pas de demarrage quand un manager consulte le
@@ -2301,7 +2626,8 @@
   var ROUTES = [
     {hash: "#catalogue", exact: true, vue: "catalogue", titre: "Catalogue d'exploration"},
     {hash: "#profil=", vue: "profil", rendu: function(suite){ window.PODZ.renderProfile(decodeURIComponent(suite)); }},
-    {hash: "#mon-parcours", exact: true, vue: "mon-parcours", titre: "Mon parcours", rendu: function(){ window.PODZ.renderMonParcours(); }}
+    {hash: "#mon-parcours", exact: true, vue: "mon-parcours", titre: "Mon parcours", rendu: function(){ window.PODZ.renderMonParcours(); }},
+    {hash: "#mon-equipe", vue: "mon-equipe", titre: "Mon équipe", rendu: function(suite){ window.PODZ.renderMonEquipe(suite); }}
   ];
   var VUES = ["accueil"];
   ROUTES.forEach(function(r){ if(VUES.indexOf(r.vue) === -1) VUES.push(r.vue); });
@@ -2315,6 +2641,8 @@
     if(route && route.titre) document.title = "PODz Academy — " + route.titre;
     else if(!route) document.title = "PODz Academy";
     if(route && route.rendu) route.rendu(h.slice(route.hash.length));
+    // Accueil : entree "Mon equipe (N)" recalculee a chaque affichage.
+    if(!route && window.PODZ.majAccueilManager) window.PODZ.majAccueilManager();
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", show);
