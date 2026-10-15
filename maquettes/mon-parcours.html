@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette — Mon parcours</title>
+</head>
+<body style="margin:0;padding:24px 16px;background:#FFFFFF">
+<!--
+  MAQUETTE STATIQUE (session 2 — Specs). Données fictives, aucun accès aux données.
+  Reprend la DA de podz-academy.html (--pod-*, .pod-hero, .pod-etape, .pod-chip, .pod-parcours).
+  Les classes nouvelles sont préfixées .pod-mp- (mon parcours) / .pod-st- (statuts).
+-->
+<style>
+.podz-mp{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box}
+.podz-mp *,.podz-mp *::before,.podz-mp *::after{box-sizing:border-box}
+.podz-mp h1,.podz-mp h2,.podz-mp h3{color:var(--pod-fonce);margin:0}
+.podz-mp .pod-wrap{max-width:1240px;margin:0 auto;padding:4px 4px 32px}
+
+/* Bandeau dev (absent en prod) */
+.podz-mp .pod-dev-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 14px;margin-bottom:18px;background:#FFF9DD;border:1px dashed var(--pod-jaune);border-radius:10px;font-size:12px;color:var(--pod-muted)}
+.podz-mp .pod-dev-bar b{color:var(--pod-fonce)}
+.podz-mp .pod-dev-bar select{font-family:inherit;font-size:12px;padding:3px 8px;border:1px solid rgba(0,32,96,0.18);border-radius:6px;color:var(--pod-fonce);background:#FFFFFF}
+.podz-mp .pod-dev-bar .pod-dev-reset{margin-left:auto;font-size:11.5px;color:var(--pod-muted);text-decoration:underline;cursor:pointer}
+
+/* Fil d'Ariane */
+.podz-mp .pod-bc{font-size:13px;color:var(--pod-muted);margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+.podz-mp .pod-bc a{color:var(--pod-muted);text-decoration:none}
+.podz-mp .pod-bc .pod-bc-sep{color:var(--pod-violet);margin:0 4px;font-weight:700}
+.podz-mp .pod-bc .pod-bc-current{color:var(--pod-fonce);font-weight:600}
+
+/* Chips */
+.podz-mp .pod-chip{display:inline-block;padding:3px 10px;background:#F1F3F8;color:var(--pod-muted);font-size:11px;font-weight:600;border-radius:999px}
+.podz-mp .pod-chip.certif{background:var(--pod-orange);color:#FFFFFF;font-weight:700}
+
+/* Hero */
+.podz-mp .pod-hero{background:#FFFFFF;border-radius:20px;padding:22px;margin-bottom:18px;display:flex;gap:20px;align-items:center;border:1px solid rgba(0,32,96,0.06);border-left:6px solid var(--ac,var(--pod-violet));box-shadow:0 4px 20px -12px rgba(0,32,96,0.15);flex-wrap:wrap}
+.podz-mp .pod-hero-text{flex:1;min-width:240px}
+.podz-mp .pod-hero-tag{display:inline-block;padding:3px 10px;background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;margin-bottom:8px}
+.podz-mp .pod-hero-title{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-0.02em;line-height:1.15}
+.podz-mp .pod-hero-desc{font-size:13.5px;color:var(--pod-muted);margin:0;max-width:600px;line-height:1.55}
+.podz-mp .pod-mp-kpis{display:grid;grid-template-columns:repeat(4,minmax(96px,1fr));gap:10px}
+.podz-mp .pod-mp-kpi{background:#FAFAFD;border:1px solid rgba(0,32,96,0.06);border-radius:12px;padding:10px 14px;text-align:center}
+.podz-mp .pod-mp-kpi strong{display:block;font-size:22px;font-weight:800;line-height:1.1}
+.podz-mp .pod-mp-kpi span{font-size:10.5px;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+
+/* Grille haut : prochaine étape + niveaux */
+.podz-mp .pod-mp-top{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:22px}
+.podz-mp .pod-mp-card{background:#FFFFFF;border:1px solid rgba(0,32,96,0.06);border-radius:16px;padding:18px}
+.podz-mp .pod-mp-card-title{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px}
+.podz-mp .pod-mp-next{background:#F7F5FC;border-color:rgba(200,181,232,0.5)}
+.podz-mp .pod-mp-next-titre{font-size:18px;font-weight:800;margin:2px 0 4px}
+.podz-mp .pod-mp-next-meta{font-size:12px;color:var(--pod-muted);margin-bottom:12px}
+.podz-mp .pod-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:9px;border:1px solid var(--pod-fonce);background:var(--pod-fonce);color:#FFFFFF;cursor:pointer;text-decoration:none}
+.podz-mp .pod-btn.ghost{background:#FFFFFF;color:var(--pod-fonce);border-color:rgba(0,32,96,0.18)}
+.podz-mp .pod-mp-niv-tabs{display:flex;gap:6px;margin-bottom:10px}
+.podz-mp .pod-mp-niv-tab{font-size:11.5px;font-weight:700;padding:4px 12px;border-radius:999px;border:1.5px solid #D6D6E0;background:#FFFFFF;color:var(--pod-fonce)}
+.podz-mp .pod-mp-niv-tab.active{background:var(--pod-violet);border-color:var(--pod-violet)}
+.podz-mp .pod-mp-niv-row{display:grid;grid-template-columns:110px 1fr 104px;gap:10px;align-items:center;font-size:12.5px;margin-bottom:7px}
+.podz-mp .pod-mp-niv-row b{font-weight:700}
+.podz-mp .pod-mp-niv-scale{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.podz-mp .pod-mp-niv-scale i{height:8px;border-radius:4px;background:#EEF0F5}
+.podz-mp .pod-mp-niv-scale i.on{background:var(--pod-vert)}
+.podz-mp .pod-mp-niv-row em{font-style:normal;font-size:11.5px;color:var(--pod-muted);text-align:right}
+.podz-mp .pod-mp-note{font-size:11px;color:var(--pod-muted);font-style:italic;margin-top:8px}
+
+/* Bloc parcours */
+.podz-mp .pod-parcours{background:#FFFFFF;border-radius:18px;padding:22px;margin-bottom:14px;border:1px solid rgba(0,32,96,0.06);border-top:5px solid var(--ac,var(--pod-violet))}
+.podz-mp .pod-parcours-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.podz-mp .pod-parcours-head h2{font-size:18px;font-weight:700;margin:0 0 4px}
+.podz-mp .pod-parcours-head p{margin:0;font-size:12.5px;color:var(--pod-muted)}
+.podz-mp .pod-parcours-meta{text-align:right;font-size:11px;color:var(--pod-muted);white-space:nowrap}
+.podz-mp .pod-parcours-meta strong{font-size:17px;color:var(--pod-fonce);font-weight:700;display:block}
+.podz-mp .pod-parcours-meta .retard{color:#C0532E}
+.podz-mp .pod-mp-origine{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-bottom:6px;background:#F1F3F8;color:var(--pod-muted)}
+.podz-mp .pod-mp-origine.manager{background:#EAF0FF;color:var(--pod-fonce)}
+.podz-mp .pod-mp-progress{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.podz-mp .pod-mp-bar{flex:1;height:10px;border-radius:999px;background:#EEF0F5;overflow:hidden;display:flex}
+.podz-mp .pod-mp-bar span{display:block;height:100%}
+.podz-mp .pod-mp-bar .b-ok{background:var(--pod-vert)}
+.podz-mp .pod-mp-bar .b-val{background:var(--pod-jaune)}
+.podz-mp .pod-mp-bar .b-cours{background:var(--pod-bleu)}
+.podz-mp .pod-mp-pct{font-weight:800;font-size:15px;min-width:44px;text-align:right}
+.podz-mp .pod-mp-counts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #F0F0F0}
+
+/* Statuts */
+.podz-mp .pod-st{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;font-size:11px;font-weight:700;border-radius:999px;white-space:nowrap}
+.podz-mp .pod-st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.7}
+.podz-mp .pod-st--afaire{background:#F1F3F8;color:var(--pod-muted)}
+.podz-mp .pod-st--encours{background:#E6EDFF;color:#2D4FA3}
+.podz-mp .pod-st--avalider{background:#FBF1D2;color:#8A6A10}
+.podz-mp .pod-st--termine{background:#E3EEE9;color:#2F6B55}
+
+/* Accordéon étape */
+.podz-mp .pod-etape{background:#FFFFFF;border:1px solid rgba(0,32,96,0.08);border-left:4px solid var(--ac,var(--pod-violet));border-radius:0 10px 10px 0;margin-bottom:8px;overflow:hidden}
+.podz-mp .pod-etape.is-done{background:#FAFCFB}
+.podz-mp .pod-etape.is-done .pod-etape__titre{color:var(--pod-muted)}
+.podz-mp .pod-etape__main{padding:12px 15px;display:grid;grid-template-columns:auto 1fr auto auto auto;gap:14px;align-items:center;cursor:pointer}
+.podz-mp .pod-etape__main:hover{background:#FAFAFD}
+.podz-mp .pod-etape__num{background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-weight:800;font-size:11px;padding:5px 11px;border-radius:999px;min-width:24px;text-align:center}
+.podz-mp .pod-etape.is-done .pod-etape__num{background:var(--pod-vert)}
+.podz-mp .pod-etape__core{min-width:0}
+.podz-mp .pod-etape__titre{font-weight:700;font-size:14.5px;margin-bottom:3px}
+.podz-mp .pod-etape__tags{font-size:11px;color:var(--pod-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.podz-mp .pod-etape__duree{font-size:12px;color:var(--pod-muted);font-weight:600;white-space:nowrap;background:#F7F7F8;padding:3px 9px;border-radius:6px}
+.podz-mp .pod-etape__chev{color:#A0A0A0;font-size:11px;transition:transform .2s}
+.podz-mp .pod-etape.open .pod-etape__chev{transform:rotate(180deg);color:var(--pod-fonce)}
+.podz-mp .pod-etape__detail{display:none;padding:0 15px 15px;border-top:1px dashed rgba(0,32,96,0.1)}
+.podz-mp .pod-etape.open .pod-etape__detail{display:block}
+.podz-mp .pod-etape__detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.podz-mp .pod-etape__detail-item{background:#FAFAFA;padding:8px 10px;border-radius:6px}
+.podz-mp .pod-etape__detail-label{font-size:9px;font-weight:700;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.podz-mp .pod-etape__detail-value{font-size:12px;font-weight:600}
+.podz-mp .pod-etape__detail-notes{background:#FFF9DD;border-left:3px solid var(--pod-jaune);padding:9px 11px;border-radius:4px;font-size:12px;color:var(--pod-muted);margin-bottom:10px}
+.podz-mp .pod-etape__detail-notes.refus{background:#FFF1EC;border-left-color:var(--pod-orange)}
+.podz-mp .pod-etape__detail-notes-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.podz-mp .pod-etape__detail-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.podz-mp .pod-etape__detail-links a{color:var(--pod-fonce);font-size:11.5px;font-weight:500;text-decoration:none;padding:5px 11px;border:1px solid rgba(0,32,96,0.18);border-radius:7px;background:#FFFFFF}
+.podz-mp .pod-mp-hint{font-size:11px;color:var(--pod-muted);font-style:italic}
+.podz-mp .pod-mp-shared{font-size:10.5px;color:var(--pod-muted);font-weight:600}
+
+/* Ajouter un parcours */
+.podz-mp .pod-mp-add{margin-top:22px;padding:20px;background:#F7F9FC;border-radius:14px;border:1px solid rgba(0,32,96,0.06);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.podz-mp .pod-mp-add p{margin:0;flex:1;min-width:220px;font-size:13px;color:var(--pod-muted)}
+.podz-mp .pod-mp-add p b{color:var(--pod-fonce)}
+
+@media (max-width:860px){
+  .podz-mp .pod-mp-top{grid-template-columns:1fr}
+  .podz-mp .pod-mp-kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .podz-mp .pod-etape__main{grid-template-columns:auto 1fr auto;gap:10px}
+  .podz-mp .pod-etape__duree,.podz-mp .pod-etape__chev{display:none}
+  .podz-mp .pod-mp-niv-row{grid-template-columns:90px 1fr}
+  .podz-mp .pod-mp-niv-row em{display:none}
+}
+</style>
+
+<div class="podz-mp"><div class="pod-wrap">
+
+  <div class="pod-dev-bar">
+    <b>DEV</b> Se connecter en tant que
+    <select><option selected>Camille Test — consultante</option><option>Hugo Test — consultant</option><option>Sarah Manager — consultante + manager</option><option>Alex Admin — administrateur</option></select>
+    <span class="pod-dev-reset">Réinitialiser les données de dev</span>
+  </div>
+
+  <nav class="pod-bc"><a>PODz Academy</a><span class="pod-bc-sep">›</span><span class="pod-bc-current">Mon parcours</span></nav>
+
+  <!-- Hero : synthèse globale (CA6.2) -->
+  <section class="pod-hero" style="--ac:var(--pod-violet)">
+    <div class="pod-hero-text">
+      <span class="pod-hero-tag">Mon cockpit de formation</span>
+      <h1 class="pod-hero-title">Bonjour Camille</h1>
+      <p class="pod-hero-desc">3 parcours en cours. Un module attend la validation de Sarah Manager, et le parcours « Restitution &amp; DataViz » a dépassé sa date cible.</p>
+    </div>
+    <div class="pod-mp-kpis">
+      <div class="pod-mp-kpi"><strong>4 / 16</strong><span>Modules terminés</span></div>
+      <div class="pod-mp-kpi"><strong>33,5 h</strong><span>Réalisées</span></div>
+      <div class="pod-mp-kpi"><strong>146,5 h</strong><span>Restantes</span></div>
+      <div class="pod-mp-kpi"><strong>1</strong><span>À valider</span></div>
+    </div>
+  </section>
+
+  <div class="pod-mp-top">
+    <!-- Prochaine étape (CA6.4) -->
+    <div class="pod-mp-card pod-mp-next">
+      <h3 class="pod-mp-card-title">Prochaine étape</h3>
+      <span class="pod-st pod-st--encours">En cours</span>
+      <div class="pod-mp-next-titre">PowerPoint avancé</div>
+      <div class="pod-mp-next-meta">Parcours « Restitution &amp; DataViz » · 0,5 j · date cible dépassée (30/09/2026)</div>
+      <a class="pod-btn">Reprendre la formation ↗</a>
+      <a class="pod-btn ghost">J'ai terminé</a>
+    </div>
+
+    <!-- Niveaux (CA6.3) -->
+    <div class="pod-mp-card">
+      <h3 class="pod-mp-card-title">Mon niveau</h3>
+      <div class="pod-mp-niv-tabs"><span class="pod-mp-niv-tab active">Par compétence</span><span class="pod-mp-niv-tab">Par techno</span></div>
+      <div class="pod-mp-niv-row"><b>Analyse</b><div class="pod-mp-niv-scale"><i class="on"></i><i></i><i></i></div><em>Fondamentaux</em></div>
+      <div class="pod-mp-niv-row"><b>Adoption</b><div class="pod-mp-niv-scale"><i class="on"></i><i class="on"></i><i></i></div><em>Intermédiaire</em></div>
+      <div class="pod-mp-niv-row"><b>Process</b><div class="pod-mp-niv-scale"><i class="on"></i><i></i><i></i></div><em>Fondamentaux</em></div>
+      <div class="pod-mp-niv-row"><b>Pilotage</b><div class="pod-mp-niv-scale"><i></i><i></i><i></i></div><em>—</em></div>
+      <div class="pod-mp-note">Échelle Fondamentaux · Intermédiaire · Avancé — niveau du module le plus élevé terminé. L'onglet « Par techno » dépend du point ouvert PO3.</div>
+    </div>
+  </div>
+
+  <!-- ================= Parcours 1 : assigné par le manager ================= -->
+  <section class="pod-parcours" style="--ac:var(--pod-vert)">
+    <div class="pod-parcours-head">
+      <div>
+        <span class="pod-mp-origine manager">Assigné par Sarah Manager</span>
+        <h2>Analyste Power BI</h2>
+        <p>De la donnée brute au rapport qui fait décider.</p>
+      </div>
+      <div class="pod-parcours-meta"><strong>31/12/2026</strong>Date cible · 80,5 h restantes</div>
+    </div>
+    <div class="pod-mp-progress">
+      <div class="pod-mp-bar"><span class="b-ok" style="width:28.6%"></span><span class="b-val" style="width:14.3%"></span><span class="b-cours" style="width:14.3%"></span></div>
+      <div class="pod-mp-pct">29 %</div>
+    </div>
+    <div class="pod-mp-counts">
+      <span class="pod-st pod-st--termine">2 terminés</span><span class="pod-st pod-st--avalider">1 à valider</span><span class="pod-st pod-st--encours">1 en cours</span><span class="pod-st pod-st--afaire">3 à faire</span>
+    </div>
+
+    <div class="pod-etape is-done">
+      <div class="pod-etape__main"><span class="pod-etape__num">✓</span><div class="pod-etape__core"><div class="pod-etape__titre">SQL / Requêtage</div><div class="pod-etape__tags">Analyse · Fondamentaux</div></div><span class="pod-st pod-st--termine">Terminé le 12/09/2026</span><span class="pod-etape__duree">3 j</span><span class="pod-etape__chev">▼</span></div>
+    </div>
+    <div class="pod-etape is-done">
+      <div class="pod-etape__main"><span class="pod-etape__num">✓</span><div class="pod-etape__core"><div class="pod-etape__titre">Data management</div><div class="pod-etape__tags">Analyse · Fondamentaux</div></div><span class="pod-st pod-st--termine">Terminé · dispensé</span><span class="pod-etape__duree">1 j</span><span class="pod-etape__chev">▼</span></div>
+    </div>
+    <div class="pod-etape open">
+      <div class="pod-etape__main"><span class="pod-etape__num">3</span><div class="pod-etape__core"><div class="pod-etape__titre">Power BI</div><div class="pod-etape__tags">Analyse · Intermédiaire · Offre 1 - Data Products &amp; Analytics</div></div><span class="pod-st pod-st--encours">En cours depuis le 01/10</span><span class="pod-etape__duree">6 j</span><span class="pod-etape__chev">▼</span></div>
+      <div class="pod-etape__detail">
+        <div class="pod-etape__detail-grid">
+          <div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Durée</div><div class="pod-etape__detail-value">6 j (42 h)</div></div>
+          <div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Niveau</div><div class="pod-etape__detail-value">Intermédiaire</div></div>
+          <div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Plateforme</div><div class="pod-etape__detail-value">SharePoint Datatorii</div></div>
+          <div class="pod-etape__detail-item"><div class="pod-etape__detail-label">Démarré le</div><div class="pod-etape__detail-value">01/10/2026</div></div>
+        </div>
+        <div class="pod-etape__detail-actions">
+          <span class="pod-etape__detail-links"><a>Support de formation ↗</a></span>
+          <a class="pod-btn">J'ai terminé…</a>
+          <span class="pod-mp-hint">→ passe « À valider », ta manager est notifiée</span>
+        </div>
+      </div>
+    </div>
+    <div class="pod-etape">
+      <div class="pod-etape__main"><span class="pod-etape__num">4</span><div class="pod-etape__core"><div class="pod-etape__titre">Modélisation</div><div class="pod-etape__tags">Analyse · Intermédiaire</div></div><span class="pod-st pod-st--avalider">À valider · fini le 10/10</span><span class="pod-etape__duree">3,5 j</span><span class="pod-etape__chev">▼</span></div>
+    </div>
+    <div class="pod-etape">
+      <div class="pod-etape__main"><span class="pod-etape__num">5</span><div class="pod-etape__core"><div class="pod-etape__titre">Data Quality</div><div class="pod-etape__tags">Analyse · Intermédiaire</div></div><span class="pod-st pod-st--afaire">À faire</span><span class="pod-etape__duree">1 j</span><span class="pod-etape__chev">▼</span></div>
+    </div>
+    <div class="pod-etape open">
+      <div class="pod-etape__main"><span class="pod-etape__num">6</span><div class="pod-etape__core"><div class="pod-etape__titre">Design / DataViz</div><div class="pod-etape__tags">Adoption · Intermédiaire <span class="pod-mp-shared">· aussi dans « Restitution &amp; DataViz »</span></div></div><span class="pod-st pod-st--afaire">À faire</span><span class="pod-etape__duree">1 j</span><span class="pod-etape__chev">▼</span></div>
+      <div class="pod-etape__detail">
+        <div class="pod-etape__detail-notes"><div class="pod-etape__detail-notes-label">Infos clés</div>Atelier avec un sachant DataViz · 2 demi-journées</div>
+        <div class="pod-etape__detail-actions">
+          <span class="pod-etape__detail-links"><a>Accéder à la formation ↗</a></span>
+          <span class="pod-mp-hint">Le premier clic sur un lien passe le module « En cours »</span>
+        </div>
+      </div>
+    </div>
+    <div class="pod-etape">
+      <div class="pod-etape__main"><span class="pod-etape__num">7</span><div class="pod-etape__core"><div class="pod-etape__titre">Power BI - PL-300 <span class="pod-chip certif">Certification</span></div><div class="pod-etape__tags">Certifs · Avancé</div></div><span class="pod-st pod-st--afaire">À faire</span><span class="pod-etape__duree">—</span><span class="pod-etape__chev">▼</span></div>
+    </div>
+  </section>
+
+  <!-- ================= Parcours 2 : personnalisé, en retard ================= -->
+  <section class="pod-parcours" style="--ac:var(--pod-orange)">
+    <div class="pod-parcours-head">
+      <div>
+        <span class="pod-mp-origine manager">Assigné par Sarah Manager · personnalisé</span>
+        <h2>Restitution &amp; DataViz</h2>
+        <p>Parcours construit pour ta mission actuelle.</p>
+      </div>
+      <div class="pod-parcours-meta"><strong class="retard">30/09/2026 · en retard</strong>Date cible · 10 h restantes</div>
+    </div>
+    <div class="pod-mp-progress">
+      <div class="pod-mp-bar"><span class="b-ok" style="width:33.3%"></span><span class="b-cours" style="width:33.3%"></span></div>
+      <div class="pod-mp-pct">33 %</div>
+    </div>
+    <div class="pod-mp-counts"><span class="pod-st pod-st--termine">1 terminé</span><span class="pod-st pod-st--encours">1 en cours</span><span class="pod-st pod-st--afaire">1 à faire</span></div>
+
+    <div class="pod-etape is-done">
+      <div class="pod-etape__main"><span class="pod-etape__num">✓</span><div class="pod-etape__core"><div class="pod-etape__titre">Maquettage / méthode UX</div><div class="pod-etape__tags">Adoption · Intermédiaire</div></div><span class="pod-st pod-st--termine">Terminé le 20/09/2026</span><span class="pod-etape__duree">0,5 j</span><span class="pod-etape__chev">▼</span></div>
+    </div>
+    <div class="pod-etape open">
+      <div class="pod-etape__main"><span class="pod-etape__num">2</span><div class="pod-etape__core"><div class="pod-etape__titre">PowerPoint avancé</div><div class="pod-etape__tags">Adoption · Intermédiaire · Transverse</div></div><span class="pod-st pod-st--encours">En cours · refusé</span><span class="pod-etape__duree">0,5 j</span><span class="pod-etape__chev">▼</span></div>
+      <div class="pod-etape__detail">
+        <div class="pod-etape__detail-notes refus"><div class="pod-etape__detail-notes-label">Refusé par Sarah Manager le 08/10</div>Il manque l'exercice final (deck de restitution client). Envoie-le moi puis redéclare le module.</div>
+        <div class="pod-etape__detail-actions">
+          <span class="pod-etape__detail-links"><a>Support de formation ↗</a></span>
+          <a class="pod-btn">J'ai terminé…</a>
+        </div>
+      </div>
+    </div>
+    <div class="pod-etape">
+      <div class="pod-etape__main"><span class="pod-etape__num">3</span><div class="pod-etape__core"><div class="pod-etape__titre">Design / DataViz</div><div class="pod-etape__tags">Adoption · Intermédiaire <span class="pod-mp-shared">· aussi dans « Analyste Power BI »</span></div></div><span class="pod-st pod-st--afaire">À faire</span><span class="pod-etape__duree">1 j</span><span class="pod-etape__chev">▼</span></div>
+    </div>
+  </section>
+
+  <!-- ================= Parcours 3 : autonomie, sans date ================= -->
+  <section class="pod-parcours" style="--ac:var(--pod-rose)">
+    <div class="pod-parcours-head">
+      <div>
+        <span class="pod-mp-origine">Choisi en autonomie</span>
+        <h2>Automatisation des processus</h2>
+        <p>Cartographier puis automatiser un processus métier.</p>
+      </div>
+      <div class="pod-parcours-meta"><strong>Pas d'échéance</strong>63 h restantes</div>
+    </div>
+    <div class="pod-mp-progress">
+      <div class="pod-mp-bar"><span class="b-ok" style="width:14.3%"></span><span class="b-cours" style="width:14.3%"></span></div>
+      <div class="pod-mp-pct">14 %</div>
+    </div>
+    <div class="pod-mp-counts"><span class="pod-st pod-st--termine">1 terminé</span><span class="pod-st pod-st--encours">1 en cours</span><span class="pod-st pod-st--afaire">5 à faire</span><span class="pod-mp-hint" style="margin-left:auto">Afficher les 7 modules ▾</span></div>
+  </section>
+
+  <div class="pod-mp-add">
+    <p><b>Envie d'aller plus loin ?</b> Ajoute un parcours type à tes parcours, en autonomie et sans échéance.</p>
+    <a class="pod-btn ghost">Voir les parcours types</a>
+    <a class="pod-btn ghost">Parcourir le catalogue</a>
+  </div>
+
+</div></div>
+
+<script>
+// Maquette : simple ouverture / fermeture des accordéons.
+document.querySelectorAll(".podz-mp .pod-etape__main").forEach(function(el){
+  el.addEventListener("click", function(){ el.parentNode.classList.toggle("open"); });
+});
+</script>
+</body>
+</html>

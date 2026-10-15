@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette — Mon équipe (manager)</title>
+</head>
+<body style="margin:0;padding:24px 16px;background:#FFFFFF">
+<!--
+  MAQUETTE STATIQUE (session 2 — Specs). Données fictives, aucun accès aux données.
+  Vue manager : synthèse équipe, file « À valider », détail d'un collaborateur, assignation.
+  Même DA que maquettes/mon-parcours.html et podz-academy.html.
+-->
+<style>
+.podz-mg{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box}
+.podz-mg *,.podz-mg *::before,.podz-mg *::after{box-sizing:border-box}
+.podz-mg h1,.podz-mg h2,.podz-mg h3{color:var(--pod-fonce);margin:0}
+.podz-mg .pod-wrap{max-width:1240px;margin:0 auto;padding:4px 4px 32px}
+
+.podz-mg .pod-dev-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 14px;margin-bottom:18px;background:#FFF9DD;border:1px dashed var(--pod-jaune);border-radius:10px;font-size:12px;color:var(--pod-muted)}
+.podz-mg .pod-dev-bar b{color:var(--pod-fonce)}
+.podz-mg .pod-dev-bar select{font-family:inherit;font-size:12px;padding:3px 8px;border:1px solid rgba(0,32,96,0.18);border-radius:6px;color:var(--pod-fonce);background:#FFFFFF}
+
+.podz-mg .pod-bc{font-size:13px;color:var(--pod-muted);margin:0 0 20px;display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+.podz-mg .pod-bc a{color:var(--pod-muted);text-decoration:none}
+.podz-mg .pod-bc .pod-bc-sep{color:var(--pod-violet);margin:0 4px;font-weight:700}
+.podz-mg .pod-bc .pod-bc-current{color:var(--pod-fonce);font-weight:600}
+
+.podz-mg .pod-chip{display:inline-block;padding:3px 10px;background:#F1F3F8;color:var(--pod-muted);font-size:11px;font-weight:600;border-radius:999px}
+.podz-mg .pod-chip.certif{background:var(--pod-orange);color:#FFFFFF;font-weight:700}
+
+.podz-mg .pod-hero{background:#FFFFFF;border-radius:20px;padding:22px;margin-bottom:18px;display:flex;gap:20px;align-items:center;border:1px solid rgba(0,32,96,0.06);border-left:6px solid var(--ac,var(--pod-violet));box-shadow:0 4px 20px -12px rgba(0,32,96,0.15);flex-wrap:wrap}
+.podz-mg .pod-hero-text{flex:1;min-width:240px}
+.podz-mg .pod-hero-tag{display:inline-block;padding:3px 10px;background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;margin-bottom:8px}
+.podz-mg .pod-hero-title{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-0.02em;line-height:1.15}
+.podz-mg .pod-hero-desc{font-size:13.5px;color:var(--pod-muted);margin:0;max-width:600px;line-height:1.55}
+.podz-mg .pod-kpis{display:grid;grid-template-columns:repeat(3,minmax(110px,1fr));gap:10px}
+.podz-mg .pod-kpi{background:#FAFAFD;border:1px solid rgba(0,32,96,0.06);border-radius:12px;padding:10px 14px;text-align:center}
+.podz-mg .pod-kpi strong{display:block;font-size:22px;font-weight:800;line-height:1.1}
+.podz-mg .pod-kpi span{font-size:10.5px;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.podz-mg .pod-kpi.alert{background:#FBF1D2;border-color:rgba(232,201,106,.6)}
+
+/* Onglets de la vue manager */
+.podz-mg .pod-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.podz-mg .pod-tag{border:1.5px solid #D6D6E0;background:#FFFFFF;color:var(--pod-fonce);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.podz-mg .pod-tag.active{background:var(--pod-violet);border-color:var(--pod-violet)}
+.podz-mg .pod-tag .pod-count{display:inline-block;margin-left:6px;background:var(--pod-orange);color:#FFFFFF;font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 7px}
+
+.podz-mg .pod-section{background:#FFFFFF;border-radius:18px;padding:22px;margin-bottom:18px;border:1px solid rgba(0,32,96,0.06)}
+.podz-mg .pod-section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #F0F0F0;flex-wrap:wrap}
+.podz-mg .pod-section-head h2{font-size:18px;font-weight:700;margin:0 0 4px}
+.podz-mg .pod-section-head p{margin:0;font-size:12.5px;color:var(--pod-muted)}
+.podz-mg .pod-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--pod-muted);margin:0 0 8px}
+
+.podz-mg .pod-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:9px;border:1px solid var(--pod-fonce);background:var(--pod-fonce);color:#FFFFFF;cursor:pointer;text-decoration:none;white-space:nowrap}
+.podz-mg .pod-btn.ghost{background:#FFFFFF;color:var(--pod-fonce);border-color:rgba(0,32,96,0.18)}
+.podz-mg .pod-btn.ok{background:#2F6B55;border-color:#2F6B55}
+.podz-mg .pod-btn.sm{font-size:11.5px;padding:5px 10px}
+
+/* Statuts (identiques au cockpit) */
+.podz-mg .pod-st{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;font-size:11px;font-weight:700;border-radius:999px;white-space:nowrap}
+.podz-mg .pod-st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.7}
+.podz-mg .pod-st--afaire{background:#F1F3F8;color:var(--pod-muted)}
+.podz-mg .pod-st--encours{background:#E6EDFF;color:#2D4FA3}
+.podz-mg .pod-st--avalider{background:#FBF1D2;color:#8A6A10}
+.podz-mg .pod-st--termine{background:#E3EEE9;color:#2F6B55}
+.podz-mg .pod-st--retard{background:#FFE6DC;color:#B4471F}
+
+/* File « À valider » */
+.podz-mg .pod-val{display:grid;grid-template-columns:150px 1fr auto auto;gap:14px;align-items:center;padding:12px 14px;border:1px solid rgba(0,32,96,0.08);border-left:4px solid var(--pod-jaune);border-radius:0 10px 10px 0;margin-bottom:8px}
+.podz-mg .pod-val__who{font-weight:700;font-size:13.5px}
+.podz-mg .pod-val__who small{display:block;font-weight:500;font-size:11px;color:var(--pod-muted)}
+.podz-mg .pod-val__mod{font-weight:700;font-size:14px}
+.podz-mg .pod-val__mod small{display:block;font-weight:500;font-size:11.5px;color:var(--pod-muted)}
+.podz-mg .pod-val__actions{display:flex;gap:6px}
+.podz-mg .pod-val__refus{grid-column:1/-1;display:flex;gap:8px;align-items:center;background:#FFF1EC;border-radius:8px;padding:8px 10px}
+.podz-mg .pod-val__refus input{flex:1;font-family:inherit;font-size:12.5px;padding:7px 10px;border:1px solid rgba(0,32,96,0.18);border-radius:7px}
+
+/* Tableau équipe */
+.podz-mg .pod-team{width:100%;border-collapse:collapse;font-size:13px}
+.podz-mg .pod-team th{text-align:left;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--pod-muted);padding:0 10px 8px;border-bottom:1px solid #F0F0F0}
+.podz-mg .pod-team td{padding:12px 10px;border-bottom:1px solid #F4F4F6;vertical-align:middle}
+.podz-mg .pod-team tr.sel td{background:#F7F5FC}
+.podz-mg .pod-team .who{font-weight:700}
+.podz-mg .pod-team .who small{display:block;font-weight:500;font-size:11px;color:var(--pod-muted)}
+.podz-mg .pod-minibar{display:flex;align-items:center;gap:8px;min-width:150px}
+.podz-mg .pod-minibar div{flex:1;height:8px;border-radius:999px;background:#EEF0F5;overflow:hidden}
+.podz-mg .pod-minibar span{display:block;height:100%;background:var(--pod-vert)}
+.podz-mg .pod-minibar b{font-size:12.5px;min-width:36px;text-align:right}
+
+/* Détail collaborateur */
+.podz-mg .pod-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
+.podz-mg .pod-pcard{border:1px solid rgba(0,32,96,0.08);border-top:4px solid var(--ac,var(--pod-violet));border-radius:12px;padding:14px}
+.podz-mg .pod-pcard h3{font-size:14.5px;font-weight:700;margin:0 0 2px}
+.podz-mg .pod-pcard p{margin:0 0 10px;font-size:11.5px;color:var(--pod-muted)}
+.podz-mg .pod-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px 0;border-top:1px dashed rgba(0,32,96,0.1);font-size:13px}
+.podz-mg .pod-row b{font-weight:600}
+.podz-mg .pod-row .muted{color:var(--pod-muted)}
+.podz-mg .pod-row a{font-size:11px;font-weight:700;color:var(--pod-fonce);text-decoration:underline;cursor:pointer;white-space:nowrap}
+
+/* Assignation */
+.podz-mg .pod-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.podz-mg .pod-field label{display:block;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--pod-muted);margin-bottom:5px}
+.podz-mg .pod-field input,.podz-mg .pod-field select{width:100%;font-family:inherit;font-size:13.5px;padding:9px 12px;border:1px solid rgba(0,32,96,0.14);border-radius:10px;color:var(--pod-fonce);background:#FFFFFF}
+.podz-mg .pod-build{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+.podz-mg .pod-etape{background:#FFFFFF;border:1px solid rgba(0,32,96,0.08);border-left:4px solid var(--ac,var(--pod-violet));border-radius:0 10px 10px 0;margin-bottom:6px;padding:9px 12px;display:grid;grid-template-columns:auto auto 1fr auto auto;gap:10px;align-items:center}
+.podz-mg .pod-etape.is-done{background:#FAFCFB;border-left-color:var(--pod-vert)}
+.podz-mg .pod-etape__grip{color:#B0B4C4;cursor:grab;font-size:13px;letter-spacing:-2px}
+.podz-mg .pod-etape__num{background:var(--ac,var(--pod-violet));color:var(--pod-fonce);font-weight:800;font-size:11px;padding:4px 10px;border-radius:999px;min-width:24px;text-align:center}
+.podz-mg .pod-etape__titre{font-weight:700;font-size:13.5px}
+.podz-mg .pod-etape__titre small{display:block;font-weight:500;font-size:11px;color:var(--pod-muted)}
+.podz-mg .pod-etape__duree{font-size:12px;color:var(--pod-muted);font-weight:600;background:#F7F7F8;padding:3px 9px;border-radius:6px;white-space:nowrap}
+.podz-mg .pod-etape__x{color:#B0B4C4;font-weight:700;cursor:pointer}
+.podz-mg .pod-catpick{background:#F7F9FC;border-radius:12px;padding:12px;border:1px solid rgba(0,32,96,0.06)}
+.podz-mg .pod-catpick input{width:100%;font-family:inherit;font-size:13px;padding:9px 12px;border:1px solid rgba(0,32,96,0.14);border-radius:10px;margin-bottom:10px}
+.podz-mg .pod-mini{background:#FFFFFF;border:1px solid rgba(0,32,96,0.05);border-left:5px solid var(--ac,var(--pod-violet));border-radius:0 10px 10px 0;padding:9px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.podz-mg .pod-mini__title{font-weight:700;font-size:13px}
+.podz-mg .pod-mini__title small{display:block;font-weight:500;font-size:10.5px;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em}
+.podz-mg .pod-sum{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #F0F0F0;font-size:12.5px;color:var(--pod-muted)}
+.podz-mg .pod-sum b{color:var(--pod-fonce)}
+.podz-mg .pod-hint{font-size:11px;color:var(--pod-muted);font-style:italic}
+
+@media (max-width:860px){
+  .podz-mg .pod-build{grid-template-columns:1fr}
+  .podz-mg .pod-val{grid-template-columns:1fr auto}
+  .podz-mg .pod-val__actions{grid-column:1/-1}
+  .podz-mg .pod-team .hide-m{display:none}
+}
+</style>
+
+<div class="podz-mg"><div class="pod-wrap">
+
+  <div class="pod-dev-bar">
+    <b>DEV</b> Se connecter en tant que
+    <select><option>Camille Test — consultante</option><option selected>Sarah Manager — consultante + manager</option><option>Alex Admin — administrateur</option></select>
+  </div>
+
+  <nav class="pod-bc"><a>PODz Academy</a><span class="pod-bc-sep">›</span><span class="pod-bc-current">Mon équipe</span></nav>
+
+  <section class="pod-hero" style="--ac:var(--pod-bleu)">
+    <div class="pod-hero-text">
+      <span class="pod-hero-tag">Espace manager</span>
+      <h1 class="pod-hero-title">Mon équipe</h1>
+      <p class="pod-hero-desc">Suis l'avancement de tes collaborateurs, valide les modules terminés et assigne de nouveaux parcours. Ton propre parcours reste accessible depuis « Mon parcours ».</p>
+    </div>
+    <div class="pod-kpis">
+      <div class="pod-kpi"><strong>3</strong><span>Collaborateurs</span></div>
+      <div class="pod-kpi alert"><strong>3</strong><span>À valider</span></div>
+      <div class="pod-kpi"><strong>1</strong><span>Parcours en retard</span></div>
+    </div>
+  </section>
+
+  <div class="pod-tabs">
+    <span class="pod-tag active">À valider <span class="pod-count">3</span></span>
+    <span class="pod-tag">Équipe</span>
+    <span class="pod-tag">Assigner un parcours</span>
+  </div>
+
+  <!-- ================= File « À valider » (CA8.2, CA8.3) ================= -->
+  <section class="pod-section">
+    <div class="pod-section-head">
+      <div><h2>Validations en attente</h2><p>Modules déclarés terminés par tes collaborateurs. Valider passe le module en « Terminé » dans tous leurs parcours.</p></div>
+    </div>
+
+    <div class="pod-val">
+      <div class="pod-val__who">Camille Test<small>Analyste Power BI</small></div>
+      <div class="pod-val__mod">Modélisation<small>Analyse · Intermédiaire · 3,5 j · terminé le 10/10/2026</small></div>
+      <span class="pod-st pod-st--avalider">Depuis 5 j</span>
+      <div class="pod-val__actions"><a class="pod-btn ok sm">✓ Valider</a><a class="pod-btn ghost sm">Refuser</a></div>
+    </div>
+
+    <div class="pod-val">
+      <div class="pod-val__who">Hugo Test<small>Pilotage de projet Data</small></div>
+      <div class="pod-val__mod">Agile (SCRUM)<small>Pilotage · Fondamentaux · 1,5 j · terminé le 08/10/2026</small></div>
+      <span class="pod-st pod-st--avalider">Depuis 7 j</span>
+      <div class="pod-val__actions"><a class="pod-btn ok sm">✓ Valider</a><a class="pod-btn ghost sm">Refuser</a></div>
+      <div class="pod-val__refus"><input value="Peux-tu me partager ta fiche de synthèse avant validation ?"><a class="pod-btn sm">Confirmer le refus</a><span class="pod-hint">Commentaire obligatoire — le module repasse « En cours »</span></div>
+    </div>
+
+    <div class="pod-val">
+      <div class="pod-val__who">Inès Test<small>Acculturation Data · autonomie</small></div>
+      <div class="pod-val__mod">Data Literacy<small>Adoption · Fondamentaux · 1 j · terminé le 14/10/2026</small></div>
+      <span class="pod-st pod-st--avalider">Depuis 1 j</span>
+      <div class="pod-val__actions"><a class="pod-btn ok sm">✓ Valider</a><a class="pod-btn ghost sm">Refuser</a></div>
+    </div>
+  </section>
+
+  <!-- ================= Synthèse équipe (CA8.1) ================= -->
+  <section class="pod-section">
+    <div class="pod-section-head">
+      <div><h2>Équipe</h2><p>Une ligne par collaborateur. Clique sur une ligne pour voir son détail.</p></div>
+    </div>
+    <table class="pod-team">
+      <thead><tr><th>Collaborateur</th><th>Parcours actifs</th><th>Avancement global</th><th class="hide-m">Prochaine échéance</th><th class="hide-m">À valider</th></tr></thead>
+      <tbody>
+        <tr class="sel">
+          <td class="who">Camille Test<small>camille.test@exemple.local</small></td>
+          <td>3 <span class="pod-chip">2 assignés · 1 autonomie</span></td>
+          <td><div class="pod-minibar"><div><span style="width:25%"></span></div><b>25 %</b></div></td>
+          <td class="hide-m"><span class="pod-st pod-st--retard">30/09 · en retard</span></td>
+          <td class="hide-m"><span class="pod-st pod-st--avalider">1</span></td>
+        </tr>
+        <tr>
+          <td class="who">Hugo Test<small>hugo.test@exemple.local</small></td>
+          <td>1 <span class="pod-chip">1 assigné</span></td>
+          <td><div class="pod-minibar"><div><span style="width:46%"></span></div><b>46 %</b></div></td>
+          <td class="hide-m">15/01/2027</td>
+          <td class="hide-m"><span class="pod-st pod-st--avalider">1</span></td>
+        </tr>
+        <tr>
+          <td class="who">Inès Test<small>ines.test@exemple.local</small></td>
+          <td>1 <span class="pod-chip">1 autonomie</span></td>
+          <td><div class="pod-minibar"><div><span style="width:17%"></span></div><b>17 %</b></div></td>
+          <td class="hide-m">—</td>
+          <td class="hide-m"><span class="pod-st pod-st--avalider">1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ================= Détail collaborateur (CA8.4) ================= -->
+  <section class="pod-section">
+    <div class="pod-section-head">
+      <div><h2>Camille Test</h2><p>Lecture de son cockpit · niveau : Analyse Fondamentaux · Adoption Intermédiaire · Process Fondamentaux</p></div>
+      <a class="pod-btn ghost">+ Assigner un parcours à Camille</a>
+    </div>
+    <div class="pod-detail-grid">
+      <div class="pod-pcard" style="--ac:var(--pod-vert)">
+        <h3>Analyste Power BI</h3><p>Assigné par toi · cible 31/12/2026 · 29 %</p>
+        <div class="pod-row"><b>SQL / Requêtage</b><span class="pod-st pod-st--termine">12/09</span><span></span></div>
+        <div class="pod-row"><b>Data management</b><span class="pod-st pod-st--termine">dispensé</span><span></span></div>
+        <div class="pod-row"><b>Power BI</b><span class="pod-st pod-st--encours">En cours</span><a>Dispenser</a></div>
+        <div class="pod-row"><b>Modélisation</b><span class="pod-st pod-st--avalider">À valider</span><a>Valider</a></div>
+        <div class="pod-row"><b>Data Quality</b><span class="pod-st pod-st--afaire">À faire</span><a>Dispenser</a></div>
+        <div class="pod-row"><b class="muted">+ 2 modules</b><span></span><span></span></div>
+      </div>
+      <div class="pod-pcard" style="--ac:var(--pod-orange)">
+        <h3>Restitution &amp; DataViz</h3><p>Personnalisé · cible 30/09/2026 · <b style="color:#B4471F">en retard</b> · 33 %</p>
+        <div class="pod-row"><b>Maquettage / méthode UX</b><span class="pod-st pod-st--termine">20/09</span><span></span></div>
+        <div class="pod-row"><b>PowerPoint avancé</b><span class="pod-st pod-st--encours">Refusé le 08/10</span><a>Dispenser</a></div>
+        <div class="pod-row"><b>Design / DataViz</b><span class="pod-st pod-st--afaire">À faire</span><a>Dispenser</a></div>
+        <div class="pod-row"><span class="pod-hint">Modifier la date cible ou les modules : PO7</span><span></span><span></span></div>
+      </div>
+      <div class="pod-pcard" style="--ac:var(--pod-rose)">
+        <h3>Automatisation des processus</h3><p>Choisi en autonomie · pas d'échéance · 14 %</p>
+        <div class="pod-row"><b>Claude CoWork — Prise en main</b><span class="pod-st pod-st--termine">02/10</span><span></span></div>
+        <div class="pod-row"><b>Copilot / Copilot Studio</b><span class="pod-st pod-st--encours">En cours</span><a>Dispenser</a></div>
+        <div class="pod-row"><b class="muted">+ 5 modules à faire</b><span></span><span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Assigner un parcours (CA7.x) ================= -->
+  <section class="pod-section">
+    <div class="pod-section-head">
+      <div><h2>Assigner un parcours</h2><p>Pars d'un parcours type et adapte-le, ou construis-le module par module.</p></div>
+    </div>
+
+    <div class="pod-form">
+      <div class="pod-field"><label>Collaborateur</label><select><option>Hugo Test</option><option>Camille Test</option><option>Inès Test</option></select></div>
+      <div class="pod-field"><label>Point de départ</label><select><option>Parcours type : Pilotage de projet Data</option><option>Parcours vide (construit module par module)</option><option>Parcours type : Analyste Power BI</option></select></div>
+      <div class="pod-field"><label>Nom du parcours</label><input value="Pilotage de projet Data — Mission Retail"></div>
+      <div class="pod-field"><label>Date cible *</label><input value="15/01/2027"></div>
+    </div>
+
+    <div class="pod-build">
+      <div>
+        <div class="pod-label">Modules du parcours · glisser pour réordonner</div>
+        <div class="pod-etape" style="--ac:var(--pod-jaune)"><span class="pod-etape__grip">⋮⋮</span><span class="pod-etape__num">1</span><div class="pod-etape__titre">Agile (SCRUM)<small>Déclaré terminé par Hugo · en attente de ta validation</small></div><span class="pod-etape__duree">1,5 j</span><span class="pod-etape__x">✕</span></div>
+        <div class="pod-etape" style="--ac:var(--pod-violet)"><span class="pod-etape__grip">⋮⋮</span><span class="pod-etape__num">2</span><div class="pod-etape__titre">Schéma Directeur<small>Pilotage · Fondamentaux</small></div><span class="pod-etape__duree">0,5 j</span><span class="pod-etape__x">✕</span></div>
+        <div class="pod-etape is-done"><span class="pod-etape__grip">⋮⋮</span><span class="pod-etape__num">✓</span><div class="pod-etape__titre">Cycle en V<small>Déjà terminé par Hugo le 03/06/2026</small></div><span class="pod-etape__duree">0,5 j</span><span class="pod-etape__x">✕</span></div>
+        <div class="pod-etape" style="--ac:var(--pod-violet)"><span class="pod-etape__grip">⋮⋮</span><span class="pod-etape__num">4</span><div class="pod-etape__titre">Cadrage et gestion de projet<small>Pilotage · Intermédiaire</small></div><span class="pod-etape__duree">1,5 j</span><span class="pod-etape__x">✕</span></div>
+        <div class="pod-etape" style="--ac:var(--pod-violet)"><span class="pod-etape__grip">⋮⋮</span><span class="pod-etape__num">5</span><div class="pod-etape__titre">Gestion des stakeholders<small>Pilotage · Intermédiaire</small></div><span class="pod-etape__duree">0,5 j</span><span class="pod-etape__x">✕</span></div>
+        <div class="pod-etape" style="--ac:var(--pod-rose)"><span class="pod-etape__grip">⋮⋮</span><span class="pod-etape__num">6</span><div class="pod-etape__titre">Agents IA &amp; GenAI<small>Ajouté hors parcours type · Process · Intermédiaire</small></div><span class="pod-etape__duree">1 j</span><span class="pod-etape__x">✕</span></div>
+        <div class="pod-etape" style="--ac:var(--pod-violet)"><span class="pod-etape__grip">⋮⋮</span><span class="pod-etape__num">7</span><div class="pod-etape__titre">Agile - PSM I <span class="pod-chip certif">Certification</span><small>Certifs · Avancé</small></div><span class="pod-etape__duree">—</span><span class="pod-etape__x">✕</span></div>
+        <div class="pod-hint">4 modules du parcours type retirés (Business analyst, Suivi de projet, Recette, Ways of working…) · <a style="color:inherit">rétablir</a></div>
+      </div>
+      <div class="pod-catpick">
+        <div class="pod-label">Ajouter depuis le catalogue</div>
+        <input placeholder="Rechercher un module (titre, compétence, offre…)" value="IA">
+        <div class="pod-mini" style="--ac:var(--pod-rose)"><div class="pod-mini__title"><small>Process · Fondamentaux</small>IA Générative &amp; Claude — Bases</div><a class="pod-btn ghost sm">+ Ajouter</a></div>
+        <div class="pod-mini" style="--ac:var(--pod-rose)"><div class="pod-mini__title"><small>Process · Fondamentaux</small>Travailler efficacement avec l'IA</div><a class="pod-btn ghost sm">+ Ajouter</a></div>
+        <div class="pod-mini" style="--ac:var(--pod-rose)"><div class="pod-mini__title"><small>Process · Intermédiaire</small>Agents IA &amp; GenAI</div><span class="pod-chip">Déjà ajouté</span></div>
+        <div class="pod-mini" style="--ac:var(--pod-rose)"><div class="pod-mini__title"><small>Process · Intermédiaire</small>Agents &amp; Skills IA avec Claude</div><a class="pod-btn ghost sm">+ Ajouter</a></div>
+      </div>
+    </div>
+
+    <div class="pod-sum">
+      <span><b>7 modules</b> · 5,5 j · dont <b>1 déjà terminé</b> et <b>1 à valider</b> par Hugo → reste <b>5 j</b> d'ici le 15/01/2027</span>
+      <span><a class="pod-btn ghost">Annuler</a> <a class="pod-btn">Assigner à Hugo</a></span>
+    </div>
+  </section>
+
+</div></div>
+</body>
+</html>
