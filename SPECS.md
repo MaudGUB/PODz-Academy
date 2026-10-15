@@ -149,7 +149,17 @@ En tant que consultant connecté, je vois **mes** parcours.
   cockpit (avec la date d'obtention), suivie des certifications « en ligne de mire » des
   parcours actifs. *(Révisé le 15/10/2026 : remplace les petits badges.)*
 - CA6.4 — Section « Prochaine étape » : le premier module non terminé du parcours le plus
-  urgent (date cible la plus proche, sinon le premier parcours).
+  urgent (date cible la plus proche, sinon le premier parcours). *(Étendu le 15/10/2026 :
+  carte « Mes formations en cours » avec un raccourci par module en cours, refusés
+  compris, puis le prochain module à commencer de chaque parcours actif ; chacun avec
+  « Reprendre / Accéder ↗ » et « J'ai terminé… / Je commence ». Le premier raccourci est
+  la prochaine étape, marquée comme telle.)*
+- CA6.7 *(ajouté le 15/10/2026)* — Le cockpit a deux onglets : **Cockpit** (synthèse,
+  formations en cours, niveau, certifications, médailles) et **Mes parcours** (détail de
+  chaque parcours). Une barre en haut de « Mon parcours », « Mon équipe » et « Assigner »
+  permet de passer de l'une à l'autre et d'**explorer le catalogue**, sans revenir à
+  l'accueil (« Mon équipe » : managers et administrateurs, avec le nombre de validations
+  en attente). La fiche d'un collaborateur côté manager reprend les deux onglets.
 - CA6.5 *(ajouté le 15/10/2026)* — En tête de chaque parcours, un encart **« Certification
   visée »** : la certification du parcours (ou les certifications « au choix » de son
   parcours type, D-P7), son état (obtenue / à valider / en préparation / à passer) et le

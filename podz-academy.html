@@ -756,6 +756,30 @@
 .podz-mp .pod-mp-empty li{margin-bottom:4px}
 .podz-mp .pod-mp-empty li a{color:var(--pod-fonce);font-weight:600}
 .podz-mp .pod-mp-actions{display:flex;flex-wrap:wrap;gap:8px}
+/* Barre de navigation entre les espaces (Mon parcours, Mon equipe, catalogue) */
+.podz-mp .pod-espace-nav,.podz-mgr .pod-espace-nav{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 18px}
+.podz-mp .pod-espace-nav:empty,.podz-mgr .pod-espace-nav:empty{display:none}
+.podz-mp .pod-espace-nav__lien,.podz-mgr .pod-espace-nav__lien{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:10px;border:1px solid rgba(0,32,96,0.14);background:#FFFFFF;color:#002060;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s}
+.podz-mp .pod-espace-nav__lien:hover,.podz-mgr .pod-espace-nav__lien:hover{border-color:#002060}
+.podz-mp .pod-espace-nav__lien.active,.podz-mgr .pod-espace-nav__lien.active{background:#002060;border-color:#002060;color:#FFFFFF}
+.podz-mp .pod-espace-nav__nb,.podz-mgr .pod-espace-nav__nb{background:#F5926A;color:#FFFFFF;font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 7px}
+/* Onglets Cockpit / Mes parcours */
+.podz-mp .pod-mp-onglets{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.podz-mp .pod-mp-onglet{appearance:none;font-family:inherit;font-size:13px;font-weight:700;padding:8px 16px;border-radius:20px;border:1.5px solid #D6D6E0;background:#FFFFFF;color:var(--pod-fonce);cursor:pointer}
+.podz-mp .pod-mp-onglet:hover{border-color:var(--pod-violet)}
+.podz-mp .pod-mp-onglet.active{background:var(--pod-violet);border-color:var(--pod-violet)}
+.podz-mp .pod-mp-onglet__nb{display:inline-block;margin-left:4px;font-size:10.5px;font-weight:800;background:#FFFFFF;border-radius:999px;padding:0 7px}
+.podz-mp .pod-mp-panneau[hidden]{display:none}
+/* Raccourcis "Mes formations en cours" */
+.podz-mp .pod-mp-raccourcis{margin-bottom:14px}
+.podz-mp .pod-mp-racc{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:1px dashed rgba(0,32,96,0.12)}
+.podz-mp .pod-mp-racc:first-of-type{border-top:0;padding-top:0}
+.podz-mp .pod-mp-racc__info{flex:1;min-width:220px}
+.podz-mp .pod-mp-racc__titre{font-size:15px;font-weight:800;margin:4px 0 2px}
+.podz-mp .pod-mp-racc.prochaine .pod-mp-racc__titre{font-size:18px}
+.podz-mp .pod-mp-racc__tag{display:inline-block;margin-right:6px;padding:3px 9px;border-radius:999px;background:var(--pod-fonce);color:#FFFFFF;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.podz-mp .pod-mp-racc .pod-mp-next-meta{margin-bottom:0}
+.podz-mp .pod-mp-racc .pod-mp-declare{flex-basis:100%;margin-top:0}
 /* Certification visee (en tete de parcours) et carte Certifications */
 .podz-mp .pod-mp-visee{margin:0 0 14px}
 .podz-mp .pod-mp-visee ul{margin:4px 0 4px;padding:0;list-style:none}
@@ -860,6 +884,7 @@
 <div id="podz-mp-root" class="podz-mp">
 <div class="pod-wrap">
 <div class="pod-bc" id="podz-mp-bc"><span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">Mon parcours</span></div>
+<div class="pod-espace-nav" id="podz-nav-mp"></div>
 <div id="podz-mp-cockpit"><div class="pod-loading">Chargement de ton parcours…</div></div>
 </div>
 </div>
@@ -869,6 +894,7 @@
 <div id="podz-asg-root" class="podz-mgr">
 <div class="pod-wrap">
 <div class="pod-bc" id="podz-asg-bc"></div>
+<div class="pod-espace-nav" id="podz-nav-asg"></div>
 <div id="podz-asg-contenu"><div class="pod-loading">Chargement…</div></div>
 </div>
 </div>
@@ -878,6 +904,7 @@
 <div id="podz-mgr-root" class="podz-mgr">
 <div class="pod-wrap">
 <div class="pod-bc" id="podz-mgr-bc"></div>
+<div class="pod-espace-nav" id="podz-nav-mgr"></div>
 <div id="podz-mgr-contenu"><div class="pod-loading">Chargement de l'équipe…</div></div>
 </div>
 </div>
@@ -1513,6 +1540,57 @@
       }
     }
     return null;
+  };
+
+  // Raccourcis du cockpit : tous les modules En cours (refuses compris) des parcours
+  // actifs, puis, pour chaque parcours, son prochain module A faire. Parcours pris dans
+  // l'ordre d'urgence de prochaineEtape ; un module present dans plusieurs parcours
+  // n'apparait qu'une fois (avec la liste de ses parcours). Le premier element qui
+  // correspond a prochaineEtape porte prochaine = true (CA6.4).
+  // -> [{formation, statut, type: "en-cours"|"a-commencer", parcours: [assignation], prochaine}]
+  calc.raccourcis = function(assignationsActives, catIdx, progIdx, today){
+    var tries = (assignationsActives || []).map(function(a, i){ return {a: a, i: i}; });
+    tries.sort(function(x, y){
+      var dx = x.a.dateCible, dy = y.a.dateCible;
+      if(dx && dy && dx !== dy) return dx < dy ? -1 : 1;
+      if(dx && !dy) return -1;
+      if(!dx && dy) return 1;
+      return x.i - y.i;
+    });
+    var parId = {}, enCours = [], aCommencer = [];
+    function noter(liste, id, st, a, type){
+      if(parId[id]){ if(parId[id].parcours.indexOf(a) === -1) parId[id].parcours.push(a); return; }
+      parId[id] = {formation: catIdx[id], statut: st, type: type, parcours: [a], prochaine: false};
+      liste.push(parId[id]);
+    }
+    tries.forEach(function(t){
+      (t.a.modules || []).forEach(function(id){
+        if(!catIdx[id]) return;
+        var st = calc.statutModule(progIdx, id);
+        if(st.code === "en-cours" || st.code === "refuse") noter(enCours, id, st, t.a, "en-cours");
+      });
+    });
+    tries.forEach(function(t){
+      var ids = (t.a.modules || []).filter(function(id){ return catIdx[id]; });
+      for(var k = 0; k < ids.length; k++){
+        var st = calc.statutModule(progIdx, ids[k]);
+        if(st.code !== "a-faire") continue;
+        if(parId[ids[k]]){ noter(aCommencer, ids[k], st, t.a, "a-commencer"); break; }
+        noter(aCommencer, ids[k], st, t.a, "a-commencer");
+        break;
+      }
+    });
+    var tous = enCours.concat(aCommencer);
+    var pe = calc.prochaineEtape(assignationsActives, catIdx, progIdx, today);
+    if(pe){
+      var cible = tous.filter(function(r){ return r.formation.id === pe.formation.id; })[0];
+      if(cible){
+        cible.prochaine = true;
+        tous.splice(tous.indexOf(cible), 1);
+        tous.unshift(cible);
+      }
+    }
+    return tous;
   };
 
   function membres(titre, catalogue){
@@ -2556,31 +2634,42 @@
     '</div>';
   }
 
-  function renderProchaine(pe, ctx){
-    var t = '<div class="pod-mp-card pod-mp-next"><h3 class="pod-mp-card-title">Prochaine étape</h3>';
-    if(!pe){
+  // Carte "Mes formations en cours" : un raccourci par module en cours (refuses compris),
+  // puis le prochain module a commencer de chaque parcours ; le premier = prochaine etape (CA6.4).
+  function renderRaccourcis(liste, ctx){
+    var titre = ctx.mode === "consultant" ? "Mes formations en cours" : "Formations en cours";
+    var t = '<div class="pod-mp-card pod-mp-next pod-mp-raccourcis"><h3 class="pod-mp-card-title">' + titre + '</h3>';
+    if(!liste.length){
       return t + '<p class="pod-mp-vide">Rien à faire pour le moment : tous les modules sont terminés ou en attente de validation.</p></div>';
     }
-    var f = pe.formation, a = pe.assignation;
-    var s = calc.syntheseParcours(a, ctx.catIdx, ctx.progIdx, ctx.today);
-    var echeance = a.dateCible
-      ? (s.enRetard ? "date cible dépassée (" + calc.formatDate(a.dateCible) + ")" : "date cible " + calc.formatDate(a.dateCible))
-      : "pas d'échéance";
-    var lien = (f.liens || []).length
-      ? '<a class="pod-btn" href="' + esc(f.liens[0]) + '" target="_blank" rel="noopener" data-formation="' + esc(f.id) + '">' +
-        (pe.statut.code === "a-faire" ? "Accéder à la formation ↗" : "Reprendre la formation ↗") + '</a>'
-      : "";
-    var action = "";
-    if(ctx.mode === "consultant"){
-      action = pe.statut.code === "a-faire"
-        ? '<button type="button" class="pod-btn ghost" data-action="demarrer" data-formation="' + esc(f.id) + '">Je commence</button>'
-        : '<button type="button" class="pod-btn ghost" data-action="declarer" data-formation="' + esc(f.id) + '">J\'ai terminé…</button>';
-    }
-    return t + chipStatut(pe.statut) +
-      '<div class="pod-mp-next-titre">' + esc(f.titre) + '</div>' +
-      '<div class="pod-mp-next-meta">Parcours « ' + esc(a.titre) + ' » · ' + esc(f.duree || "—") + ' · ' + esc(echeance) + '</div>' +
-      '<div class="pod-mp-actions">' + lien + action + '</div>' +
-    '</div>';
+    return t + liste.map(function(r){
+      var f = r.formation, a = r.parcours[0];
+      var s = calc.syntheseParcours(a, ctx.catIdx, ctx.progIdx, ctx.today);
+      var echeance = a.dateCible
+        ? (s.enRetard ? "date cible dépassée (" + calc.formatDate(a.dateCible) + ")" : "date cible " + calc.formatDate(a.dateCible))
+        : "pas d'échéance";
+      var parcours = "Parcours « " + a.titre + " »" + (r.parcours.length > 1
+        ? " · aussi dans " + r.parcours.slice(1).map(function(x){ return "« " + x.titre + " »"; }).join(", ") : "");
+      var aFaire = r.type === "a-commencer";
+      var lien = (f.liens || []).length
+        ? '<a class="pod-btn' + (r.prochaine ? "" : " ghost") + '" href="' + esc(f.liens[0]) + '" target="_blank" rel="noopener" data-formation="' + esc(f.id) + '">' +
+          (ctx.mode !== "consultant" ? "Voir la formation ↗" : (aFaire ? "Accéder ↗" : "Reprendre ↗")) + '</a>'
+        : "";
+      var action = "";
+      if(ctx.mode === "consultant"){
+        action = aFaire
+          ? '<button type="button" class="pod-btn ghost" data-action="demarrer" data-formation="' + esc(f.id) + '">Je commence</button>'
+          : '<button type="button" class="pod-btn ghost" data-action="declarer" data-formation="' + esc(f.id) + '">J\'ai terminé…</button>';
+      }
+      return '<div class="pod-mp-racc' + (r.prochaine ? " prochaine" : "") + '">' +
+        '<div class="pod-mp-racc__info">' +
+          (r.prochaine ? '<span class="pod-mp-racc__tag">Prochaine étape</span>' : "") + chipStatut(r.statut) +
+          '<div class="pod-mp-racc__titre">' + esc(f.titre) + '</div>' +
+          '<div class="pod-mp-next-meta">' + esc(parcours) + ' · ' + esc(f.duree || "—") + ' · ' + esc(echeance) + '</div>' +
+        '</div>' +
+        '<div class="pod-mp-actions">' + lien + action + '</div>' +
+      '</div>';
+    }).join("") + '</div>';
   }
 
   function phraseSynthese(actives, g, retards, ctx){
@@ -2705,6 +2794,14 @@
     el.addEventListener("click", function(e){
       var btn = e.target.closest("button[data-action]");
       if(btn && el.podzCockpit){ action(el, btn); return; }
+      var og = e.target.closest("[data-onglet-mp]");
+      if(og && el.podzCockpit){
+        var choix = og.getAttribute("data-onglet-mp");
+        el.podzCockpit.opts.onglet = choix;
+        Array.prototype.forEach.call(el.querySelectorAll("[data-onglet-mp]"), function(b){ b.classList.toggle("active", b === og); });
+        Array.prototype.forEach.call(el.querySelectorAll("[data-panneau-mp]"), function(p){ p.hidden = p.getAttribute("data-panneau-mp") !== choix; });
+        return;
+      }
       var tab = e.target.closest(".pod-mp-niv-tab");
       if(tab){
         var card = tab.closest(".pod-mp-card");
@@ -2769,15 +2866,27 @@
         el.innerHTML = hero + renderVide(ctx, types);
         return;
       }
-      var pe = calc.prochaineEtape(actives, ctx.catIdx, ctx.progIdx, ctx.today);
-      var top = '<div class="pod-mp-top">' + renderProchaine(pe, ctx) + renderNiveaux(calc.niveaux(ctx.progIdx, ctx.catIdx)) + '</div>' +
-        '<div class="pod-mp-top">' + renderCertifications(ctx) + renderMedailles(medailles) + '</div>';
+      // Deux onglets : "Cockpit" (synthese, raccourcis, niveau, certifications, medailles)
+      // et "Parcours" (detail des parcours). L'onglet choisi est garde dans opts
+      // (conserve apres une action, cf. rafraichir).
+      var onglet = opts.onglet === "parcours" ? "parcours" : "cockpit";
+      var raccourcis = calc.raccourcis(actives, ctx.catIdx, ctx.progIdx, ctx.today);
+      var cockpit = renderRaccourcis(raccourcis, ctx) +
+        '<div class="pod-mp-top">' + renderNiveaux(calc.niveaux(ctx.progIdx, ctx.catIdx)) + renderCertifications(ctx) + '</div>' +
+        renderMedailles(medailles);
       var blocs = actives.map(function(a){ return renderParcours(a, ctx); }).join("");
       var plus = mode === "consultant"
         ? '<div class="pod-mp-add"><p><b>Envie d\'aller plus loin ?</b> Ajoute un parcours type en autonomie, ou un module isolé du catalogue (« Ajouter à mes formations ») : il rejoindra ton parcours libre « Mes formations ».</p>' +
           '<a class="pod-btn ghost" href="#accueil">Voir les parcours types</a><a class="pod-btn ghost" href="#catalogue">Parcourir le catalogue</a></div>'
         : "";
-      el.innerHTML = hero + top + blocs + plus;
+      var onglets = '<div class="pod-mp-onglets" role="tablist">' +
+        '<button type="button" role="tab" class="pod-mp-onglet' + (onglet === "cockpit" ? " active" : "") + '" data-onglet-mp="cockpit">Cockpit</button>' +
+        '<button type="button" role="tab" class="pod-mp-onglet' + (onglet === "parcours" ? " active" : "") + '" data-onglet-mp="parcours">' +
+          (mode === "consultant" ? "Mes parcours" : "Parcours") + ' <span class="pod-mp-onglet__nb">' + actives.length + '</span></button>' +
+      '</div>';
+      el.innerHTML = hero + onglets +
+        '<div class="pod-mp-panneau" data-panneau-mp="cockpit"' + (onglet === "cockpit" ? "" : " hidden") + '>' + cockpit + '</div>' +
+        '<div class="pod-mp-panneau" data-panneau-mp="parcours"' + (onglet === "parcours" ? "" : " hidden") + '>' + blocs + plus + '</div>';
     }).catch(function(err){
       el.innerHTML = '<div class="pod-loading">Erreur de chargement du parcours (' + esc(err && err.message ? err.message : err) + ').</div>';
     });
@@ -2785,6 +2894,7 @@
 
   // Vue #mon-parcours : cockpit de l'utilisateur connecte.
   window.PODZ.renderMonParcours = function(){
+    if(window.PODZ.renderNavEspace) window.PODZ.renderNavEspace("podz-nav-mp", "parcours");
     var el = document.getElementById("podz-mp-cockpit");
     return window.PODZ.fetchUtilisateur().then(function(u){
       return window.PODZ.renderCockpit(el, u.id, {mode: "consultant"});
@@ -2870,6 +2980,22 @@
       var n = r[1].filter(function(p){ return actifs[p.formationId] && p.statut === "en-cours" && p.commentaire; }).length;
       lien.innerHTML = '<span>⬡</span>Mon parcours' + (n ? '<span class="pod-home-badge" title="Modules refusés par ton manager, à reprendre">' + n + ' à reprendre</span>' : "");
     }).catch(function(){});
+  };
+
+  // Barre de navigation entre les espaces, en haut de "Mon parcours", "Mon equipe" et
+  // "Assigner" : passer de l'un a l'autre sans revenir a l'accueil. "Mon equipe" (avec le
+  // nombre de validations en attente) n'apparait que pour un manager ou un admin.
+  P.renderNavEspace = function(idConteneur, actif){
+    var el = document.getElementById(idConteneur);
+    if(!el) return Promise.resolve();
+    function lien(href, cle, html){
+      return '<a href="' + href + '" class="pod-espace-nav__lien' + (cle === actif ? " active" : "") + '"' + (cle === actif ? ' aria-current="page"' : "") + '>' + html + '</a>';
+    }
+    return P.donneesEquipe().then(function(d){
+      el.innerHTML = lien("#mon-parcours", "parcours", "⬡ Mon parcours") +
+        (estResponsable(d.moi) ? lien("#mon-equipe", "equipe", "◎ Mon équipe" + (d.file.length ? ' <span class="pod-espace-nav__nb" title="Validations en attente">' + d.file.length + '</span>' : "")) : "") +
+        lien("#catalogue", "catalogue", "⊞ Explorer le catalogue");
+    }).catch(function(){ el.innerHTML = ""; });
   };
 
   P.majAccueilManager = function(){
@@ -3010,6 +3136,7 @@
 
   // suite = "" (vue d'ensemble) ou "/c=<id>" (detail collaborateur).
   P.renderMonEquipe = function(suite, garderOnglet){
+    P.renderNavEspace("podz-nav-mgr", "equipe");
     if(!garderOnglet) onglet = "file";
     contenu.innerHTML = '<div class="pod-loading">Chargement de l\'équipe…</div>';
     return P.donneesEquipe().then(function(d){
@@ -3238,6 +3365,7 @@
 
   // suite = "" | "=c<consultantId>" | "=a<assignationId>" (modification : lot L12).
   P.renderAssigner = function(suite){
+    P.renderNavEspace("podz-nav-asg", "equipe");
     drawBc();
     contenu.innerHTML = '<div class="pod-loading">Chargement…</div>';
     return P.fetchUtilisateur().then(function(moi){

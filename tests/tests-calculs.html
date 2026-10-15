@@ -216,6 +216,19 @@
     egal("parcours sans module à faire → parcours suivant", r4.assignation.id, "C");
     egal("rien à faire → null", calc.prochaineEtape([{modules: ["T1", "T2"]}], catIdx, pe, TODAY), null);
 
+    section("raccourcis (formations en cours et à commencer)");
+    var pr = calc.indexer([prog("T1", "en-cours"), prog("T4", "en-cours", {commentaire: "refus"}), prog("T2", "a-valider")], "formationId");
+    var rA = {id: "A", modules: ["T1", "T2", "T3", "T5"], dateCible: "2026-12-31"};
+    var rB = {id: "B", modules: ["T4", "T3"], dateCible: "2026-09-30"};
+    var rC = {id: "C", modules: ["C1"]};
+    var rr = calc.raccourcis([rA, rB, rC], catIdx, pr, TODAY);
+    egal("en cours (refusé compris) puis un « à commencer » par parcours, sans doublon", rr.map(function(r){ return r.formation.id + ":" + r.type; }),
+      ["T4:en-cours", "T1:en-cours", "T3:a-commencer", "C1:a-commencer"]);
+    egal("la prochaine étape (parcours le plus urgent) est en tête et marquée", [rr[0].formation.id, rr[0].prochaine, rr[1].prochaine], ["T4", true, false]);
+    egal("module commun à deux parcours : listé une fois, avec ses deux parcours", rr.filter(function(r){ return r.formation.id === "T3"; })[0].parcours.map(function(a){ return a.id; }), ["B", "A"]);
+    egal("les modules À valider ne sont pas des raccourcis", rr.some(function(r){ return r.formation.id === "T2"; }), false);
+    egal("rien en cours ni à faire → liste vide", calc.raccourcis([{modules: ["T2"]}], catIdx, pr, TODAY), []);
+
     section("certifsParcours (certification visée)");
     var pcV = calc.indexer([prog("T1", "termine"), prog("C1", "a-valider")], "formationId");
     var cv = calc.certifsParcours({modules: ["T1", "T2", "T3", "C1"]}, catIdx, pcV, CAT);

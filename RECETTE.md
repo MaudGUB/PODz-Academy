@@ -36,7 +36,10 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 - [x] Restitution & DataViz : « personnalisé », cible 30/09/2026 « en retard » (orange)
 - [x] Design / DataViz : « aussi dans « … » » dans les deux parcours
 - [x] Automatisation des processus : « Choisi en autonomie », « Pas d'échéance », bouton « Retirer »
-- [x] Prochaine étape : PowerPoint avancé (parcours en retard)
+- [x] Onglet « Cockpit », carte « Mes formations en cours » : PowerPoint avancé en tête (« Prochaine étape »), puis Power BI, Copilot (en cours), puis Design / DataViz, Data Quality, Automatisation (à commencer), chacun avec ses deux boutons
+- [x] « Je commence » depuis le raccourci Automatisation / Power Automate → il passe dans les formations en cours ; message de confirmation
+- [x] Onglet « Mes parcours (3) » : le détail des 3 parcours ; après une action dans cet onglet, on y reste
+- [x] Barre en haut : « Mon parcours » (actif) · « Explorer le catalogue » ; pas de « Mon équipe »
 - [x] Niveau par compétence : Analyse Fondamentaux · Adoption Intermédiaire · Pilotage — · Process Fondamentaux
 - [x] Onglet « Par techno » : mention « colonne Techno pas encore renseignée »
 - [x] PowerPoint avancé déplié : commentaire de refus de Sarah + « J'ai terminé… »
@@ -60,7 +63,7 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 ## 3. Hugo Test — consultant (D-P4, D-P7, RG9)
 - [x] Mon parcours : 1 parcours actif (Pilotage de projet Data), l'archivé n'apparaît pas
 - [x] Encart « Certifications visées (au choix) » (PSM I · PSPO ×2 · PMP) en tête du parcours
-- [x] Prochaine étape : Schéma Directeur (Agile, À valider, est sauté)
+- [x] Formations en cours : Schéma Directeur en « Prochaine étape » (Agile, À valider, est sauté)
 - [x] Profil « Nouveau PODz » → « Suivre ce parcours » → « Bien démarrer chez POD » réactivé, sans doublon
 - [x] Catalogue → « Ajouter à mes formations » sur Power BI (panneau déplié) → « Mes formations » apparaît
 - [x] Agile (SCRUM) affiche « Déjà dans mes parcours »
@@ -68,6 +71,8 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 ## 4. Sarah Manager — consultante et manager (US7, US8, RG6, RG7, RG14, RG16, RG20)
 - [x] Accueil : entrée « Mon équipe » avec badge **3**
 - [x] Mon parcours : son propre cockpit (Bien démarrer chez POD, assigné par Alex)
+- [x] Barre en haut : « Mon parcours » · « Mon équipe (N) » (validations en attente) · « Explorer le catalogue » ; un clic passe d'un espace à l'autre (et retour) sans repasser par l'accueil
+- [x] Fiche d'un collaborateur : onglets « Cockpit » et « Parcours », formations en cours sans boutons d'action (« Voir la formation ↗ » seulement)
 - [x] Carte « Certifications » : Change Management - Prosci (ADKAR) obtenue le 24/06/2026 ; médaille « Certifié » débloquée
 - [x] Mon équipe : KPIs 3 collaborateurs · 3 à valider · 1 parcours en retard
 - [x] File : Agile (Hugo), Modélisation (Camille), Data Literacy (Inès), avec « Depuis N j »
