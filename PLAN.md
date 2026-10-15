@@ -523,3 +523,6 @@ locale dans `map*` ; récupérer `ListItemEntityTypeFullName` de chaque liste ;
 |---|---|---|
 | L2 | `tools/serveur-dev.ps1` écoute aussi `http://127.0.0.1:<port>/` (fichier hors liste du lot). | Sans ce préfixe, `HttpListener` répond « 400 Invalid Hostname » sur 127.0.0.1 : le test du lot était impossible. |
 | L2 | Accueil : ajout d'un `.catch` sur le chargement des profils (message d'erreur à la place de la grille). | En mode prod simulé, `fetchCatalogue` rejette : sans `catch`, erreur JS non gérée. |
+| L4 | `calc.peutModifierAssignation(acteur, assignation, consultant)` : 3e paramètre optionnel `consultant` (`{id, managerId}`). | L'objet `assignation` ne porte pas le manager du consultant, nécessaire pour RG20. |
+| L4 | `calc.peutGerer` refuse toujours d'agir sur soi-même (même un administrateur ne valide pas ses propres modules). | Prolonge CA5.4 ; à confirmer en recette. |
+| L4 | `saveAssignation` contrôle aussi RG9 (même parcours type actif deux fois, deuxième « Mes formations ») et la date cible obligatoire d'un parcours assigné (CA7.4). | Garde-fous côté données, en plus des contrôles de l'interface (L10, L11). |

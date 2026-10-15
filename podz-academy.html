@@ -747,12 +747,13 @@
 
   // Prod : GET /_api/web/currentuser, puis Equipes?$filter=ManagerId eq {id} (estManager)
   // et ConsultantId eq {id} (Admin).
-  window.PODZ.fetchUtilisateur = enDev(function(){
+  function utilisateurCourant(){
     var tous = utilisateursBruts();
     var id = Number(lireLocal("podz.dev.utilisateur", 11));
     var raw = tous.filter(function(u){ return u.Id === id; })[0] || tous.filter(function(u){ return u.Id === 11; })[0];
     return mapUtilisateur(raw, tous);
-  });
+  }
+  window.PODZ.fetchUtilisateur = enDev(utilisateurCourant);
 
   // Prod : GET Equipes?$select=Consultant/Id,Consultant/Title,Consultant/EMail,ManagerId,Admin&$expand=Consultant
   window.PODZ.fetchUtilisateurs = enDev(function(){
@@ -787,6 +788,217 @@
       .filter(function(it){ return ids.indexOf(Number(it.ConsultantId)) !== -1; })
       .map(mapProgression);
   });
+
+
+
+  // ---------------------------------------------------------------------------
+  // Ecritures de dev : controle des droits (PODZ.calc) -> toItem* -> localStorage.
+  function ecrireLocal(cle, valeur){
+    try { localStorage.setItem(cle, JSON.stringify(valeur)); }
+    catch(e) { throw new Error("Écriture impossible dans le stockage local du navigateur"); }
+  }
+  function prochainId(){
+    var n = Number(lireLocal("podz.dev.seq", 1000)) || 1000;
+    ecrireLocal("podz.dev.seq", n + 1);
+    return n;
+  }
+  function ecrireSurcouche(cle, item){
+    var sur = lireLocal(cle, {}) || {};
+    sur[item.ID] = item;
+    ecrireLocal(cle, sur);
+  }
+  function contexte(consultantId){
+    var tous = utilisateursBruts();
+    var acteur = utilisateurCourant();
+    var raw = tous.filter(function(u){ return u.Id === Number(consultantId); })[0];
+    if(!raw) throw new Error("Consultant " + consultantId + " introuvable");
+    return {acteur: acteur, consultant: mapUtilisateur(raw, tous)};
+  }
+
+  // changement = {action: "demarrer"|"declarer"|"valider"|"refuser"|"dispenser", dateFin?, commentaire?}
+  // L'acteur est l'utilisateur courant. Une seule ligne par (consultant, module).
+  // Prod : GET Progression?$filter=ConsultantId eq {id} and Title eq '{formation}' (unicite),
+  // puis sp.creer ou sp.modifier (X-RequestDigest, IF-MATCH).
+  window.PODZ.saveStatut = enDev(function(consultantId, formationId, changement){
+    changement = changement || {};
+    var ctx = contexte(consultantId);
+    var existant = window.PODZ.dev.progressionBrute().filter(function(it){
+      return Number(it.ConsultantId) === ctx.consultant.id && it.Title === formationId;
+    })[0];
+    var prog = existant ? mapProgression(existant) : null;
+    var r = window.PODZ.calc.transition(prog, changement.action, {
+      acteur: ctx.acteur, consultant: ctx.consultant, today: window.PODZ.aujourdhui(),
+      dateFin: changement.dateFin, commentaire: changement.commentaire, formationId: formationId
+    });
+    if(!r.ok) throw new Error(r.erreur);
+    if(r.prog.id == null) r.prog.id = prochainId();
+    ecrireSurcouche("podz.dev.progression", toItemProgression(r.prog, ctx.consultant));
+    return r.prog;
+  });
+
+  // Cree (a.id vide) ou modifie (modules, ordre, date cible, etat) un parcours.
+  // Prod : sp.creer / sp.modifier sur Assignations.
+  window.PODZ.saveAssignation = enDev(function(a){
+    if(!a || !a.consultant) throw new Error("Parcours incomplet");
+    var ctx = contexte(a.consultant.id);
+    var calc = window.PODZ.calc;
+    var toutes = window.PODZ.dev.assignationsBrutes().map(mapAssignation);
+    var ancien = a.id != null ? toutes.filter(function(x){ return x.id === a.id; })[0] : null;
+    if(a.id != null && !ancien) throw new Error("Parcours " + a.id + " introuvable");
+    if(ancien && (ancien.consultant.id !== ctx.consultant.id || ancien.source !== a.source)){
+      throw new Error("Le consultant et l'origine d'un parcours ne se modifient pas");
+    }
+    if(ancien && !calc.peutModifierAssignation(ctx.acteur, ancien, ctx.consultant)){
+      throw new Error("Tu n'as pas le droit de modifier ce parcours");
+    }
+    if(!calc.peutModifierAssignation(ctx.acteur, a, ctx.consultant)){
+      throw new Error(a.source === "Manager"
+        ? "Seul le manager du consultant (ou un administrateur) peut assigner ce parcours"
+        : "Seul le consultant peut gérer ses parcours en autonomie");
+    }
+    var titre = String(a.titre || "").trim();
+    if(!titre) throw new Error("Le nom du parcours est obligatoire");
+    if(a.source === "Manager" && !a.dateCible) throw new Error("La date cible est obligatoire pour un parcours assigné");
+    var etat = a.etat === "Archivé" ? "Archivé" : "Actif";
+    var source = a.source === "Manager" ? "Manager" : "Autonomie";
+    var parcoursType = a.parcoursType || "";
+    if(etat === "Actif"){
+      var doublon = toutes.filter(function(x){
+        if(x.id === a.id || x.etat !== "Actif" || x.consultant.id !== ctx.consultant.id) return false;
+        if(parcoursType) return x.parcoursType === parcoursType;
+        return source === "Autonomie" && x.estMesFormations;
+      })[0];
+      if(doublon) throw new Error("« " + doublon.titre + " » est déjà dans les parcours de " + ctx.consultant.nom + " (RG9)");
+    }
+    var enreg = {
+      id: a.id != null ? a.id : prochainId(),
+      titre: titre,
+      consultant: {id: ctx.consultant.id, nom: ctx.consultant.nom, email: ctx.consultant.email},
+      assignePar: source === "Manager"
+        ? (ancien && ancien.assignePar ? ancien.assignePar : {id: ctx.acteur.id, nom: ctx.acteur.nom, email: ctx.acteur.email})
+        : null,
+      source: source,
+      parcoursType: parcoursType,
+      modules: (a.modules || []).slice(),
+      dateCible: source === "Manager" ? a.dateCible : null,
+      etat: etat
+    };
+    var item = toItemAssignation(enreg);
+    ecrireSurcouche("podz.dev.assignations", item);
+    return mapAssignation(item);
+  });
+
+  // Efface les ecritures de dev (toutes les cles podz.dev.* sauf l'utilisateur courant).
+  window.PODZ.resetDev = function(){
+    if(!window.PODZ.estDev()) return pasEncore();
+    try {
+      var cles = [];
+      for(var i = 0; i < localStorage.length; i++){ cles.push(localStorage.key(i)); }
+      cles.forEach(function(k){
+        if(k && k.indexOf("podz.dev.") === 0 && k !== "podz.dev.utilisateur") localStorage.removeItem(k);
+      });
+    } catch(e) { return Promise.reject(e); }
+    return Promise.resolve();
+  };
+})();
+</script>
+<script>
+// Calculs purs (PLAN.md § 1.5) : aucun acces au DOM ni aux donnees, testes par
+// tests/tests-calculs.html. Dates en chaines "YYYY-MM-DD".
+(function(){
+  window.PODZ = window.PODZ || {};
+  var calc = window.PODZ.calc = window.PODZ.calc || {};
+
+  // Manager direct du consultant, ou administrateur ; jamais soi-meme (CA5.4).
+  calc.peutGerer = function(acteur, consultant){
+    if(!acteur || !consultant || acteur.id === consultant.id) return false;
+    return !!acteur.estAdmin || consultant.managerId === acteur.id;
+  };
+
+  // Parcours en autonomie : le consultant lui-meme (RG18). Parcours assigne :
+  // son manager ou un administrateur seulement (RG20).
+  // consultant (optionnel) = {id, managerId} du titulaire, pour le test du manager.
+  calc.peutModifierAssignation = function(acteur, assignation, consultant){
+    if(!acteur || !assignation || !assignation.consultant) return false;
+    if(assignation.source === "Manager"){
+      return calc.peutGerer(acteur, consultant || assignation.consultant);
+    }
+    return acteur.id === assignation.consultant.id;
+  };
+
+  function copie(p){
+    var o = {};
+    for(var k in p){ if(p.hasOwnProperty(k)) o[k] = p[k]; }
+    return o;
+  }
+  function refus(msg){ return {ok: false, erreur: msg, prog: null}; }
+
+  // prog = ligne de progression existante ou null (module "A faire").
+  // ctx = {acteur, consultant, today, dateFin, commentaire, formationId}
+  // -> {ok, erreur, prog} ; prog est un NOUVEL objet (l'entree n'est jamais modifiee).
+  calc.transition = function(prog, action, ctx){
+    ctx = ctx || {};
+    var acteur = ctx.acteur, consultant = ctx.consultant, today = ctx.today;
+    if(!acteur || !consultant) return refus("Utilisateur inconnu");
+    var soi = acteur.id === consultant.id;
+    var statut = prog ? prog.statut : "a-faire";
+    if(statut === "termine") return refus("Ce module est déjà terminé : il ne peut plus changer de statut (RG8)");
+    var n = prog ? copie(prog) : {
+      id: null, formationId: ctx.formationId, consultantId: consultant.id, statut: "a-faire",
+      dateDebut: null, dateFin: null, dateValidation: null, validePar: null, dispense: false, commentaire: ""
+    };
+    var par = {id: acteur.id, nom: acteur.nom};
+
+    switch(action){
+      case "demarrer":
+        if(!soi) return refus("Seul le consultant démarre ses modules (RG4)");
+        if(statut !== "a-faire") return refus("Ce module est déjà démarré");
+        n.statut = "en-cours";
+        n.dateDebut = today;
+        return {ok: true, erreur: "", prog: n};
+
+      case "declarer":
+        if(!soi) return refus("Seul le consultant déclare un module terminé (RG5)");
+        if(statut !== "en-cours") return refus("Seul un module En cours peut être déclaré terminé");
+        if(!ctx.dateFin || !/^\d{4}-\d{2}-\d{2}$/.test(ctx.dateFin)) return refus("La date de fin est obligatoire (JJ/MM/AAAA)");
+        if(ctx.dateFin > today) return refus("La date de fin ne peut pas être dans le futur (RG5)");
+        n.statut = "a-valider";
+        n.dateFin = ctx.dateFin;
+        // Le commentaire d'un eventuel refus est conserve (affiche jusqu'a Termine).
+        return {ok: true, erreur: "", prog: n};
+
+      case "valider":
+        if(!calc.peutGerer(acteur, consultant)) return refus("Seul le manager du consultant (ou un administrateur) valide un module (RG6)");
+        if(statut !== "a-valider") return refus("Seul un module À valider peut être validé");
+        n.statut = "termine";
+        n.dateValidation = today;
+        n.validePar = par;
+        return {ok: true, erreur: "", prog: n};
+
+      case "refuser":
+        if(!calc.peutGerer(acteur, consultant)) return refus("Seul le manager du consultant (ou un administrateur) refuse un module (RG6)");
+        if(statut !== "a-valider") return refus("Seul un module À valider peut être refusé");
+        var com = String(ctx.commentaire || "").trim();
+        if(!com) return refus("Un refus exige un commentaire (RG7)");
+        // Refus stocke sur la ligne : En cours + Commentaire + ValidePar + DateValidation.
+        n.statut = "en-cours";
+        n.commentaire = com;
+        n.validePar = par;
+        n.dateValidation = today;
+        return {ok: true, erreur: "", prog: n};
+
+      case "dispenser":
+        if(!calc.peutGerer(acteur, consultant)) return refus("Seul le manager du consultant (ou un administrateur) dispense un module (RG6)");
+        n.statut = "termine";
+        n.dispense = true;
+        n.dateValidation = today;
+        n.validePar = par;
+        return {ok: true, erreur: "", prog: n};
+
+      default:
+        return refus("Action inconnue : " + action);
+    }
+  };
 })();
 </script>
 <script>
@@ -1329,10 +1541,15 @@
     el.innerHTML = '<div class="pod-dev-bar"><b>DEV</b> Se connecter en tant que ' +
       '<select id="podz-dev-user">' + tous.map(function(u){
         return '<option value="' + u.id + '"' + (u.id === moi.id ? " selected" : "") + '>' + esc(u.nom) + ' — ' + role(u) + '</option>';
-      }).join("") + '</select></div>';
+      }).join("") + '</select>' +
+      '<button type="button" class="pod-dev-reset" id="podz-dev-reset">Réinitialiser les données de dev</button></div>';
     document.getElementById("podz-dev-user").addEventListener("change", function(e){
       try { localStorage.setItem("podz.dev.utilisateur", JSON.stringify(Number(e.target.value))); } catch(err) {}
       location.reload();
+    });
+    document.getElementById("podz-dev-reset").addEventListener("click", function(){
+      if(!window.confirm("Effacer toutes les modifications faites en dev (statuts, parcours) et revenir à l'état initial ?")) return;
+      window.PODZ.resetDev().then(function(){ location.reload(); });
     });
   }).catch(function(err){
     el.innerHTML = '<div class="pod-dev-bar"><b>DEV</b> Données de dev indisponibles (' + esc(err && err.message ? err.message : err) + ')</div>';
