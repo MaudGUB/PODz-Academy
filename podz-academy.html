@@ -6,6 +6,56 @@
 <title>PODz Academy</title>
 </head>
 <body style="margin:0;padding:24px 16px;background:#FFFFFF">
+<script>
+// Configuration + chargeur des donnees de dev (bloc place AVANT tous les autres
+// scripts). En dev (localhost / 127.0.0.1), PODZ.pret injecte data/catalogue.js
+// puis les donnees fictives data/dev-*.js ; hors localhost, rien n'est charge et
+// les fonctions sans implementation SharePoint rejettent : la page ne peut
+// jamais ecrire en prod par accident (D-P9).
+(function(){
+  window.PODZ = window.PODZ || {};
+  var host = location.hostname;
+  var local = host === "localhost" || host === "127.0.0.1";
+  // ?env=prod : simulation du mode prod, acceptee seulement sur localhost.
+  var forceProd = local && /(^|[?&])env=prod(&|$)/.test(location.search);
+  window.PODZ_CONFIG = {
+    env: (local && !forceProd) ? "dev" : "prod",
+    siteUrl: "",
+    // Noms des listes SharePoint ; "?" = a recuperer aupres du proprietaire du site (PO9).
+    listes: { formations: "?", profils: "?", parcours: "?", assignations: "Assignations", progression: "Progression", equipes: "Equipes" }
+  };
+  window.PODZ.estDev = function(){ return window.PODZ_CONFIG.env === "dev"; };
+  window.PODZ.MSG_PROD = "Implémentation SharePoint à écrire au passage en prod";
+
+  var FICHIERS_DEV = ["data/catalogue.js", "data/dev-utilisateurs.js", "data/dev-assignations.js", "data/dev-progression.js"];
+  function charger(src){
+    return new Promise(function(resolve, reject){
+      var s = document.createElement("script");
+      s.src = src;
+      s.onload = function(){ resolve(); };
+      s.onerror = function(){ reject(new Error(src + " introuvable — lancer la page via tools/serveur-dev.ps1")); };
+      document.head.appendChild(s);
+    });
+  }
+  window.PODZ.pret = window.PODZ.estDev()
+    ? FICHIERS_DEV.reduce(function(p, src){ return p.then(function(){ return charger(src); }); }, Promise.resolve())
+    : Promise.resolve();
+
+  // Date du jour "YYYY-MM-DD" (heure locale). En dev, forcable par
+  // localStorage["podz.dev.aujourdhui"] pour que les cas "en retard" restent stables.
+  window.PODZ.aujourdhui = function(){
+    if(window.PODZ.estDev()){
+      try {
+        var force = localStorage.getItem("podz.dev.aujourdhui");
+        if(force && /^\d{4}-\d{2}-\d{2}$/.test(force)) return force;
+      } catch(e) {}
+    }
+    var d = new Date();
+    function p2(n){ return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate());
+  };
+})();
+</script>
 <style>
 
 
@@ -450,7 +500,6 @@
 </div>
 </div>
 
-<script src="data/catalogue.js"></script>
 <script>
 (function(){
   var bcEl = document.getElementById("podz-cat-bc");
@@ -531,11 +580,15 @@
   // Donnees de dev : data/catalogue.js, genere depuis l'Excel du catalogue
   // par tools/excel-vers-catalogue.ps1 (meme format que les items de la
   // liste SharePoint, d'ou le passage par mapItem comme en prod).
+  // En prod : GET {site}/_api/web/lists/getbytitle('{listes.formations}')/items?$top=500 -> mapItem.
   window.PODZ.fetchCatalogue = function(){
-    if(!window.PODZ_CATALOGUE){
-      return Promise.reject(new Error("data/catalogue.js introuvable — lancer tools/excel-vers-catalogue.ps1"));
-    }
-    return Promise.resolve(window.PODZ_CATALOGUE.map(mapItem));
+    if(!window.PODZ.estDev()) return Promise.reject(new Error(window.PODZ.MSG_PROD));
+    return window.PODZ.pret.then(function(){
+      if(!window.PODZ_CATALOGUE){
+        throw new Error("data/catalogue.js introuvable — lancer tools/excel-vers-catalogue.ps1");
+      }
+      return window.PODZ_CATALOGUE.map(mapItem);
+    });
   };
 })();
 </script>
@@ -925,6 +978,8 @@
         '<div class="persona__stats">' + stats + '</div>' +
       '</a>';
     }).join("");
+  }).catch(function(err){
+    gridEl.innerHTML = '<div class="pod-loading">Erreur de chargement des profils (' + esc(err && err.message ? err.message : err) + ').</div>';
   });
 })();
 </script>

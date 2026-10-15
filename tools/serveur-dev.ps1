@@ -7,6 +7,9 @@ $racine = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $types = @{ ".html" = "text/html; charset=utf-8"; ".js" = "text/javascript; charset=utf-8"; ".css" = "text/css; charset=utf-8"; ".json" = "application/json; charset=utf-8"; ".svg" = "image/svg+xml"; ".png" = "image/png" }
 $listener = New-Object Net.HttpListener
 $listener.Prefixes.Add("http://localhost:$Port/")
+# 127.0.0.1 aussi (la page s'y considere egalement en dev) ; sans ce prefixe,
+# HttpListener repond "400 Invalid Hostname".
+$listener.Prefixes.Add("http://127.0.0.1:$Port/")
 $listener.Start()
 Write-Output "Serveur dev sur http://localhost:$Port/podz-academy.html (Ctrl+C pour arreter)"
 try {

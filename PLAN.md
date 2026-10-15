@@ -514,3 +514,12 @@ locale dans `map*` ; récupérer `ListItemEntityTypeFullName` de chaque liste ;
   largeur) : à valider sur la page de test.
 - **Dépôt potentiellement public** : données de dev 100 % fictives (`@exemple.local`),
   aucun export Planner, aucun vrai nom.
+
+---
+
+## 6. Écarts d'exécution (session 4)
+
+| Lot | Écart | Raison |
+|---|---|---|
+| L2 | `tools/serveur-dev.ps1` écoute aussi `http://127.0.0.1:<port>/` (fichier hors liste du lot). | Sans ce préfixe, `HttpListener` répond « 400 Invalid Hostname » sur 127.0.0.1 : le test du lot était impossible. |
+| L2 | Accueil : ajout d'un `.catch` sur le chargement des profils (message d'erreur à la place de la grille). | En mode prod simulé, `fetchCatalogue` rejette : sans `catch`, erreur JS non gérée. |
