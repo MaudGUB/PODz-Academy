@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PODz Academy — Tests des calculs</title>
+<style>
+.podz-tests{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:#002060;font-size:13px;line-height:1.5;max-width:1000px;margin:0 auto}
+.podz-tests h1{font-size:22px;margin:0 0 4px}
+.podz-tests .sub{color:#5A6B8C;margin:0 0 16px}
+.podz-tests .total{padding:10px 14px;border-radius:10px;font-weight:700;margin-bottom:14px}
+.podz-tests .total.ok{background:#E3F0EA;color:#1F5C43}
+.podz-tests .total.ko{background:#FDE6DD;color:#9A3412}
+.podz-tests h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 6px;color:#5A6B8C}
+.podz-tests .t{padding:4px 10px;border-left:4px solid;margin-bottom:3px;border-radius:0 6px 6px 0}
+.podz-tests .t.ok{border-color:#A8C4B8;background:#F4F9F6}
+.podz-tests .t.ko{border-color:#F5926A;background:#FFF3EE}
+.podz-tests .t code{font-size:11.5px;color:#5A6B8C}
+.podz-tests iframe{display:none}
+</style>
+</head>
+<body style="margin:0;padding:24px 16px;background:#FFFFFF">
+<div class="podz-tests">
+  <h1>Tests des calculs — <code>PODZ.calc</code></h1>
+  <p class="sub">Charge <code>../podz-academy.html</code> dans une iframe, puis vérifie les fonctions pures sur des données de test écrites dans cette page (technos renseignées). Servir avec <code>tools\serveur-dev.ps1</code>.</p>
+  <div id="total" class="total">Chargement…</div>
+  <div id="resultats"></div>
+  <iframe id="page" src="../podz-academy.html"></iframe>
+</div>
+<script>
+(function(){
+  var resEl = document.getElementById("resultats");
+  var totalEl = document.getElementById("total");
+  var nbOk = 0, nbKo = 0;
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function section(t){ resEl.insertAdjacentHTML("beforeend", "<h2>" + esc(t) + "</h2>"); }
+  function egal(nom, obtenu, attendu){
+    var a = JSON.stringify(obtenu), b = JSON.stringify(attendu);
+    var ok = a === b;
+    if(ok) nbOk++; else nbKo++;
+    resEl.insertAdjacentHTML("beforeend", '<div class="t ' + (ok ? "ok" : "ko") + '">' + (ok ? "✓ " : "✗ ") + esc(nom) +
+      (ok ? "" : ' <code>obtenu ' + esc(a) + ' — attendu ' + esc(b) + '</code>') + '</div>');
+  }
+  function vrai(nom, v){ egal(nom, !!v, true); }
+
+  function attendre(){
+    return new Promise(function(resolve, reject){
+      var essais = 0;
+      (function boucle(){
+        var w = document.getElementById("page").contentWindow;
+        if(w && w.PODZ && w.PODZ.calc && w.PODZ.calc.niveaux && w.PODZ.fetchCatalogue) return resolve(w);
+        if(++essais > 100) return reject(new Error("PODZ.calc introuvable dans ../podz-academy.html"));
+        setTimeout(boucle, 50);
+      })();
+    });
+  }
+
+  // --- Donnees de test (format apres mapItem / mapProgression) ---
+  function f(id, titre, type, bucket, niveau, h, techno, parcours, ordre){
+    return {id: id, titre: titre, type: type, bucket: bucket, niveau: niveau, dureeHeures: h, techno: techno, parcours: parcours || [], ordre: ordre};
+  }
+  var CAT = [
+    f("T1", "Power BI",       "Formation",     "Analyse",  "Intermédiaire", 10,   "Power BI", ["PT"], 1),
+    f("T2", "SQL",            "Formation",     "Analyse",  "Fondamentaux",  5,    "SQL",      ["PT"], 2),
+    f("T3", "Modélisation",   "Formation",     "Analyse",  "Avancé",        4,    "",         ["PT"], 3),
+    f("T4", "PowerPoint",     "Formation",     "Adoption", "Intermédiaire", 2,    "",         [],     4),
+    f("T5", "Agile",          "Formation",     "Pilotage", "Fondamentaux",  3,    "Agile",    [],     5),
+    f("C1", "Power BI - PL-300", "Certification", "Certifs", "Avancé",      null, "Power BI", ["PT"], 6)
+  ];
+  function prog(formationId, statut, o){
+    o = o || {};
+    return {id: o.id || null, formationId: formationId, consultantId: 11, statut: statut,
+      dateDebut: o.debut || null, dateFin: o.fin || null, dateValidation: o.validation || null,
+      validePar: o.par || null, dispense: !!o.dispense, commentaire: o.commentaire || ""};
+  }
+  var CAMILLE = {id: 11, nom: "Camille", managerId: 20, estAdmin: false};
+  var HUGO = {id: 12, nom: "Hugo", managerId: 20, estAdmin: false};
+  var SARAH = {id: 20, nom: "Sarah", managerId: 30, estAdmin: false};
+  var ALEX = {id: 30, nom: "Alex", managerId: null, estAdmin: true};
+  var TODAY = "2026-10-15";
+
+  attendre().then(function(w){
+    var calc = w.PODZ.calc;
+    var catIdx = calc.indexer(CAT, "id");
+
+    section("Utilitaires");
+    egal("formatDate", calc.formatDate("2026-10-15"), "15/10/2026");
+    egal("formatDate vide", calc.formatDate(null), "");
+    egal("indexer", Object.keys(calc.indexer(CAT, "id")).length, 6);
+
+    section("statutModule (RG3, RG7, RG16)");
+    var pIdx = calc.indexer([
+      prog("T1", "termine", {validation: "2026-10-01"}),
+      prog("T2", "termine", {dispense: true}),
+      prog("T3", "en-cours"),
+      prog("T4", "en-cours", {commentaire: "Il manque l'exercice"}),
+      prog("T5", "a-valider", {fin: "2026-10-10"})
+    ], "formationId");
+    egal("sans ligne → à faire", calc.statutModule(pIdx, "C1").code, "a-faire");
+    egal("terminé", calc.statutModule(pIdx, "T1").code, "termine");
+    egal("dispense", calc.statutModule(pIdx, "T2").code, "dispense");
+    egal("en cours", calc.statutModule(pIdx, "T3").code, "en-cours");
+    egal("en cours + commentaire → refusé", calc.statutModule(pIdx, "T4").code, "refuse");
+    egal("à valider", calc.statutModule(pIdx, "T5").code, "a-valider");
+
+    section("syntheseParcours (RG10, RG12, RG16)");
+    var a1 = {id: 1, modules: ["T1", "T2", "T3", "C1"], dateCible: "2026-12-31"};
+    var s1 = calc.syntheseParcours(a1, catIdx, pIdx, TODAY);
+    egal("avancement avec dispense : 2/4", [s1.nbTermines, s1.nb, s1.pct], [2, 4, 50]);
+    egal("heures : total 19, réalisées 15 (dispense comprise), restantes 4", [s1.heuresTotal, s1.heuresRealisees, s1.heuresRestantes], [19, 15, 4]);
+    var sCertif = calc.syntheseParcours({modules: ["T1", "C1"]}, catIdx, calc.indexer([prog("C1", "termine")], "formationId"), TODAY);
+    egal("certification à 0 h comptée dans le % (1/2 = 50 %), 0 h réalisée", [sCertif.pct, sCertif.heuresRealisees, sCertif.heuresTotal], [50, 0, 10]);
+    egal("compteurs par statut", [s1.parStatut.termine, s1.parStatut.dispense, s1.parStatut["en-cours"], s1.parStatut["a-faire"]], [1, 1, 1, 1]);
+    egal("pas en retard avant la date cible", s1.enRetard, false);
+    egal("en retard : date dépassée et < 100 %", calc.syntheseParcours({modules: ["T1", "T3"], dateCible: "2026-09-30"}, catIdx, pIdx, TODAY).enRetard, true);
+    egal("pas de retard à 100 %", calc.syntheseParcours({modules: ["T1", "T2"], dateCible: "2026-09-30"}, catIdx, pIdx, TODAY).enRetard, false);
+    egal("pas de retard le jour de la date cible", calc.syntheseParcours({modules: ["T3"], dateCible: TODAY}, catIdx, pIdx, TODAY).enRetard, false);
+    egal("pas de retard sans date cible", calc.syntheseParcours({modules: ["T3"], dateCible: null}, catIdx, pIdx, TODAY).enRetard, false);
+    var sIntrouv = calc.syntheseParcours({modules: ["T1", "ZZZ"]}, catIdx, pIdx, TODAY);
+    egal("module introuvable signalé, hors compteurs", [sIntrouv.introuvables, sIntrouv.nb], [["ZZZ"], 1]);
+
+    section("syntheseGlobale (CA6.2)");
+    var g = calc.syntheseGlobale([{modules: ["T1", "T3", "T5"]}, {modules: ["T3", "T4"]}], catIdx, pIdx);
+    egal("module partagé (T3) compté une fois", g.nbModules, 4);
+    egal("terminés, heures réalisées / restantes, à valider", [g.nbTermines, g.heuresRealisees, g.heuresRestantes, g.nbAValider], [1, 10, 9, 1]);
+
+    section("niveaux (RG13, RG17, CA6.3)");
+    var n1 = calc.niveaux(calc.indexer([
+      prog("T2", "termine"), prog("T3", "termine", {dispense: true}), prog("T1", "en-cours"), prog("C1", "termine")
+    ], "formationId"), catIdx);
+    function niv(liste, nom){ return (liste.filter(function(x){ return x.nom === nom; })[0] || {}).niveau; }
+    egal("compétences = buckets sans Certifs", n1.parCompetence.map(function(x){ return x.nom; }), ["Analyse", "Adoption", "Pilotage"]);
+    egal("niveau max par compétence, dispense comprise, sans la certif", niv(n1.parCompetence, "Analyse"), "Avancé");
+    egal("« — » (null) sans module terminé", niv(n1.parCompetence, "Adoption"), null);
+    egal("niveau par techno avec la certif (PL-300 → Power BI Avancé)", niv(n1.parTechno, "Power BI"), "Avancé");
+    egal("techno SQL : Fondamentaux", niv(n1.parTechno, "SQL"), "Fondamentaux");
+    egal("techno sans module terminé : null", niv(n1.parTechno, "Agile"), null);
+    egal("badges des certifications terminées", n1.badges, ["Power BI - PL-300"]);
+    egal("technoRenseignee : true", n1.technoRenseignee, true);
+    var n2 = calc.niveaux(calc.indexer([prog("C1", "termine")], "formationId"), catIdx);
+    egal("certif seule terminée : aucune compétence", niv(n2.parCompetence, "Analyse"), null);
+    var catSansTechno = calc.indexer(CAT.map(function(x){ var y = {}; for(var k in x) y[k] = x[k]; y.techno = ""; return y; }), "id");
+    egal("technoRenseignee : false quand toutes les technos sont vides", calc.niveaux({}, catSansTechno).technoRenseignee, false);
+
+    section("prochaineEtape (CA6.4)");
+    var pe = calc.indexer([prog("T1", "termine"), prog("T2", "a-valider"), prog("T4", "en-cours", {commentaire: "refus"})], "formationId");
+    var pA = {id: "A", modules: ["T1", "T2", "T3"], dateCible: "2026-12-31"};
+    var pB = {id: "B", modules: ["T4", "T5"], dateCible: "2026-09-30"};
+    var pC = {id: "C", modules: ["T5"], dateCible: null};
+    var r1 = calc.prochaineEtape([pA, pB, pC], catIdx, pe, TODAY);
+    egal("parcours à la date cible la plus proche (même dépassée), module refusé compris", [r1.assignation.id, r1.formation.id, r1.statut.code], ["B", "T4", "refuse"]);
+    var r2 = calc.prochaineEtape([pA, pC], catIdx, pe, TODAY);
+    egal("module À valider sauté", [r2.assignation.id, r2.formation.id], ["A", "T3"]);
+    var r3 = calc.prochaineEtape([{id: "X", modules: ["T3"]}, {id: "Y", modules: ["T5"]}], catIdx, pe, TODAY);
+    egal("sans date cible : premier parcours", r3.assignation.id, "X");
+    var r4 = calc.prochaineEtape([{id: "D", modules: ["T1", "T2"], dateCible: "2026-11-01"}, pC], catIdx, pe, TODAY);
+    egal("parcours sans module à faire → parcours suivant", r4.assignation.id, "C");
+    egal("rien à faire → null", calc.prochaineEtape([{modules: ["T1", "T2"]}], catIdx, pe, TODAY), null);
+
+    section("peutGerer / peutModifierAssignation (RG6, RG14, RG18, RG20)");
+    vrai("manager direct", calc.peutGerer(SARAH, CAMILLE));
+    vrai("administrateur", calc.peutGerer(ALEX, SARAH));
+    egal("consultant sur un collègue", calc.peutGerer(HUGO, CAMILLE), false);
+    egal("personne sur soi-même", calc.peutGerer(SARAH, SARAH), false);
+    var assigne = {source: "Manager", consultant: {id: 11}};
+    var auto = {source: "Autonomie", consultant: {id: 11}};
+    egal("assigné : consultant ne modifie pas", calc.peutModifierAssignation(CAMILLE, assigne, CAMILLE), false);
+    vrai("assigné : manager modifie", calc.peutModifierAssignation(SARAH, assigne, CAMILLE));
+    vrai("autonomie : consultant modifie", calc.peutModifierAssignation(CAMILLE, auto, CAMILLE));
+    egal("autonomie : un autre consultant ne modifie pas", calc.peutModifierAssignation(HUGO, auto, CAMILLE), false);
+
+    section("transition — autorisées (RG2, RG4–RG8, RG16)");
+    function tr(p, action, acteur, o){
+      o = o || {};
+      return calc.transition(p, action, {acteur: acteur, consultant: o.consultant || CAMILLE, today: TODAY,
+        dateFin: o.dateFin, commentaire: o.commentaire, formationId: "T1"});
+    }
+    var t = tr(null, "demarrer", CAMILLE);
+    egal("à faire → en cours (consultant), date de début du jour", [t.ok, t.prog.statut, t.prog.dateDebut], [true, "en-cours", TODAY]);
+    var enCours = prog("T1", "en-cours", {debut: "2026-10-01", id: 5});
+    t = tr(enCours, "declarer", CAMILLE, {dateFin: TODAY});
+    egal("en cours → à valider avec date de fin ≤ aujourd'hui", [t.ok, t.prog.statut, t.prog.dateFin, t.prog.id], [true, "a-valider", TODAY, 5]);
+    egal("l'objet d'origine n'est pas modifié", enCours.statut, "en-cours");
+    var aValider = prog("T1", "a-valider", {fin: "2026-10-10"});
+    t = tr(aValider, "valider", SARAH);
+    egal("à valider → terminé (manager), date et auteur", [t.ok, t.prog.statut, t.prog.dateValidation, t.prog.validePar.id], [true, "termine", TODAY, 20]);
+    t = tr(aValider, "valider", ALEX);
+    egal("à valider → terminé (administrateur)", t.ok, true);
+    t = tr(aValider, "refuser", SARAH, {commentaire: "  Il manque l'exercice  "});
+    egal("refus : en cours + commentaire + ValidePar + date", [t.ok, t.prog.statut, t.prog.commentaire, t.prog.validePar.id, t.prog.dateValidation], [true, "en-cours", "Il manque l'exercice", 20, TODAY]);
+    t = tr(prog("T1", "en-cours", {commentaire: "refus"}), "declarer", CAMILLE, {dateFin: TODAY});
+    egal("refusé → à valider, commentaire conservé", [t.ok, t.prog.statut, t.prog.commentaire], [true, "a-valider", "refus"]);
+    t = tr(null, "dispenser", SARAH);
+    egal("dispense depuis à faire → terminé · dispensé", [t.ok, t.prog.statut, t.prog.dispense], [true, "termine", true]);
+    t = tr(enCours, "dispenser", SARAH);
+    egal("dispense depuis en cours", t.ok, true);
+    t = tr(aValider, "dispenser", SARAH);
+    egal("dispense depuis à valider", t.ok, true);
+
+    section("transition — interdites");
+    function rejet(nom, r){ egal(nom, r.ok, false); }
+    rejet("démarrer pour un autre (manager)", tr(null, "demarrer", SARAH));
+    rejet("démarrer un module déjà en cours", tr(enCours, "demarrer", CAMILLE));
+    rejet("déclarer avec une date future", tr(enCours, "declarer", CAMILLE, {dateFin: "2099-01-01"}));
+    rejet("déclarer sans date", tr(enCours, "declarer", CAMILLE, {}));
+    rejet("déclarer un module à faire", tr(null, "declarer", CAMILLE, {dateFin: TODAY}));
+    rejet("déclarer un module déjà à valider", tr(aValider, "declarer", CAMILLE, {dateFin: TODAY}));
+    rejet("déclarer pour un autre (manager)", tr(enCours, "declarer", SARAH, {dateFin: TODAY}));
+    rejet("le consultant valide lui-même (CA5.4)", tr(aValider, "valider", CAMILLE));
+    rejet("un collègue valide", tr(aValider, "valider", HUGO));
+    rejet("valider un module en cours", tr(enCours, "valider", SARAH));
+    rejet("refuser sans commentaire (RG7)", tr(aValider, "refuser", SARAH, {commentaire: "   "}));
+    rejet("refuser un module en cours", tr(enCours, "refuser", SARAH, {commentaire: "x"}));
+    rejet("le consultant se dispense", tr(enCours, "dispenser", CAMILLE));
+    rejet("une manageuse sur ses propres modules", tr(aValider, "valider", SARAH, {consultant: SARAH}));
+    var termine = prog("T1", "termine");
+    ["demarrer", "declarer", "valider", "refuser", "dispenser"].forEach(function(act){
+      rejet("terminé → " + act + " (RG8)", tr(termine, act, act === "demarrer" || act === "declarer" ? CAMILLE : SARAH, {dateFin: TODAY, commentaire: "x"}));
+    });
+    rejet("action inconnue", tr(enCours, "terminer", CAMILLE));
+
+    section("compositionParcoursType (D-P2, D-P7) — catalogue réel");
+    return w.PODZ.fetchCatalogue().then(function(catalogue){
+      var apbi = calc.compositionParcoursType("Analyste Power BI", catalogue);
+      egal("Analyste Power BI : formations par Ordre global, puis C005", apbi, ["F002", "F003", "F004", "F011", "F012", "F025", "F026", "C005"]);
+      var pilotage = calc.compositionParcoursType("Pilotage de projet Data", catalogue);
+      egal("Pilotage de projet Data : aucune certification C00x", pilotage.filter(function(id){ return id.charAt(0) === "C"; }), []);
+      egal("Pilotage de projet Data : 4 certifications au choix", calc.certifsAuChoix("Pilotage de projet Data", catalogue).length, 4);
+      egal("Analyste Power BI : pas de certification au choix", calc.certifsAuChoix("Analyste Power BI", catalogue).length, 0);
+    });
+  }).then(function(){
+    totalEl.className = "total " + (nbKo ? "ko" : "ok");
+    totalEl.textContent = nbKo ? (nbKo + " échec(s) sur " + (nbOk + nbKo) + " assertions") : ("Tout est vert : " + nbOk + " assertions");
+  }).catch(function(err){
+    totalEl.className = "total ko";
+    totalEl.textContent = "Erreur : " + (err && err.message ? err.message : err) + (nbOk + nbKo ? " (après " + (nbOk + nbKo) + " assertions)" : "");
+  });
+})();
+</script>
+</body>
+</html>

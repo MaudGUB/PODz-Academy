@@ -526,3 +526,6 @@ locale dans `map*` ; récupérer `ListItemEntityTypeFullName` de chaque liste ;
 | L4 | `calc.peutModifierAssignation(acteur, assignation, consultant)` : 3e paramètre optionnel `consultant` (`{id, managerId}`). | L'objet `assignation` ne porte pas le manager du consultant, nécessaire pour RG20. |
 | L4 | `calc.peutGerer` refuse toujours d'agir sur soi-même (même un administrateur ne valide pas ses propres modules). | Prolonge CA5.4 ; à confirmer en recette. |
 | L4 | `saveAssignation` contrôle aussi RG9 (même parcours type actif deux fois, deuxième « Mes formations ») et la date cible obligatoire d'un parcours assigné (CA7.4). | Garde-fous côté données, en plus des contrôles de l'interface (L10, L11). |
+| L5 | Fonction ajoutée `calc.certifsAuChoix(titre, catalogue)` (certifications du parcours type quand il y en a plusieurs) et constante `calc.ECHELLE`. | Pour afficher « Certification au choix » (D-P7) en L6, L10 et L11 sans dupliquer la règle. |
+| L5 | `syntheseParcours` : un module introuvable dans le catalogue va dans `introuvables` et n'est pas compté dans `nb`, le % ni les heures. | Il sera affiché comme carte « introuvable » (`missingCard`). |
+| L5 | Ordre des compétences de `niveaux` = ordre d'apparition des buckets dans le catalogue (`Ordre`) : Analyse, Adoption, Pilotage, Process. | Non précisé par les specs. |

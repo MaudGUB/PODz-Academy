@@ -999,6 +999,164 @@
         return refus("Action inconnue : " + action);
     }
   };
+
+
+
+  // ---------------------------------------------------------------------------
+  // Avancement, niveaux, prochaine etape (RG10, RG12, RG13, RG16, RG17, CA6.*)
+
+  calc.ECHELLE = ["Fondamentaux", "Intermédiaire", "Avancé"];
+  var FAIT = {termine: true, dispense: true};
+
+  calc.indexer = function(liste, cle){
+    var idx = {};
+    (liste || []).forEach(function(x){ if(x && x[cle] != null) idx[x[cle]] = x; });
+    return idx;
+  };
+
+  // progIdx = progression d'UN consultant indexee par formationId.
+  // code : a-faire | en-cours | refuse | a-valider | termine | dispense
+  calc.statutModule = function(progIdx, formationId){
+    var p = progIdx ? progIdx[formationId] : null;
+    if(!p) return {code: "a-faire", prog: null};
+    if(p.statut === "termine") return {code: p.dispense ? "dispense" : "termine", prog: p};
+    if(p.statut === "a-valider") return {code: "a-valider", prog: p};
+    // Refus = En cours avec un commentaire du manager (RG7).
+    if(p.commentaire) return {code: "refuse", prog: p};
+    return {code: "en-cours", prog: p};
+  };
+
+  function compteurs(){ return {"a-faire": 0, "en-cours": 0, "refuse": 0, "a-valider": 0, "termine": 0, "dispense": 0}; }
+
+  calc.syntheseParcours = function(assignation, catIdx, progIdx, today){
+    var lignes = [], introuvables = [], parStatut = compteurs();
+    var heuresTotal = 0, heuresRealisees = 0;
+    (assignation.modules || []).forEach(function(id){
+      var f = catIdx[id];
+      if(!f){ introuvables.push(id); return; }
+      var st = calc.statutModule(progIdx, id);
+      lignes.push({formation: f, statut: st});
+      parStatut[st.code]++;
+      // Certification sans duree = 0 h, mais compte dans le % (RG12).
+      var h = Number(f.dureeHeures) || 0;
+      heuresTotal += h;
+      if(FAIT[st.code]) heuresRealisees += h;
+    });
+    var nb = lignes.length;
+    var nbTermines = parStatut.termine + parStatut.dispense;
+    return {
+      lignes: lignes, nb: nb, nbTermines: nbTermines, parStatut: parStatut,
+      pct: nb ? Math.round(nbTermines * 100 / nb) : 0,
+      heuresTotal: heuresTotal, heuresRealisees: heuresRealisees,
+      heuresRestantes: heuresTotal - heuresRealisees,
+      // Retard = date cible depassee et parcours pas a 100 % (RG10).
+      enRetard: !!(assignation.dateCible && today && assignation.dateCible < today && nbTermines < nb),
+      introuvables: introuvables
+    };
+  };
+
+  // Tous parcours actifs confondus, un module present dans plusieurs parcours compte une fois (CA6.2).
+  calc.syntheseGlobale = function(assignationsActives, catIdx, progIdx){
+    var vus = {}, r = {nbModules: 0, nbTermines: 0, heuresRealisees: 0, heuresRestantes: 0, nbAValider: 0};
+    (assignationsActives || []).forEach(function(a){
+      (a.modules || []).forEach(function(id){
+        if(vus[id] || !catIdx[id]) return;
+        vus[id] = true;
+        var code = calc.statutModule(progIdx, id).code;
+        var h = Number(catIdx[id].dureeHeures) || 0;
+        r.nbModules++;
+        if(FAIT[code]){ r.nbTermines++; r.heuresRealisees += h; }
+        else r.heuresRestantes += h;
+        if(code === "a-valider") r.nbAValider++;
+      });
+    });
+    return r;
+  };
+
+  function rang(niveau){ return calc.ECHELLE.indexOf(niveau); }
+  function maxNiveau(courant, niveau){
+    if(rang(niveau) < 0) return courant;
+    return (courant == null || rang(niveau) > rang(courant)) ? niveau : courant;
+  }
+
+  // Niveau max des modules Termines (dispenses incluses), dans TOUS les parcours,
+  // archives compris (RG13). Competences = buckets du catalogue sauf "Certifs"
+  // (ordre d'apparition dans le catalogue) ; technos = colonne Techno,
+  // certifications incluses, modules sans techno ignores (RG17).
+  calc.niveaux = function(progIdx, catIdx){
+    var formations = Object.keys(catIdx).map(function(k){ return catIdx[k]; })
+      .sort(function(a, b){ return (a.ordre || 0) - (b.ordre || 0); });
+    var comp = [], compIdx = {}, techno = [], technoIdx = {}, badges = [];
+    formations.forEach(function(f){
+      if(f.bucket && f.bucket !== "Certifs" && !compIdx[f.bucket]){
+        compIdx[f.bucket] = {nom: f.bucket, niveau: null}; comp.push(compIdx[f.bucket]);
+      }
+      if(f.techno && !technoIdx[f.techno]){
+        technoIdx[f.techno] = {nom: f.techno, niveau: null}; techno.push(technoIdx[f.techno]);
+      }
+    });
+    formations.forEach(function(f){
+      if(!FAIT[calc.statutModule(progIdx, f.id).code]) return;
+      var estCertif = f.type === "Certification";
+      if(!estCertif && compIdx[f.bucket]) compIdx[f.bucket].niveau = maxNiveau(compIdx[f.bucket].niveau, f.niveau);
+      if(f.techno) technoIdx[f.techno].niveau = maxNiveau(technoIdx[f.techno].niveau, f.niveau);
+      if(estCertif) badges.push(f.titre);
+    });
+    return {parCompetence: comp, parTechno: techno, technoRenseignee: techno.length > 0, badges: badges};
+  };
+
+  // Premier module A faire ou En cours (refuse compris) du parcours le plus urgent :
+  // date cible la plus proche (meme depassee), sinon le premier parcours. Les modules
+  // A valider sont sautes (rien a faire pour le consultant) ; un parcours sans module
+  // a faire passe la main au suivant.
+  calc.prochaineEtape = function(assignationsActives, catIdx, progIdx, today){
+    var tries = (assignationsActives || []).map(function(a, i){ return {a: a, i: i}; });
+    tries.sort(function(x, y){
+      var dx = x.a.dateCible, dy = y.a.dateCible;
+      if(dx && dy && dx !== dy) return dx < dy ? -1 : 1;
+      if(dx && !dy) return -1;
+      if(!dx && dy) return 1;
+      return x.i - y.i;
+    });
+    for(var k = 0; k < tries.length; k++){
+      var a = tries[k].a;
+      for(var m = 0; m < (a.modules || []).length; m++){
+        var id = a.modules[m];
+        if(!catIdx[id]) continue;
+        var st = calc.statutModule(progIdx, id);
+        if(st.code === "a-faire" || st.code === "en-cours" || st.code === "refuse"){
+          return {assignation: a, formation: catIdx[id], statut: st};
+        }
+      }
+    }
+    return null;
+  };
+
+  function membres(titre, catalogue){
+    return (catalogue || []).filter(function(f){ return (f.parcours || []).indexOf(titre) !== -1; })
+      .sort(function(a, b){ return (a.ordre || 0) - (b.ordre || 0); });
+  }
+  // Composition copiee a l'assignation (RG11) : formations par Ordre global
+  // (D-P2), puis la certification si le parcours type n'en a qu'une (D-P7).
+  calc.compositionParcoursType = function(titre, catalogue){
+    var m = membres(titre, catalogue);
+    var formations = m.filter(function(f){ return f.type !== "Certification"; });
+    var certifs = m.filter(function(f){ return f.type === "Certification"; });
+    var ids = formations.map(function(f){ return f.id; });
+    if(certifs.length === 1) ids.push(certifs[0].id);
+    return ids;
+  };
+  // Certifications "au choix" (plusieurs dans le parcours type, aucune copiee : D-P7).
+  calc.certifsAuChoix = function(titre, catalogue){
+    var certifs = membres(titre, catalogue).filter(function(f){ return f.type === "Certification"; });
+    return certifs.length > 1 ? certifs : [];
+  };
+
+  calc.formatDate = function(iso){
+    if(!iso) return "";
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso));
+    return m ? m[3] + "/" + m[2] + "/" + m[1] : String(iso);
+  };
 })();
 </script>
 <script>
