@@ -556,6 +556,8 @@
 .podz-mgr .pod-vide{font-size:13px;color:var(--pod-muted);margin:0}
 .podz-home .pod-home-badge{display:inline-block;margin-left:6px;background:var(--pod-orange);color:#FFFFFF;font-size:10.5px;font-weight:800;border-radius:999px;padding:1px 7px}
 .podz-mgr .pod-detail-cockpit{margin-top:4px}
+.podz-mgr .pod-val__refus{flex-wrap:wrap}
+.podz-mgr .pod-val__err{grid-column:1/-1;font-size:12px;font-weight:600;color:#9A3412}
 </style>
 <style>
 /* Cockpit consultant "Mon parcours" (repris de maquettes/mon-parcours.html) ; aussi utilise pour le detail collaborateur de la vue manager */
@@ -2032,8 +2034,21 @@
     }).join("") + '</span>';
   }
 
-  // Boutons d'action du consultant (branches en L7 ; desactives jusque-la).
+  // Mode manager (detail collaborateur) : Valider un "A valider", Dispenser tout
+  // module non termine (RG6, RG16). Les droits sont reverifies par saveStatut.
+  function actionsManager(f, st){
+    if(st.code === "termine" || st.code === "dispense") return "";
+    var b = "";
+    if(st.code === "a-valider"){
+      b += '<button type="button" class="pod-btn" data-action="valider" data-formation="' + esc(f.id) + '">✓ Valider</button>';
+    }
+    return b + '<button type="button" class="pod-btn ghost" data-action="dispenser" data-formation="' + esc(f.id) + '">Dispenser</button>' +
+      '<span class="pod-mp-hint">Dispenser passe le module « Terminé · dispensé » dans tous ses parcours</span>';
+  }
+
+  // Boutons d'action du consultant sur ses propres modules.
   function actionsConsultant(f, st, ctx){
+    if(ctx.mode === "manager") return actionsManager(f, st);
     if(ctx.mode !== "consultant") return "";
     var b = "";
     if(st.code === "a-faire"){
@@ -2258,6 +2273,12 @@
         '<button type="button" class="pod-btn ghost" data-action="annuler-declarer">Annuler</button>';
       conteneur.parentNode.insertBefore(form, conteneur.nextSibling);
       form.querySelector("input").focus();
+    } else if(act === "valider" || act === "dispenser"){
+      if(act === "dispenser" && !window.confirm("Dispenser ce module ? Il passera « Terminé · dispensé » dans tous les parcours du collaborateur, sans retour possible.")) return;
+      btn.disabled = true;
+      window.PODZ.saveStatut(etat.consultantId, fid, {action: act})
+        .then(function(){ return rafraichir(el, fid); })
+        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
     } else if(act === "annuler-declarer"){
       var f = btn.closest(".pod-mp-declare");
       if(f) f.parentNode.removeChild(f);
@@ -2456,8 +2477,8 @@
         '<div class="pod-val__who">' + esc(x.consultant.nom) + '<small>' + esc(parcours) + '</small></div>' +
         '<div class="pod-val__mod">' + mod + '</div>' +
         '<span class="pod-st pod-st--avalider">' + (x.depuis > 0 ? "Depuis " + pluriel(x.depuis, "j", "j") : "Aujourd'hui") + '</span>' +
-        '<div class="pod-val__actions"><button type="button" class="pod-btn ok sm" data-mgr="valider" disabled>✓ Valider</button>' +
-        '<button type="button" class="pod-btn ghost sm" data-mgr="refuser" disabled>Refuser</button></div>' +
+        '<div class="pod-val__actions"><button type="button" class="pod-btn ok sm" data-mgr="valider">✓ Valider</button>' +
+        '<button type="button" class="pod-btn ghost sm" data-mgr="refuser">Refuser</button></div>' +
       '</div>';
     }).join("");
   }
@@ -2524,6 +2545,43 @@
     return P.renderCockpit(document.getElementById("podz-mgr-cockpit"), u.id, {mode: "manager"});
   }
 
+  function erreurFile(ligne, err){
+    var z = ligne.querySelector(".pod-val__err");
+    if(!z){ z = document.createElement("div"); z.className = "pod-val__err"; ligne.appendChild(z); }
+    z.textContent = err && err.message ? err.message : String(err);
+  }
+
+  // File "A valider" : Valider, ou Refuser avec commentaire obligatoire (CA8.3, RG7).
+  function actionFile(b){
+    var ligne = b.closest(".pod-val");
+    var cid = Number(ligne.getAttribute("data-consultant")), fid = ligne.getAttribute("data-formation");
+    var act = b.getAttribute("data-mgr");
+    function apres(){ return P.renderMonEquipe("", true); }
+    if(act === "valider"){
+      b.disabled = true;
+      P.saveStatut(cid, fid, {action: "valider"}).then(apres).catch(function(err){ b.disabled = false; erreurFile(ligne, err); });
+    } else if(act === "refuser"){
+      if(ligne.querySelector(".pod-val__refus")) return;
+      var z = document.createElement("div");
+      z.className = "pod-val__refus";
+      z.innerHTML = '<input type="text" placeholder="Motif du refus (obligatoire) : ce qu\'il manque pour valider" maxlength="500">' +
+        '<button type="button" class="pod-btn sm" data-mgr="confirmer-refus">Confirmer le refus</button>' +
+        '<button type="button" class="pod-btn ghost sm" data-mgr="annuler-refus">Annuler</button>' +
+        '<span class="pod-hint">Commentaire obligatoire — le module repasse « En cours »</span>';
+      ligne.appendChild(z);
+      z.querySelector("input").focus();
+    } else if(act === "annuler-refus"){
+      var r = ligne.querySelector(".pod-val__refus"), er = ligne.querySelector(".pod-val__err");
+      if(r) ligne.removeChild(r);
+      if(er) ligne.removeChild(er);
+    } else if(act === "confirmer-refus"){
+      var com = ligne.querySelector(".pod-val__refus input").value;
+      if(!com.trim()){ erreurFile(ligne, new Error("Indique le motif du refus : le commentaire est obligatoire (RG7).")); return; }
+      b.disabled = true;
+      P.saveStatut(cid, fid, {action: "refuser", commentaire: com}).then(apres).catch(function(err){ b.disabled = false; erreurFile(ligne, err); });
+    }
+  }
+
   // suite = "" (vue d'ensemble) ou "/c=<id>" (detail collaborateur).
   P.renderMonEquipe = function(suite, garderOnglet){
     if(!garderOnglet) onglet = "file";
@@ -2543,6 +2601,8 @@
   document.getElementById("podz-mgr-root").addEventListener("click", function(e){
     var t = e.target.closest("[data-onglet]");
     if(t){ onglet = t.getAttribute("data-onglet"); P.renderMonEquipe("", true); return; }
+    var b = e.target.closest("button[data-mgr]");
+    if(b){ actionFile(b); return; }
     var tr = e.target.closest(".pod-team tbody tr[data-consultant]");
     if(tr) location.hash = "#mon-equipe/c=" + tr.getAttribute("data-consultant");
   });
