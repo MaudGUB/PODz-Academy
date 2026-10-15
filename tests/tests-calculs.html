@@ -22,7 +22,7 @@
 <body style="margin:0;padding:24px 16px;background:#FFFFFF">
 <div class="podz-tests">
   <h1>Tests des calculs — <code>PODZ.calc</code></h1>
-  <p class="sub">Charge <code>../podz-academy.html</code> dans une iframe, puis vérifie les fonctions pures sur des données de test écrites dans cette page (technos renseignées). Servir avec <code>tools\serveur-dev.ps1</code>.</p>
+  <p class="sub">Charge <code>../podz-academy.html</code> dans une iframe, puis vérifie les fonctions pures sur des données de test écrites dans cette page (technos renseignées), et enfin les droits des écritures sur les données de dev (tes données de dev sont sauvegardées puis restaurées). Servir avec <code>tools\serveur-dev.ps1</code>.</p>
   <div id="total" class="total">Chargement…</div>
   <div id="resultats"></div>
   <iframe id="page" src="../podz-academy.html"></iframe>
@@ -78,6 +78,65 @@
   var SARAH = {id: 20, nom: "Sarah", managerId: 30, estAdmin: false};
   var ALEX = {id: 30, nom: "Alex", managerId: null, estAdmin: true};
   var TODAY = "2026-10-15";
+
+  // --- Droits des ecritures (saveStatut / saveAssignation) sur les donnees de dev ---
+  // La page partage le localStorage de podz-academy.html : les cles podz.dev.* sont
+  // sauvegardees avant les tests puis restaurees, l'etat de l'utilisateur n'est pas touche.
+  function testsDroits(w){
+    var P = w.PODZ, ls = w.localStorage, sauvegarde = {};
+    for(var i = 0; i < ls.length; i++){
+      var k = ls.key(i);
+      if(k && k.indexOf("podz.dev.") === 0) sauvegarde[k] = ls.getItem(k);
+    }
+    function restaurer(){
+      var cles = [];
+      for(var j = 0; j < ls.length; j++){ cles.push(ls.key(j)); }
+      cles.forEach(function(k){ if(k && k.indexOf("podz.dev.") === 0) ls.removeItem(k); });
+      Object.keys(sauvegarde).forEach(function(k){ ls.setItem(k, sauvegarde[k]); });
+    }
+    function etre(id){ ls.setItem("podz.dev.utilisateur", String(id)); }
+    // Chaque cas : [nom, utilisateur, fonction -> Promise, ok attendu]
+    var cas = [
+      ["Camille démarre un de ses modules", 11, function(){ return P.saveStatut(11, "F026", {action: "demarrer"}); }, true],
+      ["Camille ne valide pas son propre module (CA5.4)", 11, function(){ return P.saveStatut(11, "F004", {action: "valider"}); }, false],
+      ["Camille ne déclare pas un module de Hugo", 11, function(){ return P.saveStatut(12, "F017", {action: "declarer", dateFin: "2026-10-01"}); }, false],
+      ["Camille ne modifie pas un parcours assigné (RG20)", 11, function(){
+        return P.fetchAssignations([11]).then(function(l){ var a = l.filter(function(x){ return x.id === 1; })[0]; a.dateCible = "2027-06-30"; return P.saveAssignation(a); });
+      }, false],
+      ["Camille retire son parcours en autonomie (RG18)", 11, function(){ return P.retirerParcours(3); }, true],
+      ["Inès ne crée pas une deuxième « Mes formations » (RG19)", 13, function(){
+        return P.saveAssignation({titre: "Mes formations", consultant: {id: 13}, source: "Autonomie", parcoursType: "", modules: ["F001"]});
+      }, false],
+      ["Sarah valide un module de Camille", 20, function(){ return P.saveStatut(11, "F004", {action: "valider"}); }, true],
+      ["Sarah ne refuse pas sans commentaire (RG7)", 20, function(){ return P.saveStatut(12, "F017", {action: "refuser"}); }, false],
+      ["Sarah ne se dispense pas elle-même", 20, function(){ return P.saveStatut(20, "F030", {action: "dispenser"}); }, false],
+      ["Sarah ne modifie pas un parcours en autonomie de Camille (RG18)", 20, function(){
+        return P.fetchAssignations([11]).then(function(l){ var a = l.filter(function(x){ return x.id === 3; })[0]; a.modules.push("F001"); return P.saveAssignation(a); });
+      }, false],
+      ["Sarah n'assigne pas deux fois le même parcours type (RG9)", 20, function(){
+        return P.saveAssignation({titre: "Pilotage de projet Data", consultant: {id: 12}, source: "Manager", parcoursType: "Pilotage de projet Data", modules: ["F017"], dateCible: "2027-06-30"});
+      }, false],
+      ["Sarah n'assigne pas sans date cible (CA7.4)", 20, function(){
+        return P.saveAssignation({titre: "Test", consultant: {id: 12}, source: "Manager", parcoursType: "", modules: ["F017"]});
+      }, false],
+      ["Hugo n'assigne pas de parcours à Camille", 12, function(){
+        return P.saveAssignation({titre: "Test", consultant: {id: 11}, source: "Manager", parcoursType: "", modules: ["F017"], dateCible: "2027-06-30"});
+      }, false],
+      ["Sarah déclare un de ses modules", 20, function(){ return P.saveStatut(20, "F030", {action: "declarer", dateFin: P.aujourdhui()}); }, true],
+      ["Alex (admin) valide le module de Sarah", 30, function(){ return P.saveStatut(20, "F030", {action: "valider"}); }, true]
+    ];
+    section("Droits des écritures (saveStatut / saveAssignation, données de dev)");
+    return P.resetDev().then(function(){
+      return cas.reduce(function(chaine, c){
+        return chaine.then(function(){
+          etre(c[1]);
+          return c[2]().then(function(){ return true; }, function(){ return false; }).then(function(ok){
+            egal(c[0] + (c[3] ? " → accepté" : " → refusé"), ok, c[3]);
+          });
+        });
+      }, Promise.resolve());
+    }).then(restaurer, function(err){ restaurer(); throw err; });
+  }
 
   attendre().then(function(w){
     var calc = w.PODZ.calc;
@@ -227,7 +286,7 @@
       egal("Pilotage de projet Data : aucune certification C00x", pilotage.filter(function(id){ return id.charAt(0) === "C"; }), []);
       egal("Pilotage de projet Data : 4 certifications au choix", calc.certifsAuChoix("Pilotage de projet Data", catalogue).length, 4);
       egal("Analyste Power BI : pas de certification au choix", calc.certifsAuChoix("Analyste Power BI", catalogue).length, 0);
-    });
+    }).then(function(){ return testsDroits(w); });
   }).then(function(){
     totalEl.className = "total " + (nbKo ? "ko" : "ok");
     totalEl.textContent = nbKo ? (nbKo + " échec(s) sur " + (nbOk + nbKo) + " assertions") : ("Tout est vert : " + nbOk + " assertions");

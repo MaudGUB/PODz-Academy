@@ -62,7 +62,8 @@ Utiliser `fetch` + `credentials: "same-origin"` (pas de dépendance externe).
 |---|---|
 | `fetchCatalogue()` | `sp.get(listes.formations, "?$top=500")` → `mapItem` (réintégrer l'implémentation SharePoint d'origine du web part) |
 | `fetchProfils()` / `fetchParcours()` | aujourd'hui tableaux embarqués `PROFILS` / `PARCOURS` (fonctionnent aussi en prod) ; réintégrer les GET des listes Profils / Parcours si l'utilisateur le souhaite |
-| `fetchUtilisateur()` | `GET /_api/web/currentuser` + `Équipes?$filter=ManagerId eq {id}` (`estManager`) et `ConsultantId eq {id}` (`Admin`) → `mapUtilisateur` |
+| `fetchUtilisateur()` | `GET /_api/web/currentuser` + `Équipes?$filter=ManagerId eq {id}` (`estManager`) et `ConsultantId eq {id}` (`Admin`) → `mapUtilisateur`. **Utilisateur absent de la liste Équipes** (nouvel arrivant, liste pas encore à jour) : ne pas échouer ; le traiter comme un simple consultant (`managerId: null`, `estAdmin: false`, `estManager` selon `ManagerId eq {id}`), avec son cockpit normal. Le libellé « ton manager » s'affiche alors à la place d'un nom (déjà géré par l'affichage). En dev, un identifiant inconnu retombe sur Camille : ce repli ne doit **pas** être repris en prod. |
+| `renderCockpit` / `saveStatut` pour un consultant sans manager | Personne ne peut valider ses modules hormis un administrateur (RG6) : à signaler au référent formation (compléter Équipes). |
 | `fetchUtilisateurs()` | `Équipes?$select=Consultant/Id,Consultant/Title,Consultant/EMail,ManagerId,Admin&$expand=Consultant` (adapter `mapUtilisateur` : en dev les items ont `Id/Title/EMail` à plat) |
 | `fetchEquipe(managerId)` | `Équipes?$filter=ManagerId eq {id}` ; tout le monde sauf soi si admin |
 | `fetchAssignations(userIds)` | `Assignations?$filter=(ConsultantId eq a or ConsultantId eq b…)&$expand=Consultant,AssignePar&$select=*,Consultant/Id,Consultant/Title,Consultant/EMail,AssignePar/Id,AssignePar/Title,AssignePar/EMail` → `mapAssignation` |

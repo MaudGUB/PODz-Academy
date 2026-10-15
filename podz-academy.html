@@ -607,6 +607,9 @@
 .podz-mgr .pod-val__err{grid-column:1/-1;font-size:12px;font-weight:600;color:#9A3412}
 </style>
 <style>
+/* Message de confirmation apres une action (PODZ.toast) */
+.podz-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:1000;max-width:calc(100% - 32px);padding:10px 18px;border-radius:10px;background:#2F6B55;color:#FFFFFF;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;font-size:13px;font-weight:600;line-height:1.4;box-shadow:0 8px 24px -8px rgba(0,32,96,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.podz-toast.visible{opacity:1;transform:translate(-50%,0)}
 /* Cockpit consultant "Mon parcours" (repris de maquettes/mon-parcours.html) ; aussi utilise pour le detail collaborateur de la vue manager */
 .podz-mp{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box}
 .podz-mp *,.podz-mp *::before,.podz-mp *::after{box-sizing:border-box}
@@ -775,7 +778,7 @@
       <p class="pod-home-sub">Choisis ton avatar métier pour découvrir le parcours de formation pensé pour toi.</p>
     </div>
     <div class="pod-home-quick" id="podz-home-quick">
-      <a href="#mon-parcours"><span>⬡</span>Mon parcours</a>
+      <a href="#mon-parcours" id="podz-home-mp"><span>⬡</span>Mon parcours</a>
       <a href="#catalogue"><span>⊞</span>Explorer tout le catalogue</a>
     </div>
     <div class="pod-home-divider">ou choisis ton profil</div>
@@ -1535,6 +1538,25 @@
     z.textContent = err && err.message ? err.message : String(err);
   };
 
+  // Message de confirmation ephemere apres une action (bas de l'ecran, 3 s).
+  // Racine .podz-toast posee sur le body : survit aux changements de vue.
+  var minuterie = null;
+  P.toast = function(msg){
+    var el = document.getElementById("podz-toast");
+    if(!el){
+      el = document.createElement("div");
+      el.id = "podz-toast";
+      el.className = "podz-toast";
+      el.setAttribute("role", "status");
+      el.setAttribute("aria-live", "polite");
+      document.body.appendChild(el);
+    }
+    el.textContent = "✓ " + msg;
+    el.classList.add("visible");
+    clearTimeout(minuterie);
+    minuterie = setTimeout(function(){ el.classList.remove("visible"); }, 3000);
+  };
+
   // Etat de l'utilisateur courant pour les boutons ; null hors dev (pas d'implementation prod).
   P.mesParcours = function(){
     return P.fetchUtilisateur().then(function(u){
@@ -1883,7 +1905,7 @@
     if(ajout){
       ajout.disabled = true;
       window.PODZ.ajouterAMesFormations(ajout.getAttribute("data-ajout"))
-        .then(function(){ return window.PODZ.majCatalogue(); })
+        .then(function(){ window.PODZ.toast("Module ajouté à « Mes formations »"); return window.PODZ.majCatalogue(); })
         .catch(function(err){ ajout.disabled = false; window.PODZ.afficherErreur(ajout, err); });
       return;
     }
@@ -2089,7 +2111,7 @@
     if(!b) return;
     b.disabled = true;
     window.PODZ.suivreParcours(b.getAttribute("data-suivre"))
-      .then(function(){ window.PODZ.renderProfile(slugCourant); })
+      .then(function(){ window.PODZ.toast("Parcours ajouté à « Mon parcours »"); window.PODZ.renderProfile(slugCourant); })
       .catch(function(err){ b.disabled = false; window.PODZ.afficherErreur(b, err); });
   });
 
@@ -2186,6 +2208,10 @@
   function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
   function offreLabel(o){return String(o||"").replace(/^Offre \d+ - /, "");}
   function fmtH(h){ h = Math.round((Number(h) || 0) * 10) / 10; return String(h).replace(".", ",") + " h"; }
+  // Totaux en heures, avec l'equivalent en jours (1 j = 7 h) pour rester coherent avec la
+  // duree des modules, affichee en jours au-dela d'une demi-journee (hoursToLabel).
+  function equivJ(h){ return (Number(h) || 0) >= 7 ? "≈ " + window.PODZ.hoursToLabel(h) : ""; }
+  function fmtHJ(h){ var j = equivJ(h); return fmtH(h) + (j ? " (" + j + ")" : ""); }
   function jjmm(iso){ return calc.formatDate(iso).substr(0, 5); }
   function prenom(nom){ return String(nom || "").split(" ")[0]; }
   function pluriel(n, s, p){ return n + " " + (n > 1 ? (p || s + "s") : s); }
@@ -2227,7 +2253,8 @@
     if(st.code === "termine" || st.code === "dispense") return "";
     var b = "";
     if(st.code === "a-valider"){
-      b += '<button type="button" class="pod-btn" data-action="valider" data-formation="' + esc(f.id) + '">✓ Valider</button>';
+      b += '<button type="button" class="pod-btn" data-action="valider" data-formation="' + esc(f.id) + '">✓ Valider</button>' +
+        '<button type="button" class="pod-btn ghost" data-action="refuser" data-formation="' + esc(f.id) + '">Refuser</button>';
     }
     return b + '<button type="button" class="pod-btn ghost" data-action="dispenser" data-formation="' + esc(f.id) + '">Dispenser</button>' +
       '<span class="pod-mp-hint">Dispenser passe le module « Terminé · dispensé » dans tous ses parcours</span>';
@@ -2300,7 +2327,7 @@
     var meta = a.dateCible
       ? '<strong' + (s.enRetard ? ' class="retard"' : "") + '>' + esc(calc.formatDate(a.dateCible)) + (s.enRetard ? " · en retard" : "") + '</strong>Date cible · '
       : '<strong>Pas d\'échéance</strong>';
-    meta += pluriel(s.nb, "module") + " · " + fmtH(s.heuresRestantes) + " restantes sur " + fmtH(s.heuresTotal);
+    meta += pluriel(s.nb, "module") + " · " + fmtHJ(s.heuresRestantes) + " restantes sur " + fmtH(s.heuresTotal);
     // Retirer : parcours en autonomie seulement, par le consultant lui-meme (CA4b.3, RG18).
     if(ctx.mode === "consultant" && a.source === "Autonomie"){
       meta += '<div style="margin-top:8px"><button type="button" class="pod-btn ghost" data-action="retirer" data-assignation="' + esc(a.id) + '">Retirer de mes parcours</button></div>';
@@ -2452,56 +2479,68 @@
     var etat = el.podzCockpit;
     var fid = btn.getAttribute("data-formation");
     var act = btn.getAttribute("data-action");
-    if(act === "demarrer"){
+    // Ecriture -> message de confirmation -> cockpit rafraichi ; erreur affichee sous le bouton.
+    function ecrire(promesse, message, ouvrir){
       btn.disabled = true;
-      window.PODZ.saveStatut(etat.consultantId, fid, {action: "demarrer"})
-        .then(function(){ return rafraichir(el, fid); })
+      promesse()
+        .then(function(){ window.PODZ.toast(message); return rafraichir(el, ouvrir); })
         .catch(function(err){ btn.disabled = false; erreur(btn, err); });
-    } else if(act === "declarer"){
-      // Petit formulaire en ligne : date de fin (defaut et max = aujourd'hui).
+    }
+    // Petit formulaire en ligne sous les boutons du module (declaration ou refus).
+    function formulaire(classe, html){
       var conteneur = btn.parentNode;
-      if(conteneur.parentNode.querySelector('.pod-mp-declare[data-formation="' + fid + '"]')) return;
-      var today = window.PODZ.aujourdhui();
+      if(conteneur.parentNode.querySelector("." + classe + '[data-formation="' + fid + '"]')) return;
       var form = document.createElement("div");
-      form.className = "pod-mp-declare";
+      form.className = "pod-mp-declare " + classe;
       form.setAttribute("data-formation", fid);
-      form.innerHTML = '<label>Date de fin <input type="date" value="' + today + '" max="' + today + '"></label>' +
-        '<button type="button" class="pod-btn" data-action="confirmer-declarer" data-formation="' + esc(fid) + '">Déclarer terminé</button>' +
-        '<button type="button" class="pod-btn ghost" data-action="annuler-declarer">Annuler</button>';
+      form.innerHTML = html;
       conteneur.parentNode.insertBefore(form, conteneur.nextSibling);
       form.querySelector("input").focus();
-    } else if(act === "retirer"){
-      if(!window.confirm("Retirer ce parcours de tes parcours ? Ta progression sur ses modules est conservée.")) return;
-      btn.disabled = true;
-      window.PODZ.retirerParcours(Number(btn.getAttribute("data-assignation")))
-        .then(function(){ return rafraichir(el); })
-        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
-    } else if(act === "archiver"){
-      if(!window.confirm("Archiver ce parcours ? Il disparaîtra du cockpit du collaborateur ; sa progression sur les modules est conservée.")) return;
-      btn.disabled = true;
-      var idA = Number(btn.getAttribute("data-assignation"));
-      window.PODZ.fetchAssignations([etat.consultantId]).then(function(liste){
-        var a = liste.filter(function(x){ return x.id === idA; })[0];
-        if(!a) throw new Error("Parcours introuvable");
-        a.etat = "Archivé";
-        return window.PODZ.saveAssignation(a);
-      }).then(function(){ return rafraichir(el); })
-        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
-    } else if(act === "valider" || act === "dispenser"){
-      if(act === "dispenser" && !window.confirm("Dispenser ce module ? Il passera « Terminé · dispensé » dans tous les parcours du collaborateur, sans retour possible.")) return;
-      btn.disabled = true;
-      window.PODZ.saveStatut(etat.consultantId, fid, {action: act})
-        .then(function(){ return rafraichir(el, fid); })
-        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
-    } else if(act === "annuler-declarer"){
+    }
+    function saisie(){ return btn.closest(".pod-mp-declare").querySelector("input").value; }
+    var save = function(changement){ return function(){ return window.PODZ.saveStatut(etat.consultantId, fid, changement); }; };
+
+    if(act === "demarrer"){
+      ecrire(save({action: "demarrer"}), "Module démarré : il passe « En cours »", fid);
+    } else if(act === "declarer"){
+      // Date de fin : defaut et max = aujourd'hui.
+      var today = window.PODZ.aujourdhui();
+      formulaire("pod-mp-form-declarer", '<label>Date de fin <input type="date" value="' + today + '" max="' + today + '"></label>' +
+        '<button type="button" class="pod-btn" data-action="confirmer-declarer" data-formation="' + esc(fid) + '">Déclarer terminé</button>' +
+        '<button type="button" class="pod-btn ghost" data-action="annuler-form">Annuler</button>');
+    } else if(act === "confirmer-declarer"){
+      ecrire(save({action: "declarer", dateFin: saisie()}), "Module déclaré terminé : en attente de validation", fid);
+    } else if(act === "refuser"){
+      // Refus depuis la fiche collaborateur (comme dans la file) : commentaire obligatoire (RG7).
+      formulaire("pod-mp-form-refuser", '<label style="flex:1;min-width:220px">Motif du refus <input type="text" maxlength="500" style="width:100%" placeholder="Ce qu\'il manque pour valider (obligatoire)"></label>' +
+        '<button type="button" class="pod-btn" data-action="confirmer-refus" data-formation="' + esc(fid) + '">Confirmer le refus</button>' +
+        '<button type="button" class="pod-btn ghost" data-action="annuler-form">Annuler</button>');
+    } else if(act === "confirmer-refus"){
+      var com = saisie();
+      if(!com.trim()){ erreur(btn, new Error("Indique le motif du refus : le commentaire est obligatoire (RG7).")); return; }
+      ecrire(save({action: "refuser", commentaire: com}), "Module refusé : il repasse « En cours » avec ton commentaire", fid);
+    } else if(act === "annuler-form"){
       var f = btn.closest(".pod-mp-declare");
       if(f) f.parentNode.removeChild(f);
-    } else if(act === "confirmer-declarer"){
-      var dateFin = btn.closest(".pod-mp-declare").querySelector("input").value;
-      btn.disabled = true;
-      window.PODZ.saveStatut(etat.consultantId, fid, {action: "declarer", dateFin: dateFin})
-        .then(function(){ return rafraichir(el, fid); })
-        .catch(function(err){ btn.disabled = false; erreur(btn, err); });
+    } else if(act === "retirer"){
+      if(!window.confirm("Retirer ce parcours de tes parcours ? Ta progression sur ses modules est conservée.")) return;
+      ecrire(function(){ return window.PODZ.retirerParcours(Number(btn.getAttribute("data-assignation"))); }, "Parcours retiré de tes parcours");
+    } else if(act === "archiver"){
+      if(!window.confirm("Archiver ce parcours ? Il disparaîtra du cockpit du collaborateur ; sa progression sur les modules est conservée.")) return;
+      var idA = Number(btn.getAttribute("data-assignation"));
+      ecrire(function(){
+        return window.PODZ.fetchAssignations([etat.consultantId]).then(function(liste){
+          var a = liste.filter(function(x){ return x.id === idA; })[0];
+          if(!a) throw new Error("Parcours introuvable");
+          a.etat = "Archivé";
+          return window.PODZ.saveAssignation(a);
+        });
+      }, "Parcours archivé");
+    } else if(act === "valider"){
+      ecrire(save({action: "valider"}), "Module validé : il passe « Terminé »", fid);
+    } else if(act === "dispenser"){
+      if(!window.confirm("Dispenser ce module ? Il passera « Terminé · dispensé » dans tous les parcours du collaborateur, sans retour possible.")) return;
+      ecrire(save({action: "dispenser"}), "Module dispensé : « Terminé · dispensé »", fid);
     }
   }
 
@@ -2558,8 +2597,8 @@
         '<p class="pod-hero-desc">' + esc(actives.length ? phraseSynthese(actives, g, retards, ctx) : "Aucun parcours en cours.") + '</p></div>' +
         (actives.length ? '<div class="pod-mp-kpis">' +
           '<div class="pod-mp-kpi"><strong>' + g.nbTermines + ' / ' + g.nbModules + '</strong><span>Modules terminés</span></div>' +
-          '<div class="pod-mp-kpi"><strong>' + fmtH(g.heuresRealisees) + '</strong><span>Réalisées</span></div>' +
-          '<div class="pod-mp-kpi"><strong>' + fmtH(g.heuresRestantes) + '</strong><span>Restantes</span></div>' +
+          '<div class="pod-mp-kpi"><strong>' + fmtH(g.heuresRealisees) + '</strong><span>Réalisées' + (equivJ(g.heuresRealisees) ? " · " + equivJ(g.heuresRealisees) : "") + '</span></div>' +
+          '<div class="pod-mp-kpi"><strong>' + fmtH(g.heuresRestantes) + '</strong><span>Restantes' + (equivJ(g.heuresRestantes) ? " · " + equivJ(g.heuresRestantes) : "") + '</span></div>' +
           '<div class="pod-mp-kpi"><strong>' + g.nbAValider + '</strong><span>À valider</span></div>' +
         '</div>' : "") +
       '</section>';
@@ -2658,6 +2697,21 @@
   };
 
   // Accueil : entree "Mon equipe" + badge du nombre de validations en attente (CA8.2).
+  // Accueil : badge "N à reprendre" sur "Mon parcours" quand des modules ont ete
+  // refuses (En cours + commentaire, RG7) dans les parcours actifs du consultant.
+  P.majAccueilConsultant = function(){
+    var lien = document.getElementById("podz-home-mp");
+    if(!lien) return Promise.resolve();
+    return P.fetchUtilisateur().then(function(moi){
+      return Promise.all([P.fetchAssignations([moi.id]), P.fetchProgression([moi.id])]);
+    }).then(function(r){
+      var actifs = {};
+      r[0].filter(function(a){ return a.etat === "Actif"; }).forEach(function(a){ a.modules.forEach(function(id){ actifs[id] = true; }); });
+      var n = r[1].filter(function(p){ return actifs[p.formationId] && p.statut === "en-cours" && p.commentaire; }).length;
+      lien.innerHTML = '<span>⬡</span>Mon parcours' + (n ? '<span class="pod-home-badge" title="Modules refusés par ton manager, à reprendre">' + n + ' à reprendre</span>' : "");
+    }).catch(function(){});
+  };
+
   P.majAccueilManager = function(){
     var quick = document.getElementById("podz-home-quick");
     if(!quick) return Promise.resolve();
@@ -2771,7 +2825,7 @@
     function apres(){ return P.renderMonEquipe("", true); }
     if(act === "valider"){
       b.disabled = true;
-      P.saveStatut(cid, fid, {action: "valider"}).then(apres).catch(function(err){ b.disabled = false; erreurFile(ligne, err); });
+      P.saveStatut(cid, fid, {action: "valider"}).then(function(){ P.toast("Module validé : il passe « Terminé »"); return apres(); }).catch(function(err){ b.disabled = false; erreurFile(ligne, err); });
     } else if(act === "refuser"){
       if(ligne.querySelector(".pod-val__refus")) return;
       var z = document.createElement("div");
@@ -2790,7 +2844,7 @@
       var com = ligne.querySelector(".pod-val__refus input").value;
       if(!com.trim()){ erreurFile(ligne, new Error("Indique le motif du refus : le commentaire est obligatoire (RG7).")); return; }
       b.disabled = true;
-      P.saveStatut(cid, fid, {action: "refuser", commentaire: com}).then(apres).catch(function(err){ b.disabled = false; erreurFile(ligne, err); });
+      P.saveStatut(cid, fid, {action: "refuser", commentaire: com}).then(function(){ P.toast("Module refusé : il repasse « En cours » avec ton commentaire"); return apres(); }).catch(function(err){ b.disabled = false; erreurFile(ligne, err); });
     }
   }
 
@@ -3075,6 +3129,7 @@
       parcoursType: (E.depart && nom === E.depart) ? E.depart : "",
       modules: E.modules.slice(), dateCible: E.dateCible, etat: "Actif"
     }).then(function(){
+      P.toast(E.assignation ? "Parcours modifié" : "Parcours assigné à " + c.nom);
       location.hash = "#mon-equipe/c=" + c.id;
     }).catch(function(err){
       btn.disabled = false;
@@ -3139,6 +3194,7 @@
         var dejaDemarre = r[1].some(function(p){ return p.formationId === fid; });
         if(!dansParcours || dejaDemarre) return;
         return P.saveStatut(u.id, fid, {action: "demarrer"}).then(function(){
+          P.toast("Module démarré : il passe « En cours » dans ton parcours");
           if(cockpit && P.rafraichirCockpit) return P.rafraichirCockpit(cockpit, fid);
         });
       });
@@ -3215,7 +3271,7 @@
     else if(!route) document.title = "PODz Academy";
     if(route && route.rendu) route.rendu(h.slice(route.hash.length));
     // Accueil : entree "Mon equipe (N)" recalculee a chaque affichage.
-    if(!route && window.PODZ.majAccueilManager) window.PODZ.majAccueilManager();
+    if(!route && window.PODZ.majAccueilManager){ window.PODZ.majAccueilManager(); window.PODZ.majAccueilConsultant(); }
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", show);

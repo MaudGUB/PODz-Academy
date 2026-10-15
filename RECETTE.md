@@ -26,6 +26,7 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 
 ## 1. Camille Test — consultante (US2, US4, US5, US6, US4c)
 - [x] Accueil : pas d'entrée « Mon équipe »
+- [x] Accueil : « Mon parcours » porte le badge « 1 à reprendre » (PowerPoint avancé refusé)
 - [x] Mon parcours : « Bonjour Camille », 3 parcours en cours, KPIs 4 / 16 · 33,5 h · 146,5 h · 1
 - [x] Analyste Power BI : « Assigné par Sarah Manager », cible 31/12/2026, 29 % (2/7)
 - [x] SQL « Terminé le 12/09/2026 », Data management « Terminé · dispensé », Modélisation « À valider · fini le 10/10 »
@@ -71,6 +72,7 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 - [x] Refuser Agile (Hugo) sans commentaire → bloqué ; avec commentaire → la file passe à 1
 - [x] Onglet Équipe : Camille ~25 % « en retard », Hugo, Inès ; clic sur une ligne → détail
 - [x] Détail Camille : son cockpit sans « Je commence » ni « J'ai terminé… »
+- [x] Détail Inès : « Refuser » sur Data Literacy (À valider) → motif obligatoire, puis le module repasse En cours avec le commentaire
 - [x] Détail Camille : « Dispenser » sur Data Quality → « Terminé · dispensé », % et heures réalisées augmentent
 - [x] Assigner → Hugo, « Analyste Power BI », cible 31/03/2027, retirer Data Quality, Modélisation en 1re position, ajouter Agents IA & GenAI → Assigner
 - [x] Sans date cible : bouton désactivé avec le motif
@@ -96,6 +98,8 @@ Les scénarios s'enchaînent dans l'ordre : chacun part de l'état laissé par l
 - [x] Largeur téléphone (≈ 375 px) : accueil, catalogue, cockpit, Mon équipe, Assigner sans défilement horizontal
 - [x] Titre de l'onglet du navigateur propre à chaque vue
 - [x] Console : aucune erreur pendant toute la recette
+- [x] Après chaque action (démarrer, déclarer, valider, refuser, dispenser, assigner, suivre, ajouter, retirer, archiver), un message de confirmation vert s'affiche quelques secondes en bas de l'écran
+- [x] KPIs et parcours : heures affichées avec l'équivalent en jours (« 33,5 h » · « ≈ 5 j »)
 
 ## Anomalies
 | # | Persona / étape | Constat | Suite donnée |
