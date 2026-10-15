@@ -590,6 +590,203 @@
       return window.PODZ_CATALOGUE.map(mapItem);
     });
   };
+
+
+
+  // ---------------------------------------------------------------------------
+  // Parcours assignes et progression : conversion items REST <-> objets d'affichage
+  // (PLAN.md § 1.3). Dates echangees en "YYYY-MM-DDT00:00:00Z", manipulees en
+  // "YYYY-MM-DD". ATTENTION prod : SharePoint renvoie les dates en UTC (une date
+  // saisie le 15/10 en France peut revenir "2026-10-14T22:00:00Z") -> convertir
+  // en date locale dans dateLocale() au passage en prod.
+  function dateLocale(s){ return s ? String(s).substr(0, 10) : null; }
+  function dateSp(s){ return s ? s + "T00:00:00Z" : null; }
+  function personne(p){ return p ? {id: p.Id, nom: p.Title || "", email: p.EMail || ""} : null; }
+  function personneSp(p){ return p ? {Id: p.id, Title: p.nom, EMail: p.email} : null; }
+
+  // "A faire" n'est jamais stocke (RG3) : seuls ces trois statuts existent dans la liste.
+  var STATUT_CODE = {"En cours": "en-cours", "À valider": "a-valider", "Terminé": "termine"};
+  var STATUT_SP = {"en-cours": "En cours", "a-valider": "À valider", "termine": "Terminé"};
+
+  function mapUtilisateur(raw, tous){
+    return {
+      id: raw.Id, nom: raw.Title || "", email: raw.EMail || "",
+      managerId: raw.ManagerId == null ? null : raw.ManagerId,
+      estAdmin: !!raw.Admin,
+      // Manager = au moins un collaborateur rattache.
+      estManager: (tous || []).some(function(u){ return u.ManagerId === raw.Id; })
+    };
+  }
+
+  function mapAssignation(raw){
+    var source = raw.Source === "Manager" ? "Manager" : "Autonomie";
+    var parcoursType = raw.ParcoursType || "";
+    return {
+      id: raw.ID,
+      titre: raw.Title || "",
+      consultant: personne(raw.Consultant) || {id: raw.ConsultantId, nom: "", email: ""},
+      assignePar: personne(raw.AssignePar),
+      source: source,
+      parcoursType: parcoursType,
+      modules: String(raw.Modules || "").split(";").map(function(x){ return x.trim(); }).filter(Boolean),
+      dateCible: dateLocale(raw.DateCible),
+      etat: raw.Etat === "Archivé" ? "Archivé" : "Actif",
+      // Parcours libre "Mes formations" (D-P5) : Autonomie et ParcoursType vide.
+      estMesFormations: source === "Autonomie" && !parcoursType
+    };
+  }
+
+  function toItemAssignation(a){
+    return {
+      ID: a.id, Title: a.titre,
+      ConsultantId: a.consultant.id, Consultant: personneSp(a.consultant),
+      AssigneParId: a.assignePar ? a.assignePar.id : null, AssignePar: personneSp(a.assignePar),
+      Source: a.source, ParcoursType: a.parcoursType || "",
+      Modules: (a.modules || []).join(";"),
+      DateCible: dateSp(a.dateCible),
+      Etat: a.etat
+    };
+  }
+
+  function mapProgression(raw){
+    return {
+      id: raw.ID,
+      formationId: raw.Title,
+      consultantId: raw.ConsultantId,
+      statut: STATUT_CODE[raw.Statut] || "en-cours",
+      dateDebut: dateLocale(raw.DateDebut),
+      dateFin: dateLocale(raw.DateFin),
+      dateValidation: dateLocale(raw.DateValidation),
+      validePar: raw.ValidePar ? {id: raw.ValidePar.Id, nom: raw.ValidePar.Title || ""} : null,
+      dispense: !!raw.Dispense,
+      commentaire: raw.Commentaire || ""
+    };
+  }
+
+  // consultant = {id, nom, email} (le Title de la ligne est l'ID de la formation).
+  function toItemProgression(p, consultant){
+    return {
+      ID: p.id, Title: p.formationId,
+      ConsultantId: p.consultantId,
+      Consultant: consultant ? personneSp(consultant) : {Id: p.consultantId},
+      Statut: STATUT_SP[p.statut],
+      DateDebut: dateSp(p.dateDebut), DateFin: dateSp(p.dateFin), DateValidation: dateSp(p.dateValidation),
+      ValideParId: p.validePar ? p.validePar.id : null,
+      ValidePar: p.validePar ? {Id: p.validePar.id, Title: p.validePar.nom} : null,
+      Dispense: !!p.dispense,
+      Commentaire: p.commentaire || null
+    };
+  }
+
+  window.PODZ.map = {
+    utilisateur: mapUtilisateur, assignation: mapAssignation, progression: mapProgression,
+    toItemAssignation: toItemAssignation, toItemProgression: toItemProgression
+  };
+
+
+
+  // ---------------------------------------------------------------------------
+  // Helpers SharePoint REST : signatures seulement, corps a ecrire au passage en
+  // prod (session 5). Ils rejettent tous : aucun appel reseau vers SharePoint.
+  function pasEncore(){ return Promise.reject(new Error(window.PODZ.MSG_PROD)); }
+  window.PODZ.sp = {
+    // GET {siteUrl}/_api/web/lists/getbytitle('{liste}')/items{requete}
+    //   en-tete Accept: application/json;odata=verbose -> data.d.results
+    get: function(liste, requete){ return pasEncore(); },
+    // POST {siteUrl}/_api/contextinfo -> d.GetContextWebInformation.FormDigestValue (X-RequestDigest)
+    digest: function(){ return pasEncore(); },
+    // POST .../getbytitle('{liste}')/items, corps {__metadata: {type: typeEntite(liste)}, ...item}
+    creer: function(liste, item){ return pasEncore(); },
+    // POST .../items({id}) + X-HTTP-Method: MERGE + IF-MATCH: {etag} (ou "*")
+    modifier: function(liste, id, item, etag){ return pasEncore(); },
+    // GET .../getbytitle('{liste}')?$select=ListItemEntityTypeFullName
+    typeEntite: function(liste){ return pasEncore(); }
+  };
+
+
+
+  // ---------------------------------------------------------------------------
+  // Implementation de dev : fichiers data/dev-*.js + surcouche localStorage
+  // (podz.dev.assignations / podz.dev.progression = {ID: item} qui remplacent ou
+  // completent l'etat initial).
+  function lireLocal(cle, defaut){
+    try {
+      var v = localStorage.getItem(cle);
+      return v == null ? defaut : JSON.parse(v);
+    } catch(e) { return defaut; }
+  }
+  function fusionner(base, cleSurcouche){
+    var parId = {}, ordre = [];
+    (base || []).forEach(function(it){ parId[it.ID] = it; ordre.push(String(it.ID)); });
+    var sur = lireLocal(cleSurcouche, {}) || {};
+    Object.keys(sur).forEach(function(id){
+      if(!parId.hasOwnProperty(id)) ordre.push(String(id));
+      parId[id] = sur[id];
+    });
+    return ordre.map(function(id){ return parId[id]; });
+  }
+  function enListe(ids){
+    if(ids == null) return [];
+    return (Object.prototype.toString.call(ids) === "[object Array]" ? ids : [ids]).map(Number);
+  }
+  function enDev(f){
+    return function(){
+      var args = arguments;
+      if(!window.PODZ.estDev()) return pasEncore();
+      return window.PODZ.pret.then(function(){ return f.apply(null, args); });
+    };
+  }
+  function utilisateursBruts(){ return window.PODZ_DEV_UTILISATEURS || []; }
+
+  window.PODZ.lireLocal = lireLocal;
+  window.PODZ.dev = {
+    assignationsBrutes: function(){ return fusionner(window.PODZ_DEV_ASSIGNATIONS, "podz.dev.assignations"); },
+    progressionBrute: function(){ return fusionner(window.PODZ_DEV_PROGRESSION, "podz.dev.progression"); },
+    utilisateursBruts: utilisateursBruts
+  };
+
+  // Prod : GET /_api/web/currentuser, puis Equipes?$filter=ManagerId eq {id} (estManager)
+  // et ConsultantId eq {id} (Admin).
+  window.PODZ.fetchUtilisateur = enDev(function(){
+    var tous = utilisateursBruts();
+    var id = Number(lireLocal("podz.dev.utilisateur", 11));
+    var raw = tous.filter(function(u){ return u.Id === id; })[0] || tous.filter(function(u){ return u.Id === 11; })[0];
+    return mapUtilisateur(raw, tous);
+  });
+
+  // Prod : GET Equipes?$select=Consultant/Id,Consultant/Title,Consultant/EMail,ManagerId,Admin&$expand=Consultant
+  window.PODZ.fetchUtilisateurs = enDev(function(){
+    var tous = utilisateursBruts();
+    return tous.map(function(u){ return mapUtilisateur(u, tous); });
+  });
+
+  // Collaborateurs d'un manager ; tout le monde sauf soi pour un administrateur (CA8.5).
+  // Prod : GET Equipes?$filter=ManagerId eq {id} (tout si admin).
+  window.PODZ.fetchEquipe = enDev(function(managerId){
+    managerId = Number(managerId);
+    var tous = utilisateursBruts();
+    var moi = tous.filter(function(u){ return u.Id === managerId; })[0];
+    return tous.filter(function(u){
+      if(u.Id === managerId) return false;
+      return (moi && moi.Admin) || u.ManagerId === managerId;
+    }).map(function(u){ return mapUtilisateur(u, tous); });
+  });
+
+  // Prod : GET Assignations?$filter=(ConsultantId eq a or ...)&$expand=Consultant,AssignePar
+  window.PODZ.fetchAssignations = enDev(function(userIds){
+    var ids = enListe(userIds);
+    return window.PODZ.dev.assignationsBrutes()
+      .filter(function(it){ return ids.indexOf(Number(it.ConsultantId)) !== -1; })
+      .map(mapAssignation);
+  });
+
+  // Prod : GET Progression?$filter=(ConsultantId eq a or ...)&$expand=Consultant,ValidePar
+  window.PODZ.fetchProgression = enDev(function(userIds){
+    var ids = enListe(userIds);
+    return window.PODZ.dev.progressionBrute()
+      .filter(function(it){ return ids.indexOf(Number(it.ConsultantId)) !== -1; })
+      .map(mapProgression);
+  });
 })();
 </script>
 <script>
@@ -1102,6 +1299,44 @@
       fatal(err && err.message ? err.message : String(err));
     });
   };
+})();
+</script>
+<style>
+/* Bandeau dev "Se connecter en tant que..." : injecte seulement en dev (absent en prod) */
+.podz-dev{--pod-jaune:#E8C96A;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;font-size:12px;line-height:1.5;color:var(--pod-muted);box-sizing:border-box;max-width:1240px;margin:0 auto 18px;padding:0 4px}
+.podz-dev *,.podz-dev *::before,.podz-dev *::after{box-sizing:border-box}
+.podz-dev .pod-dev-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 14px;background:#FFF9DD;border:1px dashed var(--pod-jaune);border-radius:10px}
+.podz-dev .pod-dev-bar b{color:var(--pod-fonce)}
+.podz-dev .pod-dev-bar select{font-family:inherit;font-size:12px;padding:3px 8px;border:1px solid rgba(0,32,96,0.18);border-radius:6px;color:var(--pod-fonce);background:#FFFFFF}
+.podz-dev .pod-dev-bar .pod-dev-reset{margin-left:auto;font-size:11.5px;color:var(--pod-muted);text-decoration:underline;cursor:pointer;background:none;border:0;font-family:inherit;padding:0}
+</style>
+<script>
+(function(){
+  if(!window.PODZ.estDev()) return;
+  function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function role(u){
+    if(u.estAdmin) return "administrateur";
+    return u.estManager ? "consultant + manager" : "consultant";
+  }
+  var el = document.createElement("div");
+  el.className = "podz-dev";
+  el.id = "podz-dev-root";
+  var premiereVue = document.querySelector(".pod-view");
+  premiereVue.parentNode.insertBefore(el, premiereVue);
+
+  Promise.all([window.PODZ.fetchUtilisateurs(), window.PODZ.fetchUtilisateur()]).then(function(r){
+    var tous = r[0], moi = r[1];
+    el.innerHTML = '<div class="pod-dev-bar"><b>DEV</b> Se connecter en tant que ' +
+      '<select id="podz-dev-user">' + tous.map(function(u){
+        return '<option value="' + u.id + '"' + (u.id === moi.id ? " selected" : "") + '>' + esc(u.nom) + ' — ' + role(u) + '</option>';
+      }).join("") + '</select></div>';
+    document.getElementById("podz-dev-user").addEventListener("change", function(e){
+      try { localStorage.setItem("podz.dev.utilisateur", JSON.stringify(Number(e.target.value))); } catch(err) {}
+      location.reload();
+    });
+  }).catch(function(err){
+    el.innerHTML = '<div class="pod-dev-bar"><b>DEV</b> Données de dev indisponibles (' + esc(err && err.message ? err.message : err) + ')</div>';
+  });
 })();
 </script>
 <script>
