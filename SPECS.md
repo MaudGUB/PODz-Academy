@@ -156,7 +156,7 @@ En tant que consultant connecté, je vois **mes** parcours.
   la prochaine étape, marquée comme telle.)*
 - CA6.7 *(ajouté le 15/10/2026)* — Le cockpit a deux onglets : **Cockpit** (synthèse,
   formations en cours, niveau, certifications, médailles) et **Mes parcours** (détail de
-  chaque parcours). Une barre en haut de « Mon parcours », « Mon équipe » et « Assigner »
+  chaque parcours). Une barre en haut de « Mon profil », « Mon équipe » et « Assigner »
   permet de passer de l'une à l'autre et d'**explorer le catalogue**, sans revenir à
   l'accueil (« Mon équipe » : managers et administrateurs, avec le nombre de validations
   en attente). La fiche d'un collaborateur côté manager reprend les deux onglets.
@@ -217,6 +217,7 @@ Accueil (existant)  ─┬─ [Mon parcours]  ───────────�
                      └─ Catalogue (existant)
 ```
 
+- *(15/10/2026 : l'écran « Mon parcours » est renommé **« Mon profil »**, ses onglets étant « Cockpit » et « Mes parcours » ; la route reste `#mon-parcours`.)*
 - Deux entrées ajoutées sur l'accueil (zone `.pod-home-quick`) : **Mon parcours**, et
   **Mon équipe** avec badge du nombre de validations en attente (managers seulement).
 - En dev uniquement : bandeau « Se connecter en tant que… » (sélecteur d'utilisateur

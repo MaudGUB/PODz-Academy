@@ -610,7 +610,7 @@
 /* Message de confirmation apres une action (PODZ.toast) */
 .podz-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:1000;max-width:calc(100% - 32px);padding:10px 18px;border-radius:10px;background:#2F6B55;color:#FFFFFF;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;font-size:13px;font-weight:600;line-height:1.4;box-shadow:0 8px 24px -8px rgba(0,32,96,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 .podz-toast.visible{opacity:1;transform:translate(-50%,0)}
-/* Cockpit consultant "Mon parcours" (repris de maquettes/mon-parcours.html) ; aussi utilise pour le detail collaborateur de la vue manager */
+/* Cockpit consultant "Mon profil" (vue #mon-parcours) (repris de maquettes/mon-parcours.html) ; aussi utilise pour le detail collaborateur de la vue manager */
 .podz-mp{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;box-sizing:border-box}
 .podz-mp *,.podz-mp *::before,.podz-mp *::after{box-sizing:border-box}
 .podz-mp h1,.podz-mp h2,.podz-mp h3{color:var(--pod-fonce);margin:0}
@@ -756,7 +756,7 @@
 .podz-mp .pod-mp-empty li{margin-bottom:4px}
 .podz-mp .pod-mp-empty li a{color:var(--pod-fonce);font-weight:600}
 .podz-mp .pod-mp-actions{display:flex;flex-wrap:wrap;gap:8px}
-/* Barre de navigation entre les espaces (Mon parcours, Mon equipe, catalogue) */
+/* Barre de navigation entre les espaces (Mon profil, Mon equipe, catalogue) */
 .podz-mp .pod-espace-nav,.podz-mgr .pod-espace-nav{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 18px}
 .podz-mp .pod-espace-nav:empty,.podz-mgr .pod-espace-nav:empty{display:none}
 .podz-mp .pod-espace-nav__lien,.podz-mgr .pod-espace-nav__lien{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:10px;border:1px solid rgba(0,32,96,0.14);background:#FFFFFF;color:#002060;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s}
@@ -826,7 +826,7 @@
       <p class="pod-home-sub">Choisis ton avatar métier pour découvrir le parcours de formation pensé pour toi.</p>
     </div>
     <div class="pod-home-quick" id="podz-home-quick">
-      <a href="#mon-parcours" id="podz-home-mp"><span>⬡</span>Mon parcours</a>
+      <a href="#mon-parcours" id="podz-home-mp"><span>⬡</span>Mon profil</a>
       <a href="#catalogue"><span>⊞</span>Explorer tout le catalogue</a>
     </div>
     <div class="pod-home-divider">ou choisis ton profil</div>
@@ -883,7 +883,7 @@
 <div class="pod-view" id="view-mon-parcours" hidden>
 <div id="podz-mp-root" class="podz-mp">
 <div class="pod-wrap">
-<div class="pod-bc" id="podz-mp-bc"><span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">Mon parcours</span></div>
+<div class="pod-bc" id="podz-mp-bc"><span>POD</span><span class="pod-bc-sep">/</span> <a href="#accueil">PODz Academy</a><span class="pod-bc-sep">/</span> <span class="pod-bc-current">Mon profil</span></div>
 <div class="pod-espace-nav" id="podz-nav-mp"></div>
 <div id="podz-mp-cockpit"><div class="pod-loading">Chargement de ton parcours…</div></div>
 </div>
@@ -2285,7 +2285,7 @@
     if(!b) return;
     b.disabled = true;
     window.PODZ.suivreParcours(b.getAttribute("data-suivre"))
-      .then(function(){ window.PODZ.toast("Parcours ajouté à « Mon parcours »"); window.PODZ.renderProfile(slugCourant); })
+      .then(function(){ window.PODZ.toast("Parcours ajouté à ton profil (onglet « Mes parcours »)"); window.PODZ.renderProfile(slugCourant); })
       .catch(function(err){ b.disabled = false; window.PODZ.afficherErreur(b, err); });
   });
 
@@ -2358,7 +2358,7 @@
 })();
 </script>
 <script>
-// Cockpit "Mon parcours" : PODZ.renderCockpit(el, consultantId, {mode: "consultant"|"manager"}).
+// Cockpit "Mon profil" (vue #mon-parcours) : PODZ.renderCockpit(el, consultantId, {mode: "consultant"|"manager"}).
 // el doit etre dans une racine .podz-mp. Toutes les donnees passent par window.PODZ.*.
 (function(){
   window.PODZ = window.PODZ || {};
@@ -2967,7 +2967,7 @@
   };
 
   // Accueil : entree "Mon equipe" + badge du nombre de validations en attente (CA8.2).
-  // Accueil : badge "N à reprendre" sur "Mon parcours" quand des modules ont ete
+  // Accueil : badge "N à reprendre" sur "Mon profil" quand des modules ont ete
   // refuses (En cours + commentaire, RG7) dans les parcours actifs du consultant.
   P.majAccueilConsultant = function(){
     var lien = document.getElementById("podz-home-mp");
@@ -2978,11 +2978,11 @@
       var actifs = {};
       r[0].filter(function(a){ return a.etat === "Actif"; }).forEach(function(a){ a.modules.forEach(function(id){ actifs[id] = true; }); });
       var n = r[1].filter(function(p){ return actifs[p.formationId] && p.statut === "en-cours" && p.commentaire; }).length;
-      lien.innerHTML = '<span>⬡</span>Mon parcours' + (n ? '<span class="pod-home-badge" title="Modules refusés par ton manager, à reprendre">' + n + ' à reprendre</span>' : "");
+      lien.innerHTML = '<span>⬡</span>Mon profil' + (n ? '<span class="pod-home-badge" title="Modules refusés par ton manager, à reprendre">' + n + ' à reprendre</span>' : "");
     }).catch(function(){});
   };
 
-  // Barre de navigation entre les espaces, en haut de "Mon parcours", "Mon equipe" et
+  // Barre de navigation entre les espaces, en haut de "Mon profil", "Mon equipe" et
   // "Assigner" : passer de l'un a l'autre sans revenir a l'accueil. "Mon equipe" (avec le
   // nombre de validations en attente) n'apparait que pour un manager ou un admin.
   P.renderNavEspace = function(idConteneur, actif){
@@ -2992,7 +2992,7 @@
       return '<a href="' + href + '" class="pod-espace-nav__lien' + (cle === actif ? " active" : "") + '"' + (cle === actif ? ' aria-current="page"' : "") + '>' + html + '</a>';
     }
     return P.donneesEquipe().then(function(d){
-      el.innerHTML = lien("#mon-parcours", "parcours", "⬡ Mon parcours") +
+      el.innerHTML = lien("#mon-parcours", "parcours", "⬡ Mon profil") +
         (estResponsable(d.moi) ? lien("#mon-equipe", "equipe", "◎ Mon équipe" + (d.file.length ? ' <span class="pod-espace-nav__nb" title="Validations en attente">' + d.file.length + '</span>' : "")) : "") +
         lien("#catalogue", "catalogue", "⊞ Explorer le catalogue");
     }).catch(function(){ el.innerHTML = ""; });
@@ -3066,7 +3066,7 @@
     var hero = '<section class="pod-hero" style="--ac:var(--pod-bleu)"><div class="pod-hero-text">' +
       '<span class="pod-hero-tag">Espace ' + (d.moi.estAdmin ? "administrateur" : "manager") + '</span>' +
       '<h1 class="pod-hero-title">Mon équipe</h1>' +
-      '<p class="pod-hero-desc">Suis l\'avancement de tes collaborateurs, valide les modules terminés et assigne de nouveaux parcours. Ton propre parcours reste accessible depuis « <a href="#mon-parcours">Mon parcours</a> ».</p></div>' +
+      '<p class="pod-hero-desc">Suis l\'avancement de tes collaborateurs, valide les modules terminés et assigne de nouveaux parcours. Ton propre suivi de formation reste accessible depuis « <a href="#mon-parcours">Mon profil</a> ».</p></div>' +
       '<div class="pod-kpis">' +
         '<div class="pod-kpi"><strong>' + d.equipe.length + '</strong><span>Collaborateurs</span></div>' +
         '<div class="pod-kpi' + (d.file.length ? " alert" : "") + '"><strong>' + d.file.length + '</strong><span>À valider</span></div>' +
@@ -3542,7 +3542,7 @@
   var ROUTES = [
     {hash: "#catalogue", exact: true, vue: "catalogue", titre: "Catalogue d'exploration", rendu: function(){ window.PODZ.majCatalogue(); }},
     {hash: "#profil=", vue: "profil", rendu: function(suite){ window.PODZ.renderProfile(decodeURIComponent(suite)); }},
-    {hash: "#mon-parcours", exact: true, vue: "mon-parcours", titre: "Mon parcours", rendu: function(){ window.PODZ.renderMonParcours(); }},
+    {hash: "#mon-parcours", exact: true, vue: "mon-parcours", titre: "Mon profil", rendu: function(){ window.PODZ.renderMonParcours(); }},
     {hash: "#mon-equipe", vue: "mon-equipe", titre: "Mon équipe", rendu: function(suite){ window.PODZ.renderMonEquipe(suite); }},
     {hash: "#assigner", vue: "assigner", titre: "Assigner un parcours", rendu: function(suite){ window.PODZ.renderAssigner(suite); }}
   ];
