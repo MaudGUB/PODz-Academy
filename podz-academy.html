@@ -1,10 +1,12 @@
-<!-- PODz Academy v10 : moteur de la v8 (listes SharePoint, tient après rafraîchissement) + interface épurée de la v4.
+<!-- PODz Academy v11.1 : une seule source par sujet (listes SharePoint du site), personnes reconnues par leur e-mail,
+     formations ajoutées et modifiées par les managers dans « PODz Formations ».
+     v11.1 : ruche plus lisible (miel doré-orangé, % dans l'alvéole), CV PDF lisible dans SharePoint, couleurs « Douce ».
      À coller tel quel dans un Web Part Modern Script Editor (site de test).
      Règle : aucun calque plein écran écrit en dur dans la page ; fenêtres, confettis et transitions sont créés par le script, puis retirés. -->
 <style>
 .podz,.podz *,.podz *::before,.podz *::after{box-sizing:border-box}
 .podz{--pod-violet:#C8B5E8;--pod-rose:#F2A8BC;--pod-vert:#A8C4B8;--pod-orange:#F5926A;--pod-jaune:#E8C96A;--pod-bleu:#BDD1FF;--pod-fonce:#002060;--pod-muted:#5A6B8C;--pod-miel:#F2C14E;--pod-ok:#2D6A52;--pod-alerte:#B23A12;--pod-line:rgba(0,32,96,.08);
-  font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FFFFFF;font-size:14px;line-height:1.5;text-align:left;min-height:100vh}
+  font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--pod-fonce);background:#FBF8F3;font-size:14px;line-height:1.5;text-align:left;min-height:100vh}
 .podz.pod-fullbleed{width:100vw;max-width:100vw;position:relative;left:50%;margin-left:-50vw}
 .podz h1,.podz h2,.podz h3,.podz p{color:var(--pod-fonce);margin:0}
 .podz a{cursor:pointer;color:inherit}
@@ -29,7 +31,7 @@
 @keyframes pod-flap{from{transform:scaleY(1)}to{transform:scaleY(.5)}}
 
 /* Barre du haut */
-.podz .pod-top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.97);border-bottom:1px solid var(--pod-line);box-shadow:0 6px 18px -16px rgba(0,32,96,.4)}
+.podz .pod-top{position:sticky;top:0;z-index:20;background:rgba(251,248,243,.97);border-bottom:1px solid var(--pod-line);box-shadow:0 6px 18px -16px rgba(0,32,96,.4)}
 .podz .pod-top-in{max-width:1240px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .podz .pod-brand{display:flex;align-items:center;gap:6px;font-weight:800;font-size:16px;text-decoration:none;white-space:nowrap}
 .podz .pod-brand-bee{width:34px;height:34px}
@@ -88,6 +90,7 @@
 .podz .pod-chip.certif{background:var(--pod-orange);color:#FFFFFF;font-weight:700}
 .podz .pod-chip.assigned{background:#EEF6F2;color:var(--pod-ok);font-weight:700}
 .podz .pod-chip.wait{background:#FFF6EC;color:#A3501F;font-weight:700}
+.podz .pod-chip.new{background:#FFF3C9;color:#8A6400;font-weight:800}
 .podz .st{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
 .podz .st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .podz .st-afaire{background:#F1F3F8;color:var(--pod-muted)}
@@ -123,7 +126,7 @@
 .podz .pod-seg[aria-disabled="true"] button{cursor:default;opacity:.6}
 
 /* Panneaux, colonnes */
-.podz .pod-panel{background:#FFFFFF;border:1px solid var(--pod-line);border-radius:18px;padding:18px 20px;margin-bottom:14px}
+.podz .pod-panel{background:#FFFFFF;border:1px solid var(--pod-line);border-radius:18px;padding:18px 20px;margin-bottom:14px;box-shadow:0 6px 18px -14px rgba(0,32,96,.25)}
 .podz .pod-panel.honey{background:linear-gradient(180deg,#FFFBEF,#FFFFFF);border-color:rgba(242,193,78,.35)}
 .podz .pod-panel.soft{background:#FBFAFF;border-color:rgba(200,181,232,.45)}
 .podz .pod-panel-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #F0F0F4}
@@ -142,7 +145,8 @@
 .podz .pod-coach-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;color:var(--pod-muted);font-size:13px}
 
 /* Hero */
-.podz .pod-hero{background:#FFFFFF;border-radius:22px;padding:22px 24px;margin-bottom:14px;display:flex;gap:22px;align-items:center;border:1px solid rgba(0,32,96,.06);border-left:6px solid var(--ac,var(--pod-violet));box-shadow:0 4px 20px -12px rgba(0,32,96,.15);flex-wrap:wrap;position:relative;overflow:hidden}
+.podz .pod-hero{background:#FFFFFF;border-radius:22px;padding:22px 24px;margin-bottom:14px;display:flex;gap:22px;align-items:center;border:1px solid rgba(0,32,96,.06);border-left:6px solid var(--ac,var(--pod-violet));box-shadow:0 4px 20px -12px rgba(0,32,96,.15);flex-wrap:wrap;position:relative;overflow:hidden;
+  background:linear-gradient(110deg,color-mix(in srgb,var(--ac,#C8B5E8) 22%,#FFFFFF) 0%,#FFFFFF 65%)}
 .podz .pod-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:220px;height:220px;background:radial-gradient(circle,var(--ac,#C8B5E8) 0,transparent 70%);opacity:.22;pointer-events:none}
 .podz .pod-hero-bee{width:110px;height:110px;flex-shrink:0}
 .podz .pod-hero-text{flex:1;min-width:220px;position:relative;z-index:1}
@@ -156,7 +160,11 @@
 /* Indicateurs */
 .podz .pod-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
 @media (max-width:760px){.podz .pod-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.podz .pod-kpi{background:#FAFAFD;border:1px solid rgba(0,32,96,.05);border-radius:14px;padding:12px 14px}
+.podz .pod-kpi{background:#FAFAFD;border:1px solid rgba(0,32,96,.05);border-left:4px solid var(--k,#C8B5E8);border-radius:14px;padding:12px 14px}
+.podz .pod-kpis .pod-kpi:nth-child(1){--k:#F2C14E;background:#FFFBEF}
+.podz .pod-kpis .pod-kpi:nth-child(2){--k:#F5926A;background:#FFF5EF}
+.podz .pod-kpis .pod-kpi:nth-child(3){--k:#B7A4EC;background:#F7F4FD}
+.podz .pod-kpis .pod-kpi:nth-child(4){--k:#9FCBAE;background:#F2F8F4}
 .podz .pod-kpi-label{font-size:10.5px;color:var(--pod-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 .podz .pod-kpi-value{font-size:21px;font-weight:800;line-height:1.2;margin-top:2px}
 .podz .pod-kpi-value small{font-size:13px;font-weight:600;color:var(--pod-muted)}
@@ -172,6 +180,7 @@
 @keyframes pod-rise{from{transform:scaleY(0)}}
 .podz .pod-legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--pod-muted);margin-top:10px}
 .podz .pod-legend i{display:inline-block;width:12px;height:13px;margin-right:5px;vertical-align:middle;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.podz .pod-legend span{display:inline-flex;align-items:center;gap:5px}
 .podz .pod-ruche-cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
 .podz .pod-ruche-cols > div{min-width:0}
 @media (max-width:960px){.podz .pod-ruche-cols{grid-template-columns:1fr}}
@@ -291,7 +300,7 @@
 @media (max-width:700px){.podz .pod-cal-grid-wrap{display:none}}
 
 /* Catalogue */
-.podz .pod-cat-head{background:#FFFFFF;border-radius:18px;padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:16px;border:1px solid var(--pod-line);flex-wrap:wrap}
+.podz .pod-cat-head{background:#FFFFFF;background:linear-gradient(110deg,#EEF3FF,#FFFFFF 60%);border-radius:18px;padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:16px;border:1px solid var(--pod-line);flex-wrap:wrap}
 .podz .pod-cat-head-bee{width:56px;height:56px;flex-shrink:0}
 .podz .pod-cat-head-text{flex:1;min-width:200px}
 .podz .pod-cat-head-text h1{font-size:22px;font-weight:800;margin:0 0 3px;letter-spacing:-.02em}
@@ -488,53 +497,9 @@
 <script>
 (function(){
   /* ---------------------------------------------------------------
-     Catalogue : export de la liste SharePoint (POD_Catalogue_Formations.xlsx)
-     --------------------------------------------------------------- */
-  var CATALOGUE = [
-    {"id":"F001","titre":"Intégration POD","type":"Formation","offre":"Transverse","bucket":"Analyse","niveau":"Fondamentaux","duree":"0,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Parcours-d%27int%C3%A9gration.aspx","tags":"Onboarding, Culture POD","plateforme":"SharePoint Datatorii","obligatoire":"Oui","notes":"Présentation POD avec Maud \u0026 Fabienne : 30min | Parcours d\u0027intégration Datatorii en ligne"},
-    {"id":"F002","titre":"Power BI","type":"Formation","offre":"Offre 1 - Data Products \u0026 Analytics","bucket":"Analyse","niveau":"Intermédiaire","duree":"6 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Training-kit-PowerBI.aspx | https://www.sqlbi.com/p/mastering-dax-video-course/","tags":"Power BI, DataViz, Dashboard, Reporting, DAX","plateforme":"SharePoint Datatorii + Externe (SQLBI)","obligatoire":"Non","notes":"Jusqu\u0027à «préparation de la certif» inclus — ne pas refaire le Data management si déjà fait — ne pas faire le niveau 2 | +Mastering DAX SQLBI"},
-    {"id":"F003","titre":"Data management","type":"Formation","offre":"Offre 1 - Data Products \u0026 Analytics","bucket":"Analyse","niveau":"Fondamentaux","duree":"1 j","liens":"https://app.pluralsight.com/library/courses/enterprise-data-management/table-of-contents | https://app.pluralsight.com/course-player?clipId=e9ecc49b-0a40-46a1-a318-a92aed2a3e41 | https://app.pluralsight.com/library/courses/google-cloud-platform-fundamentals/table-of-contents | https://www.youtube.com/watch?v=5e0ELu2kbVM","tags":"Data Management, Architecture Data, Modélisation, Couches data, MDM, GCP","plateforme":"Pluralsight + YouTube","obligatoire":"Non","notes":"Formation Data 101 avec Maud (2h30) : initiation couches data + modélisation étoile et 3NF | Enterprise Data management 101 (1h15) | Data architecture basics (30m) | GCP 101 (2h) | MDM 101 (30m)"},
-    {"id":"F004","titre":"Modélisation","type":"Formation","offre":"Offre 1 - Data Products \u0026 Analytics","bucket":"Analyse","niveau":"Intermédiaire","duree":"3,5 j","liens":"https://www.sqlbi.com/p/introduction-to-data-modeling-for-power-bi-video-course/ | https://www.sqlbi.com/p/data-modeling-for-power-bi-video-course/ | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Best-practices-mod%C3%A9lisation.aspx","tags":"Modélisation, DAX, Power BI, Étoile, 3NF, SQLBI","plateforme":"Externe (SQLBI) + SharePoint Datatorii","obligatoire":"Non","notes":"Data modeling 101 (2h) | Data modeling avancé (10+8h) | Best practices modélisation SharePoint Datatorii"},
-    {"id":"F005","titre":"Data Catalog - DataGalaxy","type":"Formation","offre":"Offre 4 - Data Culture \u0026 Governance","bucket":"Adoption","niveau":"Intermédiaire","duree":"0,5 j","liens":"https://academy.datagalaxy.com/catalog-fr","tags":"Data Catalog, DataGalaxy, Gouvernance des données","plateforme":"Externe (DataGalaxy)","obligatoire":"Non","notes":"Faire les 6 modules de l\u0027academy DataGalaxy"},
-    {"id":"F006","titre":"Comprendre le Data Cataloging","type":"Formation","offre":"Offre 4 - Data Culture \u0026 Governance","bucket":"Adoption","niveau":"Fondamentaux","duree":"0,5 j","liens":"https://www.datagalaxy.com/fr/blog/data-catalogue-definition/ | https://www.youtube.com/watch?v=yn8hWrw8Q6w","tags":"Data Catalog, Data Governance, Data Literacy, Référentiels","plateforme":"Externe","obligatoire":"Non","notes":"Article blog DataGalaxy + vidéo YouTube introductive"},
-    {"id":"F007","titre":"SharePoint","type":"Formation","offre":"Offre 4 - Data Culture \u0026 Governance","bucket":"Adoption","niveau":"Intermédiaire","duree":"3 j","liens":"https://eulidia.sharepoint.com/sites/POD/SitePages/Training-Kit-SharePoint-Site-Design.aspx","tags":"SharePoint, Collaboration, Intranet, Site design","plateforme":"SharePoint POD","obligatoire":"Non","notes":"Basique 2j + Avancé 1j (pour aller plus loin)"},
-    {"id":"F008","titre":"Adoption / ADKAR","type":"Formation","offre":"Offre 4 - Data Culture \u0026 Governance","bucket":"Adoption","niveau":"Intermédiaire","duree":"1,5 j","liens":"https://eulidia.sharepoint.com/sites/POD/SitePages/M%C3%A9thode-ADKAR.aspx","tags":"ADKAR, Change Management, Adoption, Conduite du changement","plateforme":"SharePoint POD","obligatoire":"Non","notes":"Méthode ADKAR complète — complémentaire à la certif Prosci"},
-    {"id":"F009","titre":"Vidéo / Vyond","type":"Formation","offre":"Transverse","bucket":"Adoption","niveau":"Fondamentaux","duree":"2 h","liens":"https://www.youtube.com/watch?v=QmX5RPAfNM0 | https://www.youtube.com/watch?v=sRlNKDfQEl8 | https://www.vyond.com/resources/2019-advanced-vyond-studio-tips/?wchannelid=zfxtvkocaa\u0026wmediaid=eg7acien91","tags":"Communication, Vidéo, Vyond, Motion design","plateforme":"YouTube + Vyond","obligatoire":"Non","notes":"Vyond 101 (18min) | Vyond motion paths (38min) | Vyond advanced studio tips (1h)"},
-    {"id":"F010","titre":"PowerPoint avancé","type":"Formation","offre":"Transverse","bucket":"Adoption","niveau":"Intermédiaire","duree":"3 h","liens":"https://www.youtube.com/watch?v=tKZauSB52to | https://www.youtube.com/watch?v=87C6guw4Zps","tags":"Communication, PowerPoint, Design, Présentation client","plateforme":"YouTube","obligatoire":"Non","notes":"Make your PPT stand out (1h) + PPT 2021 Advanced (2h)"},
-    {"id":"F011","titre":"Maquettage / méthode UX","type":"Formation","offre":"Offre 1 - Data Products \u0026 Analytics","bucket":"Adoption","niveau":"Intermédiaire","duree":"0,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Wiki-UX-Brief.aspx","tags":"UX, Maquettage, Wireframe, Design thinking, Brief","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"Brief UX Datatorii — à combiner avec F012 Design/DataViz"},
-    {"id":"F012","titre":"Design / DataViz","type":"Formation","offre":"Offre 1 - Data Products \u0026 Analytics","bucket":"Adoption","niveau":"Intermédiaire","duree":"1 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Training-kit-Dataviz.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Wiki-Tableaux.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Th%C3%A8me-Power-BI.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Typographie.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Couleurs.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Bars-Graphs.aspx","tags":"DataViz, Design, Charte graphique, Tableaux de bord, UX, Typographie, Couleurs","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"TK Dataviz | Wiki tableaux | Thème Power BI | Typographie | Couleurs | Bar graphs"},
-    {"id":"F013","titre":"Gestion des stakeholders","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Intermédiaire","duree":"0,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Gestion-des-parties-prenantes.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Entretien-%26-Focus-group.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Wiki-Personas.aspx","tags":"Stakeholder Management, Communication, Entretien, Focus group, Personas","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"Gestion des parties prenantes | Entretien \u0026 focus group | Personas"},
-    {"id":"F014","titre":"Business analyst","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Intermédiaire","duree":"3 j","liens":"https://app.pluralsight.com/library/courses/business-analysis-techniques-product-owners-cert/table-of-contents | https://app.pluralsight.com/paths/skill/entry-level-business-analysis-ecba","tags":"Business Analysis, MOA, Recueil besoins, ECBA, Spécifications","plateforme":"Pluralsight","obligatoire":"Non","notes":"BA techniques (2h45) | ECBA path (16h)"},
-    {"id":"F015","titre":"Suivi de projet","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Intermédiaire","duree":"0,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/COPROJ.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Bilan-de-projet-et-post-mortem.aspx","tags":"Project Management, Chef de projet, Bilan, Post-mortem, Planning","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"COPROJ | Bilan de projet et post-mortem"},
-    {"id":"F016","titre":"Recette (UAT)","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Intermédiaire","duree":"0,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Recette-(UAT).aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Best-Practices-Gestion-de-Projet.aspx","tags":"UAT, Recette, Tests, Validation fonctionnelle","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"Recette (UAT) | Best Practices Gestion de Projet"},
-    {"id":"F017","titre":"Agile (SCRUM)","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Fondamentaux","duree":"1,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/_layouts/15/Doc.aspx?sourcedoc=%7BB0331450-AD97-4E16-84D7-15FC466C085A%7D\u0026file=DTR%20-%20SCRUM.pptx\u0026action=edit\u0026mobileredirect=true\u0026DefaultItemOpen=1 | https://eulidia.sharepoint.com/sites/Datatorii2/Doc%20RD/Forms/AllItems.aspx?id=%2Fsites%2FDatatorii2%2FDoc%20RD%2F2017%20Scrum%20Guide%20US%2Epdf\u0026parent=%2Fsites%2FDatatorii2%2FDoc%20RD","tags":"Agile, SCRUM, Sprint, Backlog, Kanban, Cérémonies","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"DTR SCRUM (PPT) | Official SCRUM Guide 2017 (PDF)"},
-    {"id":"F018","titre":"Schéma Directeur","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Fondamentaux","duree":"0,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Roadmap.aspx","tags":"Organisation, Roadmap, Planification, Suivi de projet","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":""},
-    {"id":"F019","titre":"Ways of working / BPM","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Intermédiaire","duree":"1 j","liens":"https://www.coursera.org/learn/business-process-management | https://www.youtube.com/watch?v=BwkNceoybvA","tags":"BPM, BPMN, RACI, Process mapping, Ways of working","plateforme":"Externe (Coursera + YouTube)","obligatoire":"Non","notes":"BPM Coursera Vanderbilt (~4h) + BPMN 2.0 YouTube (1h) + RACI via carte Gouvernance F020"},
-    {"id":"F020","titre":"Gouvernance","type":"Formation","offre":"Offre 4 - Data Culture \u0026 Governance","bucket":"Pilotage","niveau":"Intermédiaire","duree":"0,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Gouvernance.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Matrice-RACI-projet.aspx","tags":"Gouvernance, RACI, Data Governance, Responsabilités, Comités","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"Gouvernance | Matrice RACI projet — lié à F019 Ways of working"},
-    {"id":"F021","titre":"Cycle en V","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Fondamentaux","duree":"0,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Gestion-Cycle-V.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Gestion-de-projet-101.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Best-Practices-Gestion-de-Projet.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/COPROJ.aspx","tags":"Cycle en V, Gestion de projet, Méthodologie, Phases","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"Gestion cycle en V | GDP 101 | Best Practices GDP | COPROJ"},
-    {"id":"F022","titre":"Cadrage et gestion de projet","type":"Formation","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Pilotage","niveau":"Intermédiaire","duree":"1,5 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Gestion-de-projet-101.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Acceuil-Toolkit-Cadrage.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Best-Practices-Gestion-de-Projet.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Business-Rules-Document.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/WBS-et-chiffrage.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Wiki-Personas.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Entretien-%26-Focus-group.aspx | https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Matrice-RACI-projet.aspx","tags":"Cadrage, Recueil besoins, Ateliers, Spécifications, Expression de besoin, Chiffrage, RACI","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"GDP 101 (1h30) | Toolkit cadrage (1h) | Best Practices GDP (2h) | Business Rules Document (1h) | WBS \u0026 Chiffrage (1h) | Personas (1h) | Entretien \u0026 focus group (1h30) | Matrice RACI"},
-    {"id":"F023","titre":"Automatisation / Power Automate","type":"Formation","offre":"Offre 2 - Automation \u0026 AI","bucket":"Process","niveau":"Intermédiaire","duree":"1 j","liens":"https://eulidia.sharepoint.com/sites/POD/SitePages/Power-Automate.aspx","tags":"Power Automate, Automatisation, Flows, Low-code, Connecteurs","plateforme":"SharePoint POD","obligatoire":"Non","notes":"TK Power Automate POD — lien ajouté en mai 2026"},
-    {"id":"F024","titre":"Power Apps (formation)","type":"Formation","offre":"Offre 2 - Automation \u0026 AI","bucket":"Process","niveau":"Intermédiaire","duree":"5,5 j","liens":"https://learn.microsoft.com/fr-fr/credentials/certifications/exams/pl-200/ | https://learn.microsoft.com/en-gb/credentials/certifications/resources/study-guides/pl-200 | https://training.powerapps911.com/courses/power-apps-and-power-automate-getting-started | https://learn.microsoft.com/fr-fr/shows/exam-readiness-zone/preparing-for-pl-200-configure-microsoft-dataverse | https://learn.microsoft.com/en-us/shows/exam-readiness-zone/preparing-for-pl-200-create-apps-by-using-microsoft-power-apps | https://training.powerapps911.com/courses/model-driven-101 | https://training.powerapps911.com/courses/powerapps-and-flow-for-app-builders | https://training.powerapps911.com/courses/Model-Driven-201 | https://learn.microsoft.com/en-us/shows/exam-readiness-zone/preparing-for-pl-200-create-and-manage-logic-and-process-automation | https://learn.microsoft.com/en-us/shows/exam-readiness-zone/preparing-for-pl-200-manage-environments","tags":"Power Apps, Low-code, PL-200, Canvas App, Model-driven, Power Automate, Dataverse","plateforme":"MS Learn + PowerApps911","obligatoire":"Non","notes":"Basics (1,5j) : Power Platform 101 (6h) | Dataverse MS Learn (15min) | Create Apps MS Learn (15min) | Model-driven 101 (1h) — Advanced (4j) : Power Apps \u0026 Automate 201 (14h) | Model-driven 201 (12h) | Logic \u0026 Process MS Learn (15min) | Manage environments MS Learn (15min)"},
-    {"id":"F025","titre":"SQL / Requêtage","type":"Formation","offre":"Offre 1 - Data Products \u0026 Analytics","bucket":"Analyse","niveau":"Fondamentaux","duree":"3 j","liens":"https://eulidia.sharepoint.com/sites/Datatorii2/SitePages/Training-kit-SQL.aspx","tags":"SQL, Requêtage, Base de données, Jointures, Agrégations","plateforme":"SharePoint Datatorii","obligatoire":"Non","notes":"Training kit SQL Datatorii"},
-    {"id":"F026","titre":"Data Quality","type":"Formation","offre":"Offre 1 - Data Products \u0026 Analytics","bucket":"Analyse","niveau":"Intermédiaire","duree":"1 j","liens":"https://eulidia.sharepoint.com/:p:/s/POD/ETh7I721pDFMta9g062igg0BT8HXyUHf89R4L2k38uIWTw?e=1iGzAl | https://www.linkedin.com/learning/data-quality-core-concepts","tags":"Data Quality, Qualité des données, QoD, DQ Rules, Profiling","plateforme":"SharePoint POD + LinkedIn Learning","obligatoire":"Non","notes":"Intro QoD (SharePoint POD) + Data Quality Core Concepts LinkedIn Learning (essai Premium gratuit)"},
-    {"id":"F027","titre":"Copilot / Copilot Studio","type":"Formation","offre":"Offre 2 - Automation \u0026 AI","bucket":"Process","niveau":"Fondamentaux","duree":"1 j","liens":"https://learn.microsoft.com/fr-fr/microsoft-copilot-studio/","tags":"Copilot, Copilot Studio, Microsoft 365 Copilot, Chatbot, Low-code AI","plateforme":"MS Learn","obligatoire":"Non","notes":"Documentation et parcours MS Learn Copilot Studio"},
-    {"id":"F028","titre":"Agents IA \u0026 GenAI","type":"Formation","offre":"Offre 2 - Automation \u0026 AI","bucket":"Process","niveau":"Intermédiaire","duree":"1 j","liens":"https://learn.microsoft.com/fr-fr/training/paths/develop-ai-agents-azure-open-ai-semantic-kernel-sdk/","tags":"Agents IA, GenAI, Azure OpenAI, LLM, Prompt engineering, Semantic Kernel","plateforme":"MS Learn","obligatoire":"Non","notes":"Parcours MS Learn : développer des agents IA avec Azure OpenAI et Semantic Kernel"},
-    {"id":"F029","titre":"Data Literacy","type":"Formation","offre":"Offre 4 - Data Culture \u0026 Governance","bucket":"Adoption","niveau":"Fondamentaux","duree":"1 j","liens":"https://www.coursera.org/learn/data-literacy","tags":"Data Literacy, Culture data, Data-driven, Compréhension des données","plateforme":"Externe (Coursera)","obligatoire":"Non","notes":"Cours Data Literacy Coursera — à destination des équipes clients et consultants juniors"},
-    {"id":"F030","titre":"IA Générative \u0026 Claude — Bases","type":"Formation","offre":"Transverse","bucket":"Process","niveau":"Fondamentaux","duree":"0,5 j","liens":"https://anthropic.skilljar.com/claude-101 | https://anthropic.skilljar.com/ai-capabilities-and-limitations","tags":"IA générative, Claude, LLM, Prompting, Capacités IA, Limites IA","plateforme":"Externe (Anthropic / Skilljar)","obligatoire":"Non","notes":"Cours Skilljar : Claude 101 + AI Capabilities and Limitations"},
-    {"id":"F031","titre":"Travailler efficacement avec l\u0027IA","type":"Formation","offre":"Transverse","bucket":"Process","niveau":"Fondamentaux","duree":"0,5 j","liens":"https://anthropic.skilljar.com/ai-fluency-framework-foundations","tags":"AI Fluency, Collaboration IA, Éthique IA, Productivité, Prompt engineering","plateforme":"Externe (Anthropic / Skilljar)","obligatoire":"Non","notes":"Cours Skilljar : AI Fluency Framework \u0026 Foundations"},
-    {"id":"F032","titre":"Claude CoWork — Prise en main","type":"Formation","offre":"Offre 2 - Automation \u0026 AI","bucket":"Process","niveau":"Fondamentaux","duree":"2 h","liens":"https://anthropic.skilljar.com/introduction-to-claude-cowork","tags":"Claude CoWork, Plugins, Skills, Workflows, Fichiers, Agents","plateforme":"Externe (Anthropic / Skilljar)","obligatoire":"Non","notes":"Cours Skilljar : Introduction to Claude CoWork — task loop, plugins, skills, fichiers"},
-    {"id":"F033","titre":"Agents \u0026 Skills IA avec Claude","type":"Formation","offre":"Offre 2 - Automation \u0026 AI","bucket":"Process","niveau":"Intermédiaire","duree":"0,5 j","liens":"https://anthropic.skilljar.com/introduction-to-agent-skills | https://anthropic.skilljar.com/introduction-to-subagents","tags":"Agents IA, Skills, Subagents, Workflows multi-étapes, Automatisation","plateforme":"Externe (Anthropic / Skilljar)","obligatoire":"Non","notes":"Cours Skilljar : Introduction to Agent Skills + Introduction to Subagents"},
-    {"id":"C001","titre":"Agile - PSM I","type":"Certification","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Certifs","niveau":"Avancé","duree":"—","liens":"https://eulidia.sharepoint.com/sites/POD/SitePages/Pr%C3%A9parer-la-PSM-I.aspx","tags":"Agile, SCRUM, PSM, Scrum Master","plateforme":"SharePoint POD","obligatoire":"Non","notes":"Préparation guidée sur SharePoint POD"},
-    {"id":"C002","titre":"Agile - PSPO I (Complet)","type":"Certification","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Certifs","niveau":"Avancé","duree":"—","liens":"https://eulidia.sharepoint.com/sites/POD/SitePages/Pr%C3%A9parer-la-PSPO-I.aspx","tags":"Agile, Product Owner, PSPO, Backlog","plateforme":"SharePoint POD","obligatoire":"Non","notes":"Parcours complet"},
-    {"id":"C003","titre":"Agile - PSPO I (Express)","type":"Certification","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Certifs","niveau":"Intermédiaire","duree":"—","liens":"https://eulidia.sharepoint.com/:u:/r/sites/POD/SitePages/PSPO-I---TK-express.aspx","tags":"Agile, Product Owner, PSPO, Backlog","plateforme":"SharePoint POD","obligatoire":"Non","notes":"Version accélérée — pour profils déjà agile"},
-    {"id":"C004","titre":"Change Management - Prosci (ADKAR)","type":"Certification","offre":"Offre 4 - Data Culture \u0026 Governance","bucket":"Certifs","niveau":"Avancé","duree":"—","liens":"https://www.prosci.com/certifications/change-practitioner","tags":"ADKAR, Change Management, Conduite du changement, Prosci","plateforme":"Externe (Prosci)","obligatoire":"Non","notes":"~3 jours de formation + examen — programme payant"},
-    {"id":"C005","titre":"Power BI - PL-300","type":"Certification","offre":"Offre 1 - Data Products \u0026 Analytics","bucket":"Certifs","niveau":"Avancé","duree":"—","liens":"https://learn.microsoft.com/fr-fr/credentials/certifications/power-bi-data-analyst-associate/","tags":"Power BI, PL-300, Data Analyst, DAX, Power Query","plateforme":"MS Learn","obligatoire":"Non","notes":"Remplace l\u0027ancienne PL-100 (retirée en 2021) — à passer après F002 Power BI"},
-    {"id":"C006","titre":"Power Apps - PL-200","type":"Certification","offre":"Offre 2 - Automation \u0026 AI","bucket":"Certifs","niveau":"Avancé","duree":"—","liens":"https://learn.microsoft.com/fr-fr/credentials/certifications/power-platform-functional-consultant-associate/","tags":"Power Apps, PL-200, Power Platform, Power Automate, Low-code","plateforme":"MS Learn","obligatoire":"Non","notes":"À passer après F024 Power Apps formation"},
-    {"id":"C007","titre":"Gestion de projet - PMP","type":"Certification","offre":"Offre 3 - Data Strategy \u0026 Projects","bucket":"Certifs","niveau":"Avancé","duree":"—","liens":"https://www.pmi.org/certifications/project-management-pmp","tags":"PMP, Project Management, PMI, Leadership","plateforme":"Externe (PMI)","obligatoire":"Non","notes":"Certification internationale — requiert 36 mois d\u0027expérience"}
-  ];
-
-  /* ---------------------------------------------------------------
      Référentiels
+     Toutes les données viennent des listes SharePoint du site : une seule source par sujet
+     (formations : PODz Formations, métiers : PODz Metiers, personnes : PODz Equipe…).
      --------------------------------------------------------------- */
   // Les offres sont déduites des formations (les noms exacts peuvent varier d'une liste à l'autre) ;
   // la couleur suit le numéro de l'offre : 1 vert, 2 rose, 3 violet, 4 corail, transverse bleu.
@@ -555,7 +520,10 @@
   }
   var COULEUR_HEX = {Orange:"#FF9E7A", Jaune:"#F4C04E", Vert:"#9FCBAE", Bleu:"#BCD3FF", Rose:"#F5B3C4", Violet:"#B7A4EC"};
 
-  var PROFILS = [
+  // Métiers POD : lus dans la liste "PODz Metiers". METIERS_INIT ne sert qu'à remplir cette liste
+  // une seule fois, quand le bouton « Installer » la crée vide.
+  var PROFILS = [];
+  var METIERS_INIT = [
     {slug:"nouveau-podz", name:"Nouveau PODz", tag:"Bienvenue", job:"Tu arrives chez POD et tu poses tes bases.", heroDesc:"Tes premières semaines chez POD : la culture maison, l'IA au quotidien et les fondamentaux du conseil avant de rejoindre une offre.", couleur:"Jaune", pageDepart:true},
     {slug:"analyste-data", name:"Analyste Data", tag:"Data Products & Analytics", job:"Tu transformes la donnée en produits et en décisions.", heroDesc:"SQL, modélisation, Power BI et dataviz : le parcours pour concevoir des produits data utiles et fiables.", couleur:"Vert"},
     {slug:"builder-ia", name:"Builder IA", tag:"Automation & AI", job:"Tu automatises les processus et construis avec l'IA.", heroDesc:"Power Automate, Power Apps, Copilot et agents IA : le parcours pour fluidifier les processus métier de nos clients.", couleur:"Rose"},
@@ -563,15 +531,9 @@
     {slug:"guide-adoption", name:"Guide adoption", tag:"Data Culture & Governance", job:"Tu embarques les équipes dans la culture data.", heroDesc:"Data literacy, data catalog, ADKAR et gouvernance : le parcours pour faire adopter la donnée durablement.", couleur:"Orange"}
   ];
 
-  // Équipes de démonstration (rattachement manager à confirmer avec la liste SharePoint).
-  var USERS = [
-    {id:"m1", name:"Maud Gubler", role:"manager", title:"Manager", color:"#B7A4EC"},
-    {id:"m2", name:"Fabienne Eliott", role:"manager", title:"Manager", color:"#FF9E7A"},
-    {id:"c1", name:"Laeticia Moula", role:"consultant", managerId:"m1", title:"Consultant·e", color:"#F4C04E"},
-    {id:"c2", name:"Chloé de Wilde", role:"consultant", managerId:"m1", title:"Consultant·e", color:"#9FCBAE"},
-    {id:"c3", name:"Carole ING", role:"consultant", managerId:"m2", title:"Consultant·e", color:"#F5B3C4"},
-    {id:"c4", name:"Charlotte Bellande", role:"consultant", managerId:"m2", title:"Consultant·e", color:"#BCD3FF"}
-  ];
+  // Personnes : lues dans la liste "PODz Equipe". L'identifiant d'une personne est son e-mail (en minuscules).
+  var USERS = [];
+  function emailKey(s){ return String(s || "").trim().toLowerCase(); }
 
   var STATUTS = {
     afaire:{label:"Non commencée", cls:"st-afaire"},
@@ -620,51 +582,38 @@
     }catch(e){ return "Lien"; }
   }
 
-  var F = {}, FORMATIONS = []; // formations indexées par ID
-  // Construit le catalogue à partir de lignes au format de l'export Excel (CATALOGUE ou liste SharePoint).
+  var F = {}, FORMATIONS = [], FORM_ROWS = []; // formations indexées par ID ; lignes brutes de "PODz Formations"
+  var PORTEE_MISSION = "Spécifique mission";
+  // Une ligne de "PODz Formations" -> formation de l'appli. L'identifiant interne est le numéro de la ligne
+  // SharePoint ("PF12") : il ne change jamais, même si un manager modifie l'ID formation affiché (F001…).
+  function mapFormation(c){
+    return {
+      id:"PF" + c.Id, spId:c.Id, code:c.FormationId || "", titre:c.Title || "(sans titre)", type:c.TypeFormation || "Formation",
+      offre:c.Offre || "Transverse", competence:c.Competence || "", bucket:c.Bucket || "", niveau:c.Niveau || "",
+      duree:c.Duree || "—", heures:dureeHeures(c.Duree), format:c.Format || "", sachant:c.Sachant || "", plateforme:c.Plateforme || "",
+      liens:splitPipe(c.Liens), tags:splitCsv(c.Tags), notes:splitPipe(c.Notes).join("\n"), obligatoire:c.Obligatoire===true,
+      portee:c.Portee || "Catalogue POD", contexte:c.Contexte || "", dateAjout:c.DateAjout ? String(c.DateAjout).slice(0, 10) : ""
+    };
+  }
   function buildFormations(rows){
+    if(rows) FORM_ROWS = rows;
     F = {};
-    FORMATIONS = rows.map(function(r){
-      var h = (r.heures != null && r.heures !== "") ? Number(r.heures) : dureeHeures(r.duree);
-      var f = {
-        id:r.id, titre:r.titre, type:r.type, offre:r.offre||"Transverse", bucket:r.bucket, niveau:r.niveau,
-        duree:(r.heures != null && r.heures !== "") ? hoursToLabel(h) : (r.duree||"—"), heures:h,
-        liens:splitPipe(r.liens), tags:splitCsv(r.tags),
-        plateforme:r.plateforme, obligatoire:String(r.obligatoire).toLowerCase()==="oui", notes:splitPipe(r.notes).join("\n"),
-        parcoursTitres:r.parcours || [], ordre:(r.ordre != null && r.ordre !== "") ? Number(r.ordre) : 9999
-      };
-      F[f.id] = f; return f;
-    });
+    FORMATIONS = FORM_ROWS.map(function(c){ var f = mapFormation(c); F[f.id] = f; return f; });
     rebuildOffres();
   }
-  buildFormations(CATALOGUE);
-  // Titres des formations de l'export Excel d'origine (F001…) : permet de retrouver une formation
-  // quand le catalogue vient d'une autre liste SharePoint, où les identifiants sont différents.
-  var EMB_TITLES = {};
-  CATALOGUE.forEach(function(r){ EMB_TITLES[r.id] = r.titre; });
+  // Formation propre à une mission : visible des managers et des personnes à qui elle est attribuée.
+  function isMission(f){ return f.portee===PORTEE_MISSION; }
+  function isNew(f){ return !!f.dateAjout && daysUntil(f.dateAjout) >= -30; }
 
-  // Quiz bonus d'exemple (même format que la liste SharePoint "PODz Quiz" : une ligne par question ;
-  // "reponses" = numéros des bonnes réponses, séparés par ";").
-  var DEMO_QUIZ = [
-    {formation:"Intégration POD", question:"Où retrouves-tu le parcours d'intégration en ligne ?", choix:["Sur le SharePoint Datatorii","Uniquement dans l'e-mail de bienvenue","Sur un site externe"], reponses:"1"},
-    {formation:"Intégration POD", question:"Qui présente POD lors de la session d'intégration ?", choix:["Maud & Fabienne","Un prestataire externe","Personne, c'est en autonomie"], reponses:"1"},
-    {formation:"Power BI", question:"Quel langage sert à écrire les mesures dans Power BI ?", choix:["DAX","HTML","Python uniquement"], reponses:"1"},
-    {formation:"Power BI", question:"Quelle certification valide les compétences Power BI ?", choix:["PL-300","PL-200","PSM I"], reponses:"1"},
-    {formation:"Agile (SCRUM)", question:"Quelle est la durée maximale d'un sprint Scrum ?", choix:["1 mois","3 mois","6 mois"], reponses:"1"},
-    {formation:"Agile (SCRUM)", question:"Qui est responsable du backlog produit ?", choix:["Le Product Owner","Le Scrum Master","Le client final"], reponses:"1"},
-    {formation:"Agile (SCRUM)", question:"Lesquels sont des événements Scrum ?", choix:["Daily Scrum","Sprint Review","Comité de direction annuel","Rétrospective"], reponses:"1;2;4"},
-    {formation:"Cadrage et gestion de projet", question:"Que doit contenir une note de cadrage ?", choix:["Les objectifs","Le périmètre","Le planning","La liste des congés de l'équipe"], reponses:"1;2;3"},
-    {formation:"Cadrage et gestion de projet", question:"Que signifie RACI ?", choix:["Responsable, Approbateur, Consulté, Informé","Risque, Action, Coût, Impact","Revue, Analyse, Contrôle, Itération"], reponses:"1"},
-    {formation:"Data Literacy", question:"La data literacy, c'est avant tout…", choix:["Savoir lire, comprendre et utiliser les données","Savoir coder en Python","Administrer un datacenter"], reponses:"1"},
-    {formation:"Data Literacy", question:"Un bon indicateur (KPI) doit être…", choix:["Mesurable","Lié à un objectif","Le plus complexe possible"], reponses:"1;2"}
-  ];
-  var QUIZ = {};
-  // Regroupe les questions par formation (rattachées par titre ou par identifiant).
+  // Quiz bonus : liste "PODz Quiz", une ligne par question, rattachée à une formation par son titre ;
+  // "reponses" = numéros des bonnes réponses, séparés par ";".
+  var QUIZ = {}, QUIZ_ROWS = [];
   function buildQuiz(rows){
+    if(rows) QUIZ_ROWS = rows;
     QUIZ = {};
     var byTitle = {};
     FORMATIONS.forEach(function(f){ byTitle[norm(f.titre)] = f.id; });
-    rows.forEach(function(r){
+    QUIZ_ROWS.forEach(function(r){
       var fid = F[r.formation] ? r.formation : byTitle[norm(r.formation)];
       if(!fid || !r.question) return;
       var choices = Array.isArray(r.choix) ? r.choix : String(r.choix || "").split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean);
@@ -677,94 +626,26 @@
     });
     Object.keys(QUIZ).forEach(function(k){ QUIZ[k].questions.sort(function(a, b){ return a.ordre - b.ordre; }); });
   }
-  buildQuiz(DEMO_QUIZ);
 
   /* ---------------------------------------------------------------
-     État (persistance locale de la démo)
+     État : chargé depuis les listes SharePoint par spBoot()
      --------------------------------------------------------------- */
-  var STORE_KEY = "podz-academy-suivi-v2";
-
   function newAttribution(consultantId, fid, o){
     var start = o.start || todayIso();
     return {id:uid(), consultantId:consultantId, fid:fid, parcoursId:o.parcoursId||null, start:start,
-      due:o.due || addDays(start, o.delai||30), validation:o.validation||"auto", assignedBy:o.by||"m1",
+      due:o.due || addDays(start, o.delai||30), validation:o.validation||"auto", assignedBy:o.by||"",
       modules:{}, validated:false, aReprendre:false, comments:[], doneDate:null, cancelled:false, quiz:[]};
   }
 
-  function seed(){
-    var parcours = [
-      {id:"P1", titre:"Bien démarrer chez POD", description:"Les incontournables de tes 30 premiers jours.", profil:"nouveau-podz", statut:"Actif", owner:"m1",
-        etapes:[{fid:"F001",delai:3,validation:"auto"},{fid:"F031",delai:7,validation:"auto"},{fid:"F030",delai:10,validation:"auto"},{fid:"F029",delai:21,validation:"auto"},{fid:"F022",delai:30,validation:"manager"}]},
-      {id:"P2", titre:"Analyste Power BI", description:"De la donnée brute au rapport qui fait décider.", profil:"analyste-data", statut:"Actif", owner:"m1",
-        etapes:[{fid:"F025",delai:14,validation:"auto"},{fid:"F003",delai:21,validation:"auto"},{fid:"F002",delai:45,validation:"manager"},{fid:"F004",delai:60,validation:"auto"},{fid:"F012",delai:75,validation:"auto"},{fid:"C005",delai:90,validation:"manager"}]},
-      {id:"P3", titre:"Automatisation des processus", description:"Automatiser un processus métier avec la Power Platform et l'IA.", profil:"builder-ia", statut:"Actif", owner:"m1",
-        etapes:[{fid:"F023",delai:14,validation:"auto"},{fid:"F027",delai:21,validation:"auto"},{fid:"F024",delai:45,validation:"manager"},{fid:"F028",delai:60,validation:"auto"},{fid:"F033",delai:70,validation:"auto"},{fid:"C006",delai:90,validation:"manager"}]},
-      {id:"P4", titre:"Pilotage de projet Data", description:"Cadrer, planifier, piloter et recetter un projet data.", profil:"chef-de-projet", statut:"Actif", owner:"m1",
-        etapes:[{fid:"F022",delai:14,validation:"manager"},{fid:"F013",delai:21,validation:"auto"},{fid:"F015",delai:28,validation:"auto"},{fid:"F017",delai:35,validation:"auto"},{fid:"F016",delai:42,validation:"auto"},{fid:"F014",delai:60,validation:"auto"},{fid:"C001",delai:90,validation:"manager"}]},
-      {id:"P5", titre:"Acculturation Data", description:"Faire grandir la culture data d'une organisation.", profil:"guide-adoption", statut:"Actif", owner:"m1",
-        etapes:[{fid:"F029",delai:14,validation:"auto"},{fid:"F006",delai:21,validation:"auto"},{fid:"F005",delai:28,validation:"auto"},{fid:"F008",delai:42,validation:"manager"},{fid:"F020",delai:49,validation:"auto"},{fid:"C004",delai:90,validation:"manager"}]}
-    ];
-    var byId = {}; parcours.forEach(function(p){ byId[p.id]=p; });
-    function assignAll(pid, cid, start){
-      var by = USERS.filter(function(u){ return u.id===cid; })[0].managerId;
-      return byId[pid].etapes.map(function(e){ return newAttribution(cid, e.fid, {parcoursId:pid, start:start, delai:e.delai, validation:e.validation, by:by}); });
-    }
-    function done(a, d){ F[a.fid].liens.forEach(function(_, i){ a.modules[i] = {s:"Terminé", date:addDays(todayIso(), d)}; }); }
-
-    // Laeticia : 1re formation faite, 2e en cours et en retard.
-    var lae = assignAll("P1", "c1", addDays(todayIso(), -12));
-    done(lae[0], -10); lae[0].doneDate = addDays(todayIso(), -10);
-    lae[1].modules[0] = {s:"En cours", date:addDays(todayIso(), -3)};
-
-    // Chloé : onboarding fini sauf la validation manager du cadrage ; parcours Power BI démarré.
-    var chl = assignAll("P1", "c2", addDays(todayIso(), -42));
-    [0,1,2,3].forEach(function(i){ done(chl[i], -40+i*6); chl[i].doneDate = addDays(todayIso(), -40+i*6); });
-    done(chl[4], -2);
-    chl[4].comments.push({by:"c2", date:addDays(todayIso(), -2), text:"Toolkit cadrage très utile, j'aimerais un retour sur ma note de cadrage d'exemple."});
-    var chl2 = assignAll("P2", "c2", addDays(todayIso(), -20));
-    done(chl2[0], -8); chl2[0].doneDate = addDays(todayIso(), -8);
-    chl2[1].modules[0] = {s:"Terminé", date:addDays(todayIso(), -4)};
-    chl2[1].modules[1] = {s:"Terminé", date:addDays(todayIso(), -2)};
-    chl2[1].modules[2] = {s:"En cours", date:addDays(todayIso(), -1)};
-
-    // Carole : parcours Acculturation Data démarré.
-    var car = assignAll("P5", "c3", addDays(todayIso(), -10));
-    done(car[0], -4); car[0].doneDate = addDays(todayIso(), -4);
-    car[1].modules[0] = {s:"Terminé", date:addDays(todayIso(), -1)};
-    car[1].modules[1] = {s:"En cours", date:todayIso()};
-
-    // Charlotte : vient d'arriver.
-    var cha = assignAll("P1", "c4", addDays(todayIso(), -2));
-    cha[0].modules[0] = {s:"En cours", date:todayIso()};
-
-    // Profil PODz choisi par le manager pour chaque consultant·e.
-    var profils = {
-      c1:{slug:"chef-de-projet", by:"m1", date:addDays(todayIso(), -12)},
-      c2:{slug:"analyste-data", by:"m1", date:addDays(todayIso(), -40)},
-      c3:{slug:"guide-adoption", by:"m2", date:addDays(todayIso(), -10)},
-      c4:{slug:"nouveau-podz", by:"m2", date:addDays(todayIso(), -2)}
-    };
-    return {version:2, currentUser:"c1", parcours:parcours, attributions:lae.concat(chl, chl2, car, cha), profils:profils};
-  }
-
-  function load(){
-    try{ var s = JSON.parse(localStorage.getItem(STORE_KEY)); if(s && s.version===2) return s; }catch(e){}
-    return seed();
-  }
-  // Sur un site SharePoint, les données vivent dans les listes "PODz …" ; en local, dans ce navigateur.
-  var SP_MODE = /\.sharepoint\.com$/i.test(location.hostname);
-  function save(){
-    if(SP_MODE){ spSave(); return; }
-    try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){}
-  }
-  var S = SP_MODE ? null : load();
-  // Démo : personnes créées avec l'assistant « Nouveau profil ».
-  if(S && S.users) S.users.forEach(function(x){ if(!USERS.some(function(y){ return y.id===x.id; })) USERS.push(x); });
+  // PODz Academy ne fonctionne que dans une page SharePoint (Modern Script Editor) : toutes ses données y sont.
+  var SP_MODE = /\.sharepoint\.com$/i.test(location.hostname) || !!window._spPageContextInfo;
+  function save(){ if(SP_MODE) spSave(); }
+  var S = null;
 
   /* ---------------------------------------------------------------
      Règles métier
      --------------------------------------------------------------- */
-  function me(){ return USERS.filter(function(u){ return u.id===S.currentUser; })[0] || USERS[1]; }
+  function me(){ return USERS.filter(function(u){ return u.id===S.currentUser; })[0] || USERS[0]; }
   function user(id){ return USERS.filter(function(u){ return u.id===id; })[0] || {name:"?", color:"#C8B5E8"}; }
   function team(managerId){ return USERS.filter(function(u){ return u.managerId===managerId; }); }
   function parcoursById(id){ return S.parcours.filter(function(p){ return p.id===id; })[0]; }
@@ -834,7 +715,7 @@
   var userSel = document.getElementById("pod-user-select");
   var toastEl = document.getElementById("pod-toast");
   var OPEN = {};          // accordéons ouverts (survivent aux re-rendus)
-  var ui = {catFiltre:{q:"", offre:"", bucket:"", niveau:"", type:""}, mesFiltre:"tout", mesTri:"parcours", assignOpen:null, reprendreOpen:null, draft:null, animate:true};
+  var ui = {catFiltre:{q:"", offre:"", bucket:"", niveau:"", type:"", portee:""}, mesFiltre:"tout", mesTri:"parcours", assignOpen:null, reprendreOpen:null, draft:null, animate:true};
 
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(function(){ toastEl.classList.remove("show"); }, 2600); }
 
@@ -1053,11 +934,11 @@
 
   function detailInfos(f){
     var tags = f.tags.map(function(t){ return '<span class="pod-detail-tag">'+esc(t)+'</span>'; }).join("");
+    function item(label, v){ return v ? '<div class="pod-detail-item"><div class="pod-detail-label">'+label+'</div><div class="pod-detail-value">'+esc(v)+'</div></div>' : ''; }
     return '<div class="pod-detail-grid">' +
-        '<div class="pod-detail-item"><div class="pod-detail-label">Offre</div><div class="pod-detail-value">'+esc(offreLabel(f.offre))+'</div></div>' +
-        '<div class="pod-detail-item"><div class="pod-detail-label">Niveau</div><div class="pod-detail-value">'+esc(f.niveau)+'</div></div>' +
-        '<div class="pod-detail-item"><div class="pod-detail-label">Durée</div><div class="pod-detail-value">'+esc(f.duree)+'</div></div>' +
-        '<div class="pod-detail-item"><div class="pod-detail-label">Plateforme</div><div class="pod-detail-value">'+esc(f.plateforme)+'</div></div>' +
+        item("Offre", offreLabel(f.offre)) + item("Compétence", f.competence) + item("Niveau", f.niveau) + item("Durée", f.duree) +
+        item("Format", f.format) + item("Plateforme", f.plateforme) + item("Sachant", f.sachant) + item("ID formation", f.code) +
+        (isMission(f) ? item("Mission", f.contexte || "Spécifique mission") : '') +
       '</div>' +
       (tags ? '<div class="pod-detail-tags">'+tags+'</div>' : "") +
       (f.notes ? '<div class="pod-notes"><div class="pod-notes-label">Notes</div>'+esc(f.notes)+'</div>' : "");
@@ -1099,7 +980,7 @@
     }).join("");
     // Sur SharePoint, seule une personne qui gère le site peut voir la page « en tant que » quelqu'un d'autre.
     userSel.disabled = SP_MODE && !SP_ADMIN;
-    userSel.previousElementSibling.textContent = SP_MODE ? (SP_ADMIN ? "Aperçu en tant que" : "Connecté·e") : "Mode démo";
+    userSel.previousElementSibling.textContent = SP_ADMIN ? "Aperçu en tant que" : "Connecté·e";
     var pb = personBee(u.id);
     document.getElementById("pod-user-bee").innerHTML = beeSvg(pb.color, pb.slug);
     var role = document.getElementById("pod-role");
@@ -1280,12 +1161,15 @@
     return ref ? {k:"refusee", a:ref} : {k:""};
   }
   function viewCatalogue(){
-    var u = me(), st = ui.catFiltre, q = norm(st.q);
-    var list = FORMATIONS.filter(function(f){
+    var u = me(), st = ui.catFiltre, q = norm(st.q), mgr = u.role==="manager";
+    // Un·e consultant·e ne voit les formations propres à une mission que si elles sont dans son plan.
+    var visibles = FORMATIONS.filter(function(f){ return mgr || !isMission(f) || catState(f.id, u.id).k==="plan"; });
+    var list = visibles.filter(function(f){
       if(st.offre && f.offre!==st.offre) return false;
       if(st.niveau && f.niveau!==st.niveau) return false;
       if(st.type && f.type!==st.type) return false;
-      if(q && norm(f.titre+" "+f.tags.join(" ")+" "+f.plateforme).indexOf(q)===-1) return false;
+      if(mgr && st.portee && f.portee!==st.portee) return false;
+      if(q && norm(f.titre+" "+f.tags.join(" ")+" "+f.plateforme+" "+f.competence+" "+f.code+" "+f.contexte).indexOf(q)===-1) return false;
       return true;
     }).sort(function(a, b){ return a.type!==b.type ? (a.type==="Formation" ? -1 : 1) : a.titre.localeCompare(b.titre); });
     function pills(group, label, values){
@@ -1305,14 +1189,17 @@
         '<div class="pod-mini__meta">'+esc(offreLabel(f.offre))+(f.bucket ? ' · '+esc(f.bucket) : '')+'</div>' +
         '<div class="pod-mini__title">'+rucheIcon(f)+' '+esc(f.titre)+'</div>' +
         '<div class="pod-mini__row"><span class="pod-chip">'+esc(f.niveau)+'</span><span class="pod-chip">⏱ '+esc(f.duree)+'</span>' +
-          (f.type==="Certification" ? '<span class="pod-chip certif">Certification</span>' : '') + (f.obligatoire ? '<span class="pod-chip oblig">Oblig.</span>' : '') + '</div>' +
+          (f.type==="Certification" ? '<span class="pod-chip certif">Certification</span>' : '') + (f.obligatoire ? '<span class="pod-chip oblig">Oblig.</span>' : '') +
+          (isNew(f) ? '<span class="pod-chip new">✨ Nouveau</span>' : '') + (isMission(f) ? '<span class="pod-chip">🎯 '+esc(f.contexte || "Mission")+'</span>' : '') + '</div>' +
         '<div class="pod-mini__cta"><span>Voir le détail ›</span>'+right+'</div></div>';
     }).join("");
-    return bc([ ["Catalogue"] ]) + (u.role==="manager" ? "" : coach("catalogue")) +
+    return bc([ ["Catalogue"] ]) + (mgr ? "" : coach("catalogue")) +
       '<div class="pod-cat-head"><div class="pod-cat-head-bee pod-flap">'+beeSvg("#BDD1FF", "analyste-data")+'</div><div class="pod-cat-head-text"><h1>Catalogue des formations POD</h1>' +
-        '<p>Toutes les formations et certifications, même celles qui ne sont pas dans ton plan.</p></div><div class="pod-cat-head-stats"><b>'+list.length+'</b>sur '+FORMATIONS.length+'</div></div>' +
+        '<p>Toutes les formations et certifications, même celles qui ne sont pas dans ton plan.</p></div><div class="pod-cat-head-stats"><b>'+list.length+'</b>sur '+visibles.length+'</div>' +
+        (mgr ? '<button type="button" class="pod-btn honey" data-action="formNew">+ Nouvelle formation</button>' : '') + '</div>' +
       '<input type="search" class="pod-search" id="cat-search" placeholder="Rechercher : Power BI, cadrage, Copilot…" value="'+esc(st.q)+'" aria-label="Rechercher dans le catalogue">' +
-      '<div class="pod-panel">' + pills("offre", "Nos offres", OFFRES) + pills("niveau", "Niveau", ["Fondamentaux","Intermédiaire","Avancé"]) + pills("type", "Type", ["Formation","Certification"]) + '</div>' +
+      '<div class="pod-panel">' + pills("offre", "Nos offres", OFFRES) + pills("niveau", "Niveau", ["Fondamentaux","Intermédiaire","Avancé"]) + pills("type", "Type", ["Formation","Certification"]) +
+        (mgr ? pills("portee", "Portée", ["Catalogue POD", PORTEE_MISSION]) : '') + '</div>' +
       '<div class="pod-cat-grid">'+(cards || '<div class="pod-empty" style="grid-column:1/-1">Aucune formation ne correspond à ces critères. 🐝</div>')+'</div>';
   }
 
@@ -1335,10 +1222,91 @@
         team(u.id).map(function(c){ return '<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>'; }).join("") + '</select>' +
         '<label for="md-due">Échéance</label><input type="date" id="md-due" value="'+addDays(todayIso(), 30)+'"><button type="button" class="pod-btn small" data-action="mgrAdd" data-fid="'+esc(fid)+'">Ajouter</button></div>';
     }
+    if(u.role==="manager") foot = '<button type="button" class="pod-btn ghost" data-action="formEdit" data-fid="'+esc(fid)+'" style="margin-right:auto">✎ Modifier la formation</button>' + foot;
     openModal('<div class="pod-mini__row"><span class="pod-chip">'+esc(offreLabel(f.offre))+'</span>'+(f.type==="Certification" ? '<span class="pod-chip certif">Certification</span>' : '')+(f.obligatoire ? '<span class="pod-chip oblig">Oblig.</span>' : '')+'</div>' +
       '<h2>'+rucheIcon(f)+' '+esc(f.titre)+'</h2>' + detailInfos(f) +
       '<span class="pod-label">Ressources</span><div style="margin-top:6px">'+linksHtml(f)+'</div>' + mgr +
       '<div class="pod-modal-foot">'+foot+'</div>', offreColor(f.offre));
+  }
+
+  /* ---------------------------------------------------------------
+     Formulaire formation (managers) : ajoute ou modifie une ligne de "PODz Formations".
+     Les listes de choix (Type, Offre, Niveau…) sont celles des colonnes de la liste.
+     --------------------------------------------------------------- */
+  var FORM_CHOICES = {}; // nom interne de la colonne -> choix possibles, lus dans la liste au démarrage
+  function choicesOf(name, current){
+    var out = (FORM_CHOICES[name] || []).slice();
+    FORM_ROWS.forEach(function(r){ if(r[name] && out.indexOf(r[name])===-1) out.push(r[name]); });
+    if(current && out.indexOf(current)===-1) out.push(current);
+    return out;
+  }
+  // Prochain ID formation libre : F034 pour une formation, C008 pour une certification.
+  function nextCode(type){
+    var pre = type==="Certification" ? "C" : "F", max = 0;
+    FORM_ROWS.forEach(function(r){ var m = new RegExp("^" + pre + "(\\d+)$").exec(String(r.FormationId || "").trim()); if(m) max = Math.max(max, +m[1]); });
+    var n = String(max + 1); while(n.length < 3) n = "0" + n;
+    return pre + n;
+  }
+  function openFormationForm(fid){
+    if(me().role!=="manager") return;
+    var f = fid ? F[fid] : null, r = f ? FORM_ROWS.filter(function(x){ return x.Id===f.spId; })[0] : {};
+    if(fid && !r) return;
+    var type = r.TypeFormation || "Formation";
+    function field(name, label, input, wide){ return '<div class="pod-field"'+(wide ? ' style="grid-column:1/-1"' : '')+'><label for="ff-'+name+'">'+label+'</label>'+input+'</div>'; }
+    function txt(name, label, ph, wide){ return field(name, label, '<input type="text" id="ff-'+name+'" name="'+name+'" value="'+esc(r[name] || "")+'" placeholder="'+esc(ph || "")+'"'+(name==="Bucket" ? ' list="ff-buckets"' : '')+'>', wide); }
+    function sel(name, label, required, dflt){
+      var cur = r[name] || dflt || "";
+      return field(name, label, '<select id="ff-'+name+'" name="'+name+'">'+(required ? '' : '<option value="">—</option>') +
+        choicesOf(name, cur).map(function(c){ return '<option'+(c===cur ? ' selected' : '')+'>'+esc(c)+'</option>'; }).join("") + '</select>');
+    }
+    function area(name, label, ph){ return field(name, label, '<textarea id="ff-'+name+'" name="'+name+'" placeholder="'+esc(ph)+'">'+esc(r[name] || "")+'</textarea>', true); }
+    var buckets = choicesOf("Bucket").map(function(b){ return '<option value="'+esc(b)+'">'; }).join("");
+    openModal('<h2>'+(f ? "Modifier « "+esc(f.titre)+" »" : "Nouvelle formation")+'</h2>' +
+      '<p class="pod-sub">Enregistrée dans la liste <b>PODz Formations</b>. Les champs marqués * sont obligatoires.</p>' +
+      '<form id="pod-fform" data-action="formSave" data-fid="'+esc(fid || "")+'"><div class="pod-form-grid">' +
+        txt("Title", "Titre *", "Ex. Power BI avancé", true) +
+        field("FormationId", "ID formation", '<input type="text" id="ff-FormationId" name="FormationId" value="'+esc(f ? (r.FormationId || "") : nextCode(type))+'"'+(f ? '' : ' data-auto="1"')+'>') +
+        sel("TypeFormation", "Type *", true, "Formation") + sel("Offre", "Offre *", true) + sel("Niveau", "Niveau *", true) +
+        sel("Competence", "Compétence") + txt("Duree", "Durée", "0,5 j · 2 h · 3 j") + sel("Format", "Format") +
+        txt("Plateforme", "Plateforme", "MS Learn, SharePoint POD…") + txt("Bucket", "Bucket", "Analyse, Pilotage…") + txt("Sachant", "Sachant", "Qui contacter en interne") +
+        area("Liens", "Liens * (un par ligne)", "https://…") +
+        txt("Tags", "Tags (séparés par des virgules)", "Power BI, DAX, Dataviz", true) +
+        area("Notes", "Notes", "Conseils, modules à faire, durée de chaque ressource…") +
+        sel("Portee", "Portée", true, "Catalogue POD") + txt("Contexte", "Contexte (mission / client)", "Si spécifique à une mission") +
+        field("Obligatoire", "Obligatoire", '<label style="display:flex;gap:8px;align-items:center;font-size:13px;text-transform:none;letter-spacing:0;color:var(--pod-fonce)"><input type="checkbox" id="ff-Obligatoire" name="Obligatoire"'+(r.Obligatoire ? ' checked' : '')+'> Fait partie du socle commun POD</label>') +
+      '</div><datalist id="ff-buckets">'+buckets+'</datalist></form>' +
+      '<div class="pod-modal-foot"><button type="button" class="pod-btn ghost" data-action="modalClose">Annuler</button>' +
+        '<button type="button" class="pod-btn honey" data-action="formSave">'+(f ? "Enregistrer les modifications" : "🐝 Ajouter au catalogue")+'</button></div>', f ? offreColor(f.offre) : "#F2C14E");
+    var t = document.getElementById("ff-Title"); if(t) t.focus();
+  }
+  function saveFormation(btn){
+    var form = document.getElementById("pod-fform"); if(!form || me().role!=="manager") return;
+    var fid = form.getAttribute("data-fid"), f = fid ? F[fid] : null, row = f ? FORM_ROWS.filter(function(x){ return x.Id===f.spId; })[0] : null;
+    function v(n){ return String(form.elements[n].value || "").trim(); }
+    var liens = splitPipe(form.elements.Liens.value);
+    if(!v("Title")){ toast("Donne un titre à la formation."); form.elements.Title.focus(); return; }
+    if(FORM_ROWS.some(function(x){ return x!==row && norm(x.Title)===norm(v("Title")); })){ toast("Une formation porte déjà ce titre dans le catalogue."); return; }
+    if(!v("TypeFormation") || !v("Offre") || !v("Niveau")){ toast("Choisis le type, l'offre et le niveau."); return; }
+    if(!liens.length){ toast("Ajoute au moins un lien : chaque lien devient une ressource à cocher."); form.elements.Liens.focus(); return; }
+    if(liens.some(function(l){ return !/^https?:\/\//i.test(l); })){ toast("Chaque lien doit commencer par https://"); form.elements.Liens.focus(); return; }
+    // Une colonne Choix vide s'envoie à null ; les colonnes Texte acceptent une chaîne vide.
+    var item = {Title:v("Title"), FormationId:v("FormationId"), TypeFormation:v("TypeFormation"), Offre:v("Offre"), Competence:v("Competence") || null,
+      Niveau:v("Niveau"), Duree:v("Duree"), Format:v("Format") || null, Sachant:v("Sachant"), Plateforme:v("Plateforme"), Bucket:v("Bucket"),
+      Liens:liens.join("\n"), Tags:v("Tags"), Notes:String(form.elements.Notes.value || "").trim(), Obligatoire:form.elements.Obligatoire.checked,
+      Portee:v("Portee") || null, Contexte:v("Contexte")};
+    btn.disabled = true; btn.textContent = "Enregistrement…";
+    var done;
+    if(row) done = spUpdate("form", row.Id, item).then(function(){ Object.assign(row, item); return row; });
+    else { item.DateAjout = todayIso() + "T12:00:00Z"; done = spCreate("form", item).then(function(it){ FORM_ROWS.push(it); return it; }); }
+    done.then(function(it){
+      buildFormations(); buildQuiz(); closeModal(); rerender();
+      toast(row ? "Formation « " + item.Title + " » mise à jour." : "« " + item.Title + " » a rejoint le catalogue ! 🐝");
+      if(!row) confetti();
+      openDetail("PF" + it.Id);
+    }).catch(function(e){
+      btn.disabled = false; btn.textContent = row ? "Enregistrer les modifications" : "🐝 Ajouter au catalogue";
+      toast(/^403/.test(e.message) ? "SharePoint refuse l'enregistrement : il faut le droit de modifier la liste PODz Formations." : "Enregistrement impossible : " + e.message);
+    });
   }
 
   /* ---------------------------------------------------------------
@@ -1359,9 +1327,8 @@
     return coach("metiers") +
       '<div class="pod-home-hero"><div class="pod-home-eyebrow">⬡ PODz Academy</div><h1 class="pod-home-title">Quel <em>PODz</em> es-tu&nbsp;?</h1>' +
       '<p class="pod-home-sub">Les parcours types de chaque métier POD, construits à partir du catalogue de formations.</p></div>' +
-      '<div class="pod-home-grid">'+grid+'</div>' +
-      (SP_MODE ? '<p class="pod-demo-note">Données enregistrées dans les listes SharePoint de ce site · PODz Academy v10</p>'
-               : '<p class="pod-demo-note">Maquette de démonstration · données gardées dans ce navigateur · v10. <button type="button" class="pod-link-btn" data-action="reset">Réinitialiser la démo</button></p>');
+      (grid ? '<div class="pod-home-grid">'+grid+'</div>' : '<div class="pod-empty">Aucun métier pour l\'instant : ils se décrivent dans la liste <b>PODz Metiers</b> du site.</div>') +
+      '<p class="pod-demo-note">Données enregistrées dans les listes SharePoint de ce site · PODz Academy v11.1</p>';
   }
 
   /* ---------------------------------------------------------------
@@ -1369,17 +1336,22 @@
      Le CV est lu dans le navigateur ; seules les formations choisies sont enregistrées.
      --------------------------------------------------------------- */
   var WIZ_STEPS = ["La personne", "Son CV", "Plan proposé", "Création"];
-  var CV_EXEMPLE = "Consultante data, 3 ans d'expérience.\nPower BI (rapports, DAX, Power Query), dashboards, SQL, modélisation en étoile.\nAteliers de recueil des besoins, gestion de projet agile (Scrum), Jira.\nCuriosité pour l'IA générative (ChatGPT, Copilot, prompt engineering).";
   var PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
   var PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
   var MAMMOTH = "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js";
   function wizInit(){ return {step:1, form:{nom:"", email:"", profil:"", manager:me().id}, cvNom:"", text:"", found:[], annees:null, picks:{}, groups:[], start:todayIso(), rythme:14, busy:false}; }
   // Les lecteurs PDF et Word ne sont chargés qu'au moment où un CV est déposé.
-  function loadScript(src){
+  // Une page SharePoint moderne a son propre chargeur de modules (window.define) : un lecteur qui le voit s'y
+  // enregistre au lieu de créer window.pdfjsLib / window.mammoth. On le masque donc le temps du chargement.
+  function loadScript(src, globalName){
     return new Promise(function(res, rej){
-      if(document.querySelector('script[src="'+src+'"]')) return res();
-      var s = document.createElement("script"); s.src = src; s.onload = res;
-      s.onerror = function(){ rej(new Error("lecteur de document bloqué")); };
+      if(window[globalName]) return res();
+      var amd = window.define, s = document.createElement("script");
+      function restore(){ if(amd !== undefined) window.define = amd; }
+      window.define = undefined;
+      s.src = src;
+      s.onload = function(){ restore(); window[globalName] ? res() : rej(new Error("lecteur de document indisponible")); };
+      s.onerror = function(){ restore(); rej(new Error("lecteur de document bloqué")); };
       document.head.appendChild(s);
     });
   }
@@ -1387,14 +1359,14 @@
     var name = String(file.name).toLowerCase();
     if(/\.(txt|md)$/.test(name)) return file.text();
     if(/\.pdf$/.test(name)) return file.arrayBuffer().then(function(buf){
-      return loadScript(PDFJS).then(function(){ window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; return window.pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise; });
+      return loadScript(PDFJS, "pdfjsLib").then(function(){ window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; return window.pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise; });
     }).then(function(pdf){
       var pages = [];
       for(var i=1;i<=pdf.numPages;i++) pages.push(pdf.getPage(i).then(function(pg){ return pg.getTextContent(); }).then(function(tc){ return tc.items.map(function(x){ return x.str; }).join(" "); }));
       return Promise.all(pages).then(function(a){ return a.join("\n"); });
     });
     if(/\.docx$/.test(name)) return file.arrayBuffer().then(function(buf){
-      return loadScript(MAMMOTH).then(function(){ return window.mammoth.extractRawText({arrayBuffer:buf}); });
+      return loadScript(MAMMOTH, "mammoth").then(function(){ return window.mammoth.extractRawText({arrayBuffer:buf}); });
     }).then(function(r){ return r.value; });
     return Promise.reject(new Error("format non pris en charge (PDF, Word .docx ou texte)"));
   }
@@ -1421,16 +1393,18 @@
       w.groups.push({title:title, ids:ids});
       ids.forEach(function(id){ if(!(id in w.picks)) w.picks[id] = checked(F[id]); });
     }
-    add("Socle commun POD", FORMATIONS.filter(function(f){ return f.obligatoire; }), function(){ return true; });
+    // Les formations propres à une mission ne sont jamais proposées d'office : le manager peut les ajouter à la main.
+    var pod = FORMATIONS.filter(function(f){ return !isMission(f); });
+    add("Socle commun POD", pod.filter(function(f){ return f.obligatoire; }), function(){ return true; });
     var prof = PROFILS.filter(function(p){ return p.slug===w.form.profil; })[0];
     if(prof){
       var ids = [];
       S.parcours.filter(function(p){ return p.profil===prof.slug && p.statut==="Actif"; }).forEach(function(p){ p.etapes.forEach(function(e){ ids.push(F[e.fid]); }); });
       add("Parcours du métier « "+prof.name+" »", ids, function(f){ return !acquise(f); });
     }
-    add("Pour aller plus loin d'après le CV", FORMATIONS.filter(function(f){ return score(f) >= 1 && !acquise(f); }).sort(function(a, b){ return score(b) - score(a); }).slice(0, 8),
+    add("Pour aller plus loin d'après le CV", pod.filter(function(f){ return score(f) >= 1 && !acquise(f); }).sort(function(a, b){ return score(b) - score(a); }).slice(0, 8),
       function(f){ return f.niveau!=="Fondamentaux"; });
-    add("Probablement déjà acquises", FORMATIONS.filter(acquise), function(){ return false; });
+    add("Probablement déjà acquises", pod.filter(acquise), function(){ return false; });
   }
   function wizPicked(w){
     var out = [];
@@ -1449,17 +1423,15 @@
       .catch(function(e){ toast("Lecture impossible : " + e.message + ". Essaie « Coller le texte du CV »."); });
   }
   function wizCreate(){
-    var w = ui.wiz, fm = w.form, name = fm.nom.trim(), picks = wizPicked(w), mgr = me();
-    if(USERS.some(function(x){ return norm(x.name)===norm(name); })){ toast("Une personne porte déjà ce nom dans l'équipe."); return; }
+    var w = ui.wiz, fm = w.form, name = fm.nom.trim(), picks = wizPicked(w), mgr = me(), id = emailKey(fm.email);
+    if(user(id).email){ toast("Cette adresse e-mail est déjà dans l'équipe."); return; }
     var prof = PROFILS.filter(function(p){ return p.slug===fm.profil; })[0], color = prof ? (COULEUR_HEX[prof.couleur] || "#C8B5E8") : "#C8B5E8";
-    var id = SP_MODE ? name : "c" + Date.now().toString(36);
-    var nu = {id:id, name:name, role:"consultant", managerId:fm.manager, title:"Consultant·e", color:color, email:fm.email.trim()};
+    var nu = {id:id, name:name, role:"consultant", managerId:fm.manager, title:"Consultant·e", color:color, email:id};
     function finish(){
       USERS.push(nu);
-      if(!SP_MODE) S.users = (S.users || []).concat([nu]); // démo : la personne est gardée dans ce navigateur
       S.profils = S.profils || {};
       if(prof) S.profils[id] = {slug:prof.slug, by:mgr.id, date:todayIso()};
-      if(SP_MODE) spSnap.prof[id] = JSON.stringify(S.profils[id] || null);
+      spSnap.prof[id] = JSON.stringify(S.profils[id] || null);
       picks.forEach(function(fid, i){
         S.attributions.push(newAttribution(id, fid, {start:w.start, due:addDays(w.start, w.rythme * (i + 1)), by:mgr.id, validation:F[fid].type==="Certification" ? "manager" : "auto"}));
       });
@@ -1467,9 +1439,8 @@
       toast(name + " a rejoint la ruche ! 🐝");
       go(fm.manager===mgr.id ? "#consultant=" + encodeURIComponent(id) : "#equipe");
     }
-    if(!SP_MODE){ finish(); return; }
     w.busy = true; rerender();
-    spCreate("team", {Title:name, Role:"consultant", Manager:user(fm.manager).name, Email:nu.email, Couleur:color,
+    spCreate("team", {Title:name, Role:"consultant", Manager:fm.manager, Email:id,
       Profil:prof ? prof.slug : "", ProfilPar:prof ? mgr.id : "", ProfilDate:prof ? todayIso() : ""})
       .then(function(it){ nu.spId = it.Id; finish(); })
       .catch(function(e){ w.busy = false; rerender(); toast("Création impossible : " + e.message); });
@@ -1486,7 +1457,7 @@
       html += '<div class="pod-panel-head"><div><h2>Qui rejoint la ruche ?</h2><p>La personne, son métier POD et son manager.</p></div></div>' +
         '<div class="pod-cols"><div><div class="pod-form-grid">' +
           '<div class="pod-field"><label for="wz-nom">Prénom et nom</label><input type="text" id="wz-nom" value="'+esc(fm.nom)+'" placeholder="Prénom Nom" autocomplete="off"></div>' +
-          '<div class="pod-field"><label for="wz-email">E-mail Microsoft</label><input type="email" id="wz-email" value="'+esc(fm.email)+'" placeholder="prenom.nom@pod.consulting" autocomplete="off"></div>' +
+          '<div class="pod-field"><label for="wz-email">E-mail Microsoft (obligatoire)</label><input type="email" id="wz-email" value="'+esc(fm.email)+'" placeholder="prenom.nom@pod.consulting" autocomplete="off"></div>' +
           '<div class="pod-field"><label for="wz-manager">Manager</label><select id="wz-manager">'+mgrs.map(function(x){ return '<option value="'+esc(x.id)+'"'+(x.id===fm.manager ? " selected" : "")+'>'+esc(x.name)+'</option>'; }).join("")+'</select></div>' +
         '</div><span class="pod-label">Métier POD</span><div class="pod-choices" style="margin-top:6px">' +
           PROFILS.map(function(p){ var c = COULEUR_HEX[p.couleur] || "#C8B5E8";
@@ -1499,8 +1470,7 @@
       html += '<div class="pod-panel-head"><div><h2>Le CV de '+esc(first(fm.nom))+'</h2><p>Il sert à proposer un plan de formation adapté.</p></div></div>' +
         '<button type="button" class="pod-drop pod-flap" id="pod-cv-drop" data-action="wzFile"><div class="pod-drop-bee">'+beeSvg("#C8B5E8", "analyste-data")+'</div><b>Dépose le CV ici ou clique pour le choisir</b><small>PDF, Word (.docx) ou texte</small></button>' +
         '<div class="pod-field" style="margin-top:14px"><label for="wz-text">Ou colle le texte du CV</label><textarea id="wz-text" placeholder="Colle ici le contenu du CV…">'+esc(w.text)+'</textarea></div>' +
-        '<div class="pod-actions"><button type="button" class="pod-btn small" data-action="wzPasteGo">Analyser le texte</button>' +
-          (SP_MODE ? '' : '<button type="button" class="pod-btn small ghost" data-action="wzSample">Utiliser un CV d\'exemple</button>') + '</div>' +
+        '<div class="pod-actions"><button type="button" class="pod-btn small" data-action="wzPasteGo">Analyser le texte</button></div>' +
         '<p class="pod-privacy">🔒 Le CV est lu dans ton navigateur : il n\'est ni envoyé ni enregistré. Seul le plan de formation est gardé.</p>' +
         '<div class="pod-wiz-foot"><button type="button" class="pod-btn ghost" data-action="wzStep" data-v="1">‹ Retour</button><button type="button" class="pod-btn ghost" data-action="wzSkip">Continuer sans CV ›</button></div>';
     } else if(w.step===3){
@@ -1525,7 +1495,7 @@
         '<h2 style="font-size:22px;font-weight:800;margin:6px 0 4px">'+esc(fm.nom)+' est prêt·e à rejoindre la ruche</h2>' +
         '<p class="pod-muted" style="margin:0 0 6px">'+esc(prof ? prof.name : "Sans métier pour l'instant")+' · manager : '+esc(user(fm.manager).name)+'</p>' +
         '<p class="pod-muted">'+p4.length+' formation(s) · '+hoursToLabel(h4)+' · de '+frDate(addDays(w.start, w.rythme))+' à '+frDate(addDays(w.start, w.rythme * p4.length))+'</p></div>' +
-        (SP_MODE ? '<div class="pod-callout info">La personne est ajoutée à la liste « PODz Equipe ». Pour enregistrer son avancement, elle doit être membre du site.</div>' : '') +
+        '<div class="pod-callout info">La personne est ajoutée à la liste « PODz Equipe » avec l\'e-mail '+esc(emailKey(fm.email))+'. Pour enregistrer son avancement, elle doit être membre du site.</div>' +
         '<div class="pod-wiz-foot"><button type="button" class="pod-btn ghost" data-action="wzStep" data-v="3">‹ Retour</button>' +
           '<button type="button" class="pod-btn honey lg" data-action="wzCreate"'+(w.busy ? ' disabled' : '')+'>'+(w.busy ? "Création…" : "🐝 Créer le profil")+'</button></div>';
     }
@@ -1654,22 +1624,43 @@
     var cells = items.map(function(a, i){
       var f = F[a.fid], e = etat(a), row = Math.floor(i / cols), col = i % cols;
       var cx = 4 + w / 2 + col * w + (row % 2 ? w / 2 : 0), cy = 4 + r + row * vs, pts = hexAt(cx, cy, r - 2), cid = "rc" + k + "-" + i;
-      var isDone = e.code==="terminee", p = isDone ? 1 : (e.code==="afaire" ? 0 : Math.max(.15, e.pct / 100));
+      var isDone = e.code==="terminee", waiting = e.code==="attente", todo = e.code==="afaire";
+      // Niveau de miel : plein si terminée ou en attente de validation, vide si à faire. En cours, l'alvéole est
+      // à moitié pleine au minimum (une formation n'a souvent qu'une ressource : son % passe de 0 à 100 d'un coup).
+      var p = isDone || waiting ? 1 : (todo ? 0 : Math.min(.85, Math.max(.45, e.pct / 100))), y = cy + r - 2 * r * p;
       if(isDone) done++;
-      var stroke = e.late ? "#E06A6A" : isDone ? "#C9952A" : p ? "#E0B54A" : offreColor(f.offre);
+      var bg = e.late ? RUCHE.retardFond : todo ? mixHex(offreColor(f.offre), "#FFFFFF", .78) : "#FFFFFF";
+      var stroke = e.late ? RUCHE.retard : p===1 ? RUCHE.pleine : p ? RUCHE.encours : offreColor(f.offre);
       var label = f.titre + " · " + STATUTS[e.code].label + (!isDone && e.pct ? " (" + e.pct + " %)" : "") + (e.late ? " · en retard" : "");
+      var txt = '<text x="'+cx.toFixed(1)+'" y="'+(cy + 6).toFixed(1)+'" text-anchor="middle" font-weight="800" fill="#002060" ';
+      var inner = isDone ? txt+'font-size="17">✓</text>' : txt+'font-size="16">'+(waiting ? "⏳" : rucheIcon(f))+'</text>';
       return '<g class="hex" data-action="hiveCell" data-id="'+a.id+'"><title>'+esc(label)+'</title>' +
         '<clipPath id="'+cid+'"><polygon points="'+pts+'"/></clipPath>' +
-        '<polygon points="'+pts+'" fill="#FFFFFF"/>' +
-        (p ? '<rect class="pod-honey" clip-path="url(#'+cid+')" x="'+(cx - r).toFixed(1)+'" y="'+(cy + r - 2 * r * p).toFixed(1)+'" width="'+(2 * r)+'" height="'+(2 * r * p).toFixed(1)+'" fill="url(#rh'+k+')"/>' : '') +
-        '<polygon points="'+pts+'" fill="none" stroke="'+stroke+'" stroke-width="2.5"/>' +
-        '<text x="'+cx.toFixed(1)+'" y="'+(cy + 6).toFixed(1)+'" text-anchor="middle" font-size="'+(isDone ? 18 : 16)+'" font-weight="800" fill="#002060">'+(isDone ? "✓" : rucheIcon(f))+'</text></g>';
+        '<polygon points="'+pts+'" fill="'+bg+'"/>' +
+        (p ? '<g class="pod-honey" clip-path="url(#'+cid+')"><rect x="'+(cx - r).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(2 * r)+'" height="'+(2 * r * p).toFixed(1)+'" fill="url(#rh'+k+')"/>' +
+          (p < 1 ? '<line x1="'+(cx - r).toFixed(1)+'" x2="'+(cx + r).toFixed(1)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+RUCHE.niveau+'" stroke-width="1.5" stroke-opacity=".7"/>' : '') + '</g>' : '') +
+        '<polygon points="'+pts+'" fill="none" stroke="'+stroke+'" stroke-width="2"/>' + inner + '</g>';
     }).join("");
     return '<svg class="'+(cls || "")+'" style="max-width:'+Math.round(W * 1.6)+'px" viewBox="0 0 '+W.toFixed(1)+' '+H.toFixed(1)+'" role="img" aria-label="Ruche : '+done+' formation(s) terminée(s) sur '+n+'">' +
-      '<defs><linearGradient id="rh'+k+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE79A"/><stop offset="1" stop-color="#F2C14E"/></linearGradient></defs>' +
-      cells + '</svg>';
+      '<defs>'+rucheMiel("rh"+k)+'</defs>' + cells + '</svg>';
   }
-  var RUCHE_LEGEND = '<div class="pod-legend"><span><i style="background:#F2C14E"></i>Terminée</span><span><i style="background:#FFE08A"></i>En cours</span><span><i style="background:#D5DAE3"></i>À faire</span><span><i style="background:#E06A6A"></i>En retard</span></div>';
+  // Couleurs de la ruche, partagées par les alvéoles et la légende (qui montre exactement les mêmes dessins).
+  var RUCHE = {mielHaut:"#FFE69A", mielBas:"#F6B544", niveau:"#C98A1E", pleine:"#E3B456", encours:"#E8C26A", retard:"#E58A8A", retardFond:"#FDECEC"};
+  function rucheMiel(id){ return '<linearGradient id="'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+RUCHE.mielHaut+'"/><stop offset="1" stop-color="'+RUCHE.mielBas+'"/></linearGradient>'; }
+  // Petite alvéole de légende : fond, contour et niveau de miel (0 à 1).
+  function legendHex(id, bg, stroke, p){
+    var y = (17 - 16 * p).toFixed(1);
+    return '<svg viewBox="0 0 16 18" width="16" height="18" aria-hidden="true"><defs>'+rucheMiel(id)+'<clipPath id="'+id+'c"><polygon points="'+hexAt(8, 9, 7.5)+'"/></clipPath></defs>' +
+      '<polygon points="'+hexAt(8, 9, 7.5)+'" fill="'+bg+'"/>' +
+      (p ? '<g clip-path="url(#'+id+'c)"><rect x="0" y="'+y+'" width="16" height="18" fill="url(#'+id+')"/>'+(p < 1 ? '<line x1="0" x2="16" y1="'+y+'" y2="'+y+'" stroke="'+RUCHE.niveau+'" stroke-width="1.5"/>' : '')+'</g>' : '') +
+      '<polygon points="'+hexAt(8, 9, 7.5)+'" fill="none" stroke="'+stroke+'" stroke-width="1.6"/></svg>';
+  }
+  var RUCHE_LEGEND = '<div class="pod-legend">' +
+    '<span>'+legendHex("lg1", "#FFFFFF", RUCHE.pleine, 1)+'Terminée ✓</span>' +
+    '<span>'+legendHex("lg2", "#FFFFFF", RUCHE.encours, .5)+'En cours</span>' +
+    '<span>'+legendHex("lg3", "#FFFFFF", RUCHE.pleine, 1)+'⏳ En attente de validation</span>' +
+    '<span>'+legendHex("lg4", "#E9E3F8", "#B7A4EC", 0)+'À faire (couleur de l\'offre)</span>' +
+    '<span>'+legendHex("lg5", RUCHE.retardFond, RUCHE.retard, .3)+'En retard</span></div>';
   function ruchePanel(list, title, foot, action){
     var done = list.filter(function(a){ return etat(a).code==="terminee"; }).length;
     return '<section class="pod-panel honey" aria-label="'+esc(title)+'"><div class="pod-panel-head"><div><h2>'+esc(title)+'</h2><small><b>'+done+'/'+list.length+'</b> alvéoles remplies</small></div>'+(action || '')+'</div>' +
@@ -1760,7 +1751,7 @@
             '<div class="pod-etape__detail">'+detailInfos(f)+linksHtml(f)+'</div></div>';
         }).join("") + '</div>';
     }).join("");
-    var socle = FORMATIONS.filter(function(f){ return f.offre==="Transverse"; }).map(function(f){
+    var socle = FORMATIONS.filter(function(f){ return f.offre==="Transverse" && !isMission(f); }).map(function(f){
       return '<div class="pod-mini" style="--ac:#002060"><div class="pod-mini__title">'+esc(f.titre)+(f.obligatoire?' <span class="pod-chip oblig">Oblig.</span>':'')+'</div><div class="pod-mini__row"><span class="pod-chip">'+esc(f.duree)+'</span></div>'+linksHtml(f)+'</div>';
     }).join("");
     var aiguillage = p.pageDepart ? '<h3 class="pod-section-title">Et après ? Choisis ton offre</h3><div class="pod-home-grid">' + PROFILS.filter(function(x){ return !x.pageDepart; }).map(function(x){
@@ -1908,7 +1899,7 @@
 
   function viewParcoursEdit(id){
     if(!ui.draft || ui.draft._for !== id){
-      var src = id==="new" ? {id:null, titre:"", description:"", profil:"nouveau-podz", statut:"Brouillon", owner:me().id, etapes:[]} : parcoursById(id);
+      var src = id==="new" ? {id:null, titre:"", description:"", profil:(PROFILS[0] || {}).slug || "", statut:"Brouillon", owner:me().id, etapes:[]} : parcoursById(id);
       if(!src) return '<div class="pod-empty">Parcours introuvable.</div>';
       ui.draft = JSON.parse(JSON.stringify(src)); ui.draft._for = id;
     }
@@ -1919,13 +1910,13 @@
     var options = OFFRES.map(function(o){
       var items = FORMATIONS.filter(function(f){ return f.offre===o.key && !used[f.id]; });
       if(!items.length) return "";
-      return '<optgroup label="'+esc(o.label)+'">'+items.map(function(f){ return '<option value="'+f.id+'">'+esc(f.id+" · "+f.titre+" ("+f.duree+")")+'</option>'; }).join("")+'</optgroup>';
+      return '<optgroup label="'+esc(o.label)+'">'+items.map(function(f){ return '<option value="'+f.id+'">'+esc((f.code ? f.code+" · " : "")+f.titre+" ("+f.duree+")"+(isMission(f) ? " · mission" : ""))+'</option>'; }).join("")+'</optgroup>';
     }).join("");
     var steps = d.etapes.map(function(e, i){
       var f = F[e.fid];
       return '<div class="pod-step-ed" style="--ac:'+offreColor(f.offre)+'">' +
         '<span class="pod-etape__num">'+(i+1)+'</span>' +
-        '<div class="t">'+esc(f.titre)+'<small>'+esc(f.id)+' · '+esc(offreLabel(f.offre))+' · '+esc(f.duree)+'</small></div>' +
+        '<div class="t">'+esc(f.titre)+'<small>'+(f.code ? esc(f.code)+' · ' : '')+esc(offreLabel(f.offre))+' · '+esc(f.duree)+'</small></div>' +
         '<label class="delai">J+<input type="number" min="0" value="'+e.delai+'" data-action="stepDelai" data-i="'+i+'" aria-label="Délai en jours après attribution"></label>' +
         '<select data-action="stepValid" data-i="'+i+'" aria-label="Mode de validation"><option value="auto"'+(e.validation==="auto"?" selected":"")+'>Auto-déclaration</option><option value="manager"'+(e.validation==="manager"?" selected":"")+'>Validation manager</option></select>' +
         '<div class="moves"><button type="button" class="pod-icon-btn" data-action="stepMove" data-i="'+i+'" data-d="-1" aria-label="Monter"'+(i===0?" disabled":"")+'>↑</button><button type="button" class="pod-icon-btn" data-action="stepMove" data-i="'+i+'" data-d="1" aria-label="Descendre"'+(i===d.etapes.length-1?" disabled":"")+'>↓</button><button type="button" class="pod-icon-btn" data-action="stepDel" data-i="'+i+'" aria-label="Retirer">✕</button></div>' +
@@ -1937,7 +1928,7 @@
       '<div class="pod-form">' +
         '<div class="pod-field-row">' +
           '<div class="pod-field"><label for="d-titre">Titre</label><input id="d-titre" data-field="titre" value="'+esc(d.titre)+'" maxlength="100" placeholder="Ex. Onboarding consultant junior"></div>' +
-          '<div class="pod-field"><label for="d-profil">Profil</label><select id="d-profil" data-field="profil">'+PROFILS.map(function(p){ return '<option value="'+p.slug+'"'+(p.slug===d.profil?" selected":"")+'>'+esc(p.name)+'</option>'; }).join("")+'</select></div>' +
+          '<div class="pod-field"><label for="d-profil">Métier</label><select id="d-profil" data-field="profil"><option value="">— Aucun —</option>'+PROFILS.map(function(p){ return '<option value="'+p.slug+'"'+(p.slug===d.profil?" selected":"")+'>'+esc(p.name)+'</option>'; }).join("")+'</select></div>' +
           '<div class="pod-field"><label for="d-statut">Statut</label><select id="d-statut" data-field="statut">'+["Brouillon","Actif","Archivé"].map(function(s){ return '<option'+(s===d.statut?" selected":"")+'>'+s+'</option>'; }).join("")+'</select></div>' +
         '</div>' +
         '<div class="pod-field"><label for="d-desc">Description</label><textarea id="d-desc" data-field="description" placeholder="À qui s\'adresse ce parcours, quel objectif ?">'+esc(d.description)+'</textarea></div>' +
@@ -2092,8 +2083,9 @@
       case "wzNext1":
         var wf = ui.wiz.form;
         if(!wf.nom.trim()){ toast("Indique le prénom et le nom."); break; }
-        if(wf.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(wf.email.trim())){ toast("L'e-mail ne semble pas valide."); break; }
-        if(USERS.some(function(x){ return norm(x.name)===norm(wf.nom); })){ toast("Une personne porte déjà ce nom dans l'équipe."); break; }
+        // L'e-mail est la clé de la personne : c'est lui qui la reconnaît quand elle ouvre la page.
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(wf.email.trim())){ toast("Indique l'e-mail Microsoft de la personne."); break; }
+        if(user(emailKey(wf.email)).email){ toast("Cette adresse e-mail est déjà dans l'équipe."); break; }
         ui.wiz.step = 2; rerender(); break;
       case "wzStep": ui.wiz.step = +el.getAttribute("data-v"); rerender(); break;
       case "wzFile":
@@ -2105,7 +2097,6 @@
       case "wzPasteGo":
         if(!String(ui.wiz.text || "").trim()){ toast("Colle d'abord le texte du CV."); break; }
         applyCv(ui.wiz.text, "texte collé"); break;
-      case "wzSample": ui.wiz.text = CV_EXEMPLE; applyCv(CV_EXEMPLE, "CV d'exemple"); break;
       case "wzSkip": ui.wiz.found = []; ui.wiz.cvNom = ""; ui.wiz.picks = {}; proposePlan(ui.wiz); ui.wiz.step = 3; rerender(); break;
       case "wzAdd":
         var wa = document.getElementById("wz-add").value; if(!wa) break;
@@ -2134,25 +2125,16 @@
       case "quizRetry": ui.quiz.answers = {}; ui.quiz.result = null; renderQuiz(); break;
       case "quizSubmit": submitQuiz(); break;
       case "quizClose": ui.quiz = null; renderQuiz(); rerender(); break;
-      case "quizInstall":
-        el.disabled = true;
-        ensureList("quiz").then(function(){ return seedQuiz(); })
-          .then(function(){ toast("Liste « PODz Quiz » créée avec des quiz d'exemple."); spBoot(); })
-          .catch(function(err){ el.disabled = false; toast("Création impossible : " + err.message); });
-        break;
       case "spInstall":
         if(!confirm("Créer les listes PODz sur le site :\n" + SP_WEB + " ?")) return;
         el.disabled = true;
-        spInstall(document.getElementById("pod-install-demo") && document.getElementById("pod-install-demo").checked)
+        spInstall()
           .then(function(){ toast("Listes PODz installées."); spBoot(); })
           .catch(function(err){ el.disabled = false; var log = document.getElementById("pod-install-log"); if(log) log.textContent = "Erreur : " + err.message; });
         break;
-      case "reset":
-        if(confirm("Remettre la démo à zéro ? Toutes les déclarations et parcours modifiés seront perdus.")){
-          try{ localStorage.removeItem(STORE_KEY); }catch(e){}
-          S = seed(); ui.draft = null; OPEN = {}; save(); render(); toast("Démo réinitialisée.");
-        }
-        break;
+      case "formNew": openFormationForm(null); break;
+      case "formEdit": openFormationForm(el.getAttribute("data-fid")); break;
+      case "formSave": saveFormation(el); break;
     }
   });
 
@@ -2243,6 +2225,7 @@
     var form = ev.target, act = form.getAttribute("data-action"), id = form.getAttribute("data-id");
     if(!act) return;
     ev.preventDefault();
+    if(act==="formSave"){ saveFormation(document.querySelector("#pod-modal-host button[data-action=formSave]")); return; }
     if(act==="comment"){
       var text = form.text.value.trim(); if(!text) return;
       var a = findAttr(id); a.comments.push({by:me().id, date:todayIso(), text:text}); OPEN[id] = true;
@@ -2289,6 +2272,13 @@
 
   PODZ_ROOT.addEventListener("change", function(ev){
     var el = ev.target, act = el.getAttribute("data-action");
+    // Formulaire formation : l'ID proposé suit le type (F… ou C…) tant qu'on ne l'a pas modifié à la main.
+    if(el.id==="ff-TypeFormation"){
+      var code = document.getElementById("ff-FormationId");
+      if(code && code.getAttribute("data-auto")) code.value = nextCode(el.value);
+      return;
+    }
+    if(el.id==="ff-FormationId"){ el.removeAttribute("data-auto"); return; }
     // Assistant « Nouveau profil »
     if(ui.wiz){
       if(el.id==="wz-manager"){ ui.wiz.form.manager = el.value; return; }
@@ -2371,11 +2361,13 @@
      --------------------------------------------------------------- */
   var SP_WEB = (window._spPageContextInfo && window._spPageContextInfo.webAbsoluteUrl) ||
     (location.origin + ((location.pathname.match(/^\/(sites|teams)\/[^\/]+/i) || [""])[0]));
-  var LISTS = {cat:"PODz Catalogue", team:"PODz Equipe", parc:"PODz Parcours", attr:"PODz Attributions", quiz:"PODz Quiz"};
-  var SP_QUIZ_MISSING = false;
+  // Une liste par sujet. "PODz Formations" est le référentiel POD : le bouton « Installer » ne la crée pas.
+  var LISTS = {form:"PODz Formations", team:"PODz Equipe", parc:"PODz Parcours", attr:"PODz Attributions", quiz:"PODz Quiz", met:"PODz Metiers"};
+  var INSTALL_KEYS = ["team","parc","attr","quiz","met"];
+  var SP_ME = null; // personne connectée, telle que SharePoint la connaît (Title, Email)
   var SP_FIELDS = {
-    cat:  [ ["FormationId","Text"],["TypeFormation","Text"],["Offre","Text"],["Bucket","Text"],["Niveau","Text"],["Duree","Text"],["Liens","Note"],["Tags","Note"],["Plateforme","Text"],["Obligatoire","Boolean"],["Notes","Note"] ],
-    team: [ ["Role","Text"],["Manager","Text"],["Email","Text"],["Profil","Text"],["ProfilPar","Text"],["ProfilDate","Text"],["Couleur","Text"] ],
+    team: [ ["Role","Text"],["Manager","Text"],["Email","Text"],["Profil","Text"],["ProfilPar","Text"],["ProfilDate","Text"] ],
+    met:  [ ["Slug","Text"],["Tag","Text"],["SousTitre","Text"],["Description","Note"],["Couleur","Text"],["PageDepart","Boolean"],["Ordre","Number"] ],
     parc: [ ["ParcoursId","Text"],["Description","Note"],["Profil","Text"],["Statut","Text"],["Etapes","Note"],["Proprietaire","Text"] ],
     attr: [ ["AttributionId","Text"],["Consultant","Text"],["FormationId","Text"],["ParcoursId","Text"],["DateDebut","Text"],["Echeance","Text"],["Validation","Text"],["AttribuePar","Text"],["Modules","Note"],["Validee","Boolean"],["ValideePar","Text"],["AReprendre","Boolean"],["Commentaires","Note"],["DateFin","Text"],["Annulee","Boolean"],["MotifAnnulation","Note"] ],
     quiz: [ ["Formation","Text"],["Choix","Note"],["Reponses","Text"],["Seuil","Number"],["Ordre","Number"] ]
@@ -2413,41 +2405,9 @@
   function spUpdate(key, id, item){ return spFetch(listPath(key) + "/items(" + id + ")", {method:"POST", merge:true, body:item}); }
   function parseJson(s, dflt){ try{ return s ? JSON.parse(s) : dflt; }catch(e){ return dflt; } }
 
-  // Listes "maison" de POD (mêmes noms et colonnes que sur le site POD), lues si elles existent sur le site.
-  var POD_LISTS = {formations:"Liste_formation_Pod", profils:"Profils", parcours:"Parcours"};
-  // Cherche la liste par son titre puis par son adresse (/Lists/…), sous son nom exact puis avec le suffixe "_Test".
-  function optItems(title){
-    var webPath = SP_WEB.replace(/^https?:\/\/[^\/]+/, "");
-    var tries = [];
-    [title, title + "_Test"].forEach(function(t){
-      tries.push("/_api/web/lists/getbytitle('" + encodeURIComponent(t.replace(/'/g, "''")) + "')/items?$top=5000");
-      tries.push("/_api/web/GetList('" + encodeURIComponent((webPath + "/Lists/" + t).replace(/'/g, "''")) + "')/items?$top=5000");
-    });
-    function next(i){
-      if(i >= tries.length) return Promise.resolve(null);
-      return spFetch(tries[i]).then(function(j){ return j.value; }).catch(function(){ return next(i + 1); });
-    }
-    return next(0);
-  }
-  function pick(c, names){ for(var i=0;i<names.length;i++){ var v = c[names[i] ]; if(v != null && v !== "") return v; } return ""; }
-  function asArr(v){
-    if(v == null || v === "") return [];
-    if(Array.isArray(v)) return v;
-    if(v.results) return v.results;
-    return String(v).split(/;#|\s*;\s*/).filter(Boolean);
-  }
-  // Liste_formation_Pod : Title, field_2 type, field_3 offre, field_4 bucket, field_5 niveau, field_6 durée (texte),
-  // DureeHeures, field_7 liens, field_8 tags, field_9 plateforme, field_10/Obligatoire, field_11 notes, Parcours, Ordre.
-  function mapPodFormation(c){
-    return {id:"LF" + (c.Id || c.ID), titre:c.Title || "(sans titre)", type:pick(c, ["field_2","TypeFormation","Type"]),
-      offre:pick(c, ["field_3","Offre"]) || "Transverse", bucket:pick(c, ["field_4","Bucket"]), niveau:pick(c, ["field_5","Niveau"]),
-      duree:pick(c, ["field_6","Duree"]), heures:c.DureeHeures, liens:pick(c, ["field_7","Liens"]), tags:pick(c, ["field_8","Tags","TagsSkills"]),
-      plateforme:asArr(c.field_9 || c.Plateforme).join(" · "),
-      obligatoire:(c.Obligatoire === true || /^oui$/i.test(String(c.field_10 || "").trim())) ? "Oui" : "Non",
-      notes:pick(c, ["field_11","Notes"]), parcours:asArr(c.Parcours), ordre:c.Ordre};
-  }
-  // Profils : Title, Slug, Tag, SousTitre, Description, Couleur, PageDepart, Ordre (les abeilles restent celles de la page).
-  function mapPodProfils(rows){
+  // PODz Metiers : Title (nom), Slug, Tag, SousTitre, Description, Couleur, PageDepart, Ordre.
+  // Le Slug est l'identifiant du métier, repris dans PODz Equipe (colonne Profil) et PODz Parcours.
+  function mapMetiers(rows){
     function couleurKey(c){
       var k = norm(c);
       for(var name in COULEUR_HEX){ if(norm(name)===k) return name; }
@@ -2458,24 +2418,6 @@
         heroDesc:r.Description || r.SousTitre || "", couleur:couleurKey(r.Couleur), pageDepart:!!r.PageDepart,
         ordre:(r.Ordre != null && r.Ordre !== "") ? Number(r.Ordre) : 9999};
     }).sort(function(a, b){ return a.ordre - b.ordre; });
-  }
-  // Parcours : Title, Description, Profils, Ordre. Les étapes sont les formations dont la colonne "Parcours"
-  // contient ce titre, triées par "Ordre" ; délai par défaut J+7 par étape, certification validée par le manager.
-  function mapPodParcours(rows){
-    return rows.slice().sort(function(a, b){ return (Number(a.Ordre) || 9999) - (Number(b.Ordre) || 9999); }).map(function(r){
-      var members = FORMATIONS.filter(function(f){ return f.parcoursTitres.some(function(t){ return norm(t)===norm(r.Title); }); })
-        .sort(function(a, b){ return a.ordre - b.ordre; });
-      return {id:"LP" + (r.Id || r.ID), titre:r.Title, description:r.Description || "", profil:asArr(r.Profils)[0] || "", statut:"Actif", owner:"",
-        etapes:members.map(function(f, i){ return {fid:f.id, delai:7*(i+1), validation:f.type==="Certification" ? "manager" : "auto"}; })};
-    }).filter(function(p){ return p.etapes.length; });
-  }
-  // Retrouve une formation même si son identifiant a changé (ex. F001 de l'Excel -> élément de Liste_formation_Pod), via le titre.
-  function remapFid(fid){
-    if(F[fid]) return fid;
-    var t = EMB_TITLES[fid];
-    if(!t) return null;
-    var hit = FORMATIONS.filter(function(f){ return norm(f.titre)===norm(t); })[0];
-    return hit ? hit.id : null;
   }
   function norm(s){ return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase(); }
   // Exécute fn sur chaque élément, par paquets, pour ne pas saturer SharePoint.
@@ -2543,7 +2485,7 @@
       '<div class="pod-callout '+(looksTest ? "info" : "warn")+'" style="display:block">Site concerné : <b>'+esc(SP_WEB)+'</b>' +
         (looksTest ? '' : '<br><b>Attention : ce site ne semble pas être un site de test.</b> N\'installe rien sur le site de production de PODz.')+'</div>' +
       (SP_ADMIN ?
-        '<label style="display:flex;gap:8px;align-items:center;margin:12px 0;font-size:13px"><input type="checkbox" id="pod-install-demo" checked> Ajouter aussi les équipes, profils, parcours et un avancement de démonstration</label>' +
+        '<p class="pod-home-sub" style="margin:12px 0">L\'installation crée les listes manquantes. Si elles sont vides, elle remplit <b>PODz Metiers</b> avec les 5 métiers POD et t\'ajoute comme manager dans <b>PODz Equipe</b>. Les listes existantes sont conservées.</p>' +
         '<button class="pod-btn" data-action="spInstall">Installer les listes PODz</button><div id="pod-install-log" class="pod-home-sub" style="margin-top:12px" role="status" aria-live="polite"></div>'
         : '<p class="pod-home-sub">Il faut le droit « Gérer les listes » sur ce site pour installer PODz Academy.</p>');
   }
@@ -2564,63 +2506,32 @@
         }, function(i, n){ say("Liste « " + LISTS[k] + " » : colonne " + i + "/" + n); });
       });
   }
-  // Remplit "PODz Quiz" avec les quiz d'exemple si elle est vide.
-  function seedQuiz(say){
-    say = say || function(){};
-    return spFetch(listPath("quiz") + "/items?$top=1&$select=Id").then(function(j){
-      if(j.value.length) return;
-      return inBatches(DEMO_QUIZ.map(function(r, i){ return {r:r, i:i}; }), 5, function(x){
-        return spCreate("quiz", {Title:x.r.question.slice(0, 255), Formation:x.r.formation, Choix:x.r.choix.join("\n"), Reponses:x.r.reponses, Seuil:x.r.seuil || 70, Ordre:x.i + 1});
-      }, function(i, n){ say("Quiz : " + i + "/" + n + " questions"); });
-    });
-  }
 
-  function spInstall(withDemo){
+  // Crée les listes PODz manquantes. Remplit seulement les listes vides : on peut relancer sans créer de doublons.
+  function spInstall(){
     var log = document.getElementById("pod-install-log");
     function say(t){ if(log) log.textContent = t; }
-    var keys = ["cat","team","parc","attr","quiz"];
     var chain = Promise.resolve();
-    keys.forEach(function(k){ chain = chain.then(function(){ return ensureList(k, say); }); });
-    // Remplissage, uniquement des listes encore vides (on peut relancer sans créer de doublons).
-    chain = chain.then(function(){ return Promise.all(keys.map(function(k){ return spFetch(listPath(k) + "/items?$top=1&$select=Id"); })); })
-    .then(function(res){
-      var empty = {}; keys.forEach(function(k, i){ empty[k] = !res[i].value.length; });
+    INSTALL_KEYS.forEach(function(k){ chain = chain.then(function(){ return ensureList(k, say); }); });
+    return chain.then(function(){
+      return Promise.all(["team","met"].map(function(k){ return spFetch(listPath(k) + "/items?$top=1&$select=Id"); }));
+    }).then(function(res){
       var steps = Promise.resolve();
-      if(empty.cat) steps = steps.then(function(){
-        return inBatches(CATALOGUE, 5, function(r){
-          return spCreate("cat", {Title:r.titre, FormationId:r.id, TypeFormation:r.type, Offre:r.offre, Bucket:r.bucket, Niveau:r.niveau, Duree:r.duree,
-            Liens:splitPipe(r.liens).join("\n"), Tags:r.tags, Plateforme:r.plateforme, Obligatoire:String(r.obligatoire).toLowerCase()==="oui", Notes:splitPipe(r.notes).join("\n")});
-        }, function(i, n){ say("Catalogue : " + i + "/" + n + " formations"); });
+      // La personne qui installe devient la première manager, reconnue par son e-mail.
+      if(!res[0].value.length) steps = steps.then(function(){
+        say("Équipe : ajout de " + SP_ME.Title + " comme manager…");
+        return spCreate("team", {Title:SP_ME.Title, Role:"manager", Email:emailKey(SP_ME.Email), Manager:"", Profil:"", ProfilPar:"", ProfilDate:""});
       });
-      if(empty.quiz) steps = steps.then(function(){ return seedQuiz(say); });
-      if(!withDemo) return steps;
-      // Données de démo : reprises du mode local, en remplaçant les identifiants par les noms des personnes.
-      var demo = seed(), name = {};
-      USERS.forEach(function(u){ name[u.id] = u.name; });
-      function nm(id){ return name[id] || id || ""; }
-      if(empty.team) steps = steps.then(function(){
-        return inBatches(USERS, 3, function(u){
-          var pr = demo.profils[u.id];
-          return spCreate("team", {Title:u.name, Role:u.role, Manager:u.managerId ? nm(u.managerId) : "", Email:"", Couleur:u.color,
-            Profil:pr ? pr.slug : "", ProfilPar:pr ? nm(pr.by) : "", ProfilDate:pr ? pr.date : ""});
-        }, function(i, n){ say("Équipe : " + i + "/" + n + " personnes"); });
-      });
-      if(empty.parc) steps = steps.then(function(){
-        return inBatches(demo.parcours, 3, function(p){ p.owner = nm(p.owner); return spCreate("parc", parcToItem(p)); }, function(i, n){ say("Parcours : " + i + "/" + n); });
-      });
-      if(empty.attr) steps = steps.then(function(){
-        return inBatches(demo.attributions, 5, function(a){
-          a.consultantId = nm(a.consultantId); a.assignedBy = nm(a.assignedBy);
-          a.comments.forEach(function(c){ c.by = nm(c.by); });
-          return spCreate("attr", attrToItem(a));
-        }, function(i, n){ say("Avancement de démo : " + i + "/" + n); });
+      if(!res[1].value.length) steps = steps.then(function(){
+        return inBatches(METIERS_INIT.map(function(m, i){ return {m:m, i:i}; }), 3, function(x){
+          return spCreate("met", {Title:x.m.name, Slug:x.m.slug, Tag:x.m.tag, SousTitre:x.m.job, Description:x.m.heroDesc, Couleur:x.m.couleur, PageDepart:!!x.m.pageDepart, Ordre:x.i + 1});
+        }, function(i, n){ say("Métiers : " + i + "/" + n); });
       });
       return steps;
     });
-    return chain;
   }
 
-  // Démarrage sur SharePoint : vérifie les listes, charge les données, reconnaît la personne connectée.
+  // Démarrage sur SharePoint : vérifie les listes, charge les données, reconnaît la personne connectée par son e-mail.
   function spBoot(){
     main.innerHTML = '<div class="pod-empty">Chargement de PODz Academy depuis SharePoint…</div>';
     Promise.all([
@@ -2628,65 +2539,60 @@
       spFetch("/_api/web/lists?$select=Title&$filter=startswith(Title,'PODz ')"),
       spFetch("/_api/web/effectiveBasePermissions")
     ]).then(function(res){
-      var me0 = res[0], titles = res[1].value.map(function(l){ return l.Title; });
+      var me0 = SP_ME = res[0], titles = res[1].value.map(function(l){ return l.Title; });
       // "Gérer les listes" (ManageLists, bit 12 des droits SharePoint) suffit pour installer et prévisualiser.
       var canManageLists = ((Number(res[2].Low) >>> 11) & 1) === 1;
       SP_ADMIN = !!me0.IsSiteAdmin || canManageLists;
-      // "PODz Catalogue" est facultative : le catalogue vient d'abord de "Liste_formation_Pod".
-      var missing = Object.keys(LISTS).filter(function(k){ return k!=="cat" && k!=="quiz" && titles.indexOf(LISTS[k])===-1; });
-      SP_QUIZ_MISSING = titles.indexOf(LISTS.quiz)===-1;
+      if(titles.indexOf(LISTS.form)===-1){
+        spMessage("Catalogue introuvable", '<p class="pod-home-sub">La liste <b>PODz Formations</b> n\'existe pas sur ce site ('+esc(SP_WEB)+'). C\'est elle qui contient le catalogue des formations : vérifie son nom dans « Contenu du site ».</p>');
+        return;
+      }
+      var missing = INSTALL_KEYS.filter(function(k){ return titles.indexOf(LISTS[k])===-1; });
       if(missing.length){ spMessage("Installer PODz Academy sur ce site", viewInstall(missing)); return; }
-      return Promise.all([optItems(POD_LISTS.formations), optItems(LISTS.cat), spItems("team"), spItems("parc"), spItems("attr"),
-                          optItems(POD_LISTS.profils), optItems(POD_LISTS.parcours), SP_QUIZ_MISSING ? Promise.resolve(null) : optItems(LISTS.quiz)]).then(function(r){
-        var lf = r[0], cat = r[1], tm = r[2], pc = r[3], at = r[4], prof = r[5], lp = r[6], qz = r[7];
-        if(lf && lf.length) buildFormations(lf.map(mapPodFormation));
-        else if(cat && cat.length) buildFormations(cat.map(function(c){
-          return {id:c.FormationId, titre:c.Title, type:c.TypeFormation, offre:c.Offre, bucket:c.Bucket, niveau:c.Niveau, duree:c.Duree,
-            liens:c.Liens, tags:c.Tags, plateforme:c.Plateforme, obligatoire:c.Obligatoire ? "Oui" : "Non", notes:c.Notes};
-        }));
-        if(prof && prof.length) PROFILS = mapPodProfils(prof);
-        // Quiz : liste "PODz Quiz" si elle contient des questions, sinon les exemples intégrés.
-        buildQuiz(qz && qz.length ? qz.map(function(x){
+      return Promise.all([spItems("form"), spFetch(listPath("form") + "/fields?$filter=Hidden eq false and ReadOnlyField eq false&$select=InternalName,Choices"),
+                          spItems("team"), spItems("parc"), spItems("attr"), spItems("quiz"), spItems("met")]).then(function(r){
+        var tm = r[2], pc = r[3], at = r[4], qz = r[5];
+        FORM_CHOICES = {};
+        r[1].value.forEach(function(fd){
+          var c = Array.isArray(fd.Choices) ? fd.Choices : (fd.Choices && fd.Choices.results) || [];
+          if(c.length) FORM_CHOICES[fd.InternalName] = c;
+        });
+        buildFormations(r[0]);
+        PROFILS = mapMetiers(r[6]);
+        buildQuiz(qz.map(function(x){
           return {formation:x.Formation, question:x.Title, choix:x.Choix, reponses:x.Reponses, seuil:x.Seuil, ordre:x.Ordre};
-        }) : DEMO_QUIZ);
-        var byName = {}; tm.forEach(function(t){ byName[norm(t.Title)] = t.Title; });
-        USERS = tm.map(function(t){
+        }));
+        // Une ligne de PODz Equipe sans e-mail est ignorée : l'e-mail est la clé de la personne.
+        USERS = tm.filter(function(t){ return emailKey(t.Email); }).map(function(t){
           var role = norm(t.Role)==="manager" ? "manager" : "consultant";
-          return {id:t.Title, name:t.Title, role:role, managerId:t.Manager ? (byName[norm(t.Manager)] || t.Manager) : null,
-            title:role==="manager" ? "Manager" : "Consultant·e", color:t.Couleur || "#B7A4EC", email:t.Email || "", spId:t.Id};
+          return {id:emailKey(t.Email), name:t.Title || t.Email, role:role, managerId:emailKey(t.Manager) || null,
+            title:role==="manager" ? "Manager" : "Consultant·e", color:"#B7A4EC", email:emailKey(t.Email), spId:t.Id};
         });
         var profils = {};
-        tm.forEach(function(t){ if(t.Profil) profils[t.Title] = {slug:t.Profil, by:t.ProfilPar || "", date:t.ProfilDate || ""}; });
+        tm.forEach(function(t){ if(t.Profil && emailKey(t.Email)) profils[emailKey(t.Email)] = {slug:t.Profil, by:emailKey(t.ProfilPar), date:t.ProfilDate || ""}; });
         var parcours = pc.map(function(p){
           return {id:p.ParcoursId, titre:p.Title, description:p.Description || "", profil:p.Profil || "", statut:p.Statut || "Brouillon",
-            owner:p.Proprietaire || "", spId:p.Id,
-            etapes:parseJson(p.Etapes, []).map(function(e){ e.fid = remapFid(e.fid); return e; }).filter(function(e){ return e.fid; })};
-        });
-        // Parcours de la liste "Parcours" : ajoutés sauf s'ils ont déjà une version modifiée dans "PODz Parcours".
-        if(lp && lp.length) mapPodParcours(lp).forEach(function(x){
-          var dup = parcours.filter(function(p){ return p.id===x.id || norm(p.titre)===norm(x.titre); })[0];
-          if(!dup) parcours.push(x);
+            owner:emailKey(p.Proprietaire), spId:p.Id,
+            etapes:parseJson(p.Etapes, []).filter(function(e){ return F[e.fid]; })};
         });
         var attributions = at.map(function(a){
-          return {id:a.AttributionId, consultantId:a.Consultant, fid:a.FormationId, parcoursId:a.ParcoursId || null, start:a.DateDebut, due:a.Echeance,
-            validation:a.Validation || "auto", assignedBy:a.AttribuePar || "", modules:parseJson(a.Modules, {}), validated:!!a.Validee,
-            validatedBy:a.ValideePar || null, aReprendre:!!a.AReprendre, comments:parseJson(a.Commentaires, []), doneDate:a.DateFin || null,
+          return {id:a.AttributionId, consultantId:emailKey(a.Consultant), fid:a.FormationId, parcoursId:a.ParcoursId || null, start:a.DateDebut, due:a.Echeance,
+            validation:a.Validation || "auto", assignedBy:emailKey(a.AttribuePar), modules:parseJson(a.Modules, {}), validated:!!a.Validee,
+            validatedBy:emailKey(a.ValideePar) || null, aReprendre:!!a.AReprendre, comments:parseJson(a.Commentaires, []), doneDate:a.DateFin || null,
             cancelled:!!a.Annulee, cancelReason:a.MotifAnnulation || "", spId:a.Id};
         }).map(function(a){
           // Les tentatives de quiz sont rangées dans la colonne Modules, sous la clé "_quiz".
           a.quiz = (a.modules && a.modules._quiz) || [];
           if(a.modules) delete a.modules._quiz;
-          a.fid = remapFid(a.fid); return a;
-        }).filter(function(a){ return a.fid; });
-        // La personne connectée est retrouvée dans "PODz Equipe" par son e-mail, sinon par son nom.
-        var mine = USERS.filter(function(u){ return u.email && norm(u.email)===norm(me0.Email); })[0] ||
-                   USERS.filter(function(u){ return norm(u.name)===norm(me0.Title); })[0];
-        if(!mine && !SP_ADMIN){
-          spMessage("Bienvenue " + esc(me0.Title) + " !", '<p class="pod-home-sub">Tu n\'es pas encore inscrit·e dans la liste <b>PODz Equipe</b>. Demande à ton manager ou à l\'équipe RH de t\'ajouter.</p>');
+          return a;
+        }).filter(function(a){ return F[a.fid]; });
+        var mine = USERS.filter(function(u){ return u.id===emailKey(me0.Email); })[0];
+        if(!mine){
+          spMessage("Bonjour " + esc(first(me0.Title) || "") + " ! 🐝", '<p class="pod-home-sub">Merci de contacter ton ou ta manager pour qu\'il ou elle puisse te créer un profil pour tes formations. Bizzzz 🐝</p>' +
+            (SP_ADMIN ? '<div class="pod-callout info" style="display:block;margin-top:14px">Tu gères ce site : ajoute ta ligne dans la liste <b>PODz Equipe</b> avec l\'e-mail <b>'+esc(me0.Email || "?")+'</b> et le rôle <b>manager</b>.</div>' : ''));
           return;
         }
-        if(!USERS.length){ spMessage("La liste PODz Equipe est vide", '<p class="pod-home-sub">Ajoute au moins un manager et un·e consultant·e dans la liste <b>PODz Equipe</b> du site.</p>'); return; }
-        S = {version:2, currentUser:(mine || USERS[0]).id, parcours:parcours, attributions:attributions, profils:profils};
+        S = {version:2, currentUser:mine.id, parcours:parcours, attributions:attributions, profils:profils};
         userSel.parentNode.hidden = false;
         snapshot(); render();
       });
@@ -2695,6 +2601,7 @@
     });
   }
 
-  if(SP_MODE){ PODZ_ROOT.classList.add("pod-fullbleed"); spBoot(); } else render();
+  if(SP_MODE){ PODZ_ROOT.classList.add("pod-fullbleed"); spBoot(); }
+  else spMessage("PODz Academy vit dans SharePoint", '<p class="pod-home-sub">Colle ce fichier dans un web part Modern Script Editor d\'une page SharePoint : les formations, l\'équipe et l\'avancement sont lus dans les listes du site.</p>');
 })();
 </script>
